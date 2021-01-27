@@ -30,7 +30,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -185,26 +185,39 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="CH5FontApp.h" />
-    <ClInclude Include="HFConfigWnd.h" />
-    <ClInclude Include="HFDrawWnd.h" />
-    <ClInclude Include="HFLogWnd.h" />
+    <ClInclude Include="HFBitmap.h" />
+    <ClInclude Include="HFConfigWindow.h" />
+    <ClInclude Include="HFLogicConstants.h" />
+    <ClInclude Include="HFDrawWindow.h" />
+    <ClInclude Include="HFGroupBox.h" />
+    <ClInclude Include="HFGUIConstants.h" />
+    <ClInclude Include="HFLogger.h" />
+    <ClInclude Include="HFLogLib.h" />
+    <ClInclude Include="HFLogWindow.h" />
+    <ClInclude Include="HFMemDC.h" />
     <ClInclude Include="HFRichTextBox.h" />
-    <ClInclude Include="lib\constants.h" />
+    <ClInclude Include="HFUtils.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CH5FontApp.cpp" />
-    <ClCompile Include="HFConfigWnd.cpp" />
-    <ClCompile Include="HFDrawWnd.cpp" />
-    <ClCompile Include="HFLogWnd.cpp" />
+    <ClCompile Include="HFBitmap.cpp" />
+    <ClCompile Include="HFConfigWindow.cpp" />
+    <ClCompile Include="HFLogicConstants.cpp" />
+    <ClCompile Include="HFDrawWindow.cpp" />
+    <ClCompile Include="HFGroupBox.cpp" />
+    <ClCompile Include="HFGUIConstants.cpp" />
+    <ClCompile Include="HFLogger.cpp" />
+    <ClCompile Include="HFLogLib.cpp" />
+    <ClCompile Include="HFLogWindow.cpp" />
+    <ClCompile Include="HFMemDC.cpp" />
     <ClCompile Include="HFRichTextBox.cpp" />
+    <ClCompile Include="HFUtils.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

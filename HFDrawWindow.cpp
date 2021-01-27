@@ -1,6 +1,34 @@
-#include "bitmap.h"
-#include <tchar.h>
+#include "pch.h"
+#include "HFDrawWindow.h"
 
+// HFDrawWindow
+HFDrawWindow::HFDrawWindow() { }
+
+HFDrawWindow::~HFDrawWindow() {}
+
+BOOL HFDrawWindow::PreCreateWindow(CREATESTRUCT& cs) {
+    if (!CFrameWnd::PreCreateWindow(cs)) {
+        return FALSE;
+    }
+
+    cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
+    cs.cx = UIConst::DrawWindow::Size.Width();
+    cs.cy = UIConst::DrawWindow::Size.Height();
+    cs.lpszClass = AfxRegisterWndClass(
+        CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW,
+        AfxGetApp()->LoadStandardCursor(IDC_ARROW),
+        (HBRUSH)(COLOR_BTNFACE + 1));
+
+    return TRUE;
+}
+
+BEGIN_MESSAGE_MAP(HFDrawWindow, CFrameWnd)
+    ON_WM_CREATE()
+//    ON_WM_SIZE()
+ON_WM_SIZING()
+END_MESSAGE_MAP()
+
+// HFDrawWindow message handlers
 void errhandler(LPCSTR a, HANDLE b) {
 }
 
@@ -144,11 +172,26 @@ void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi,
     GlobalFree((HGLOBAL)lpBits);
 }
 
-Bitmap::Bitmap() {
-    m_hBitmap = 0;
-    HDC hdc = GetDC(NULL);
-    HBITMAP hBitmap= CreateCompatibleBitmap(hdc, 1920, 1080);
-    PBITMAPINFO info = CreateBitmapInfoStruct(NULL, hBitmap);
-    CreateBMPFile(NULL, _T("test.bmp"), info, hBitmap, hdc);
+void func(HWND CONST hWnd, HDC CONST hDC) {
+    HBITMAP hBitmap = CreateCompatibleBitmap(hDC, 0, 0);
+    PBITMAPINFO info = CreateBitmapInfoStruct(hWnd, hBitmap);
+    CreateBMPFile(NULL, _T("test.bmp"), info, hBitmap, hDC);
     return;
+}
+
+
+int HFDrawWindow::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+    if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
+        return -1;
+
+    // TODO:  Add your specialized creation code here
+
+    return 0;
+}
+
+void HFDrawWindow::OnSizing(UINT fwSide, LPRECT pRect) {
+    CFrameWnd::OnSizing(fwSide, pRect);
+
+    // TODO: Add your message handler code here
 }

@@ -1,6 +1,4 @@
 #pragma once
-#include <tchar.h>
-#include <Windows.h>
 
 //
 // Memory management functions
@@ -23,13 +21,16 @@ namespace mem {
 namespace str {
 
     // Convert a unicode short integer to a string containing this character
-    INT Unicode2LPTSTR(WCHAR iUnicode, LPTSTR szTString, SIZE_T cszMax);
+    INT Unicode2LPTSTR(WCHAR iUnicode, LPTSTR szTString, size_t cszMax);
 
     // Get the length of a string
     size_t GetTStrLen(LPCTSTR szSource, size_t cchMax);
 
     // Make a dynamic copy of the string, remember to free the memory afterwards
     LPTSTR CloneTStr(LPCTSTR szSource, size_t cchMax);
+
+    // Concatenate two strings and make a new clone, remember to free the memory afterwards
+    LPTSTR CatTStrs(LPCTSTR szSource1, size_t cchMax1, LPCSTR szSource2, size_t cchMax2);
 }
 
 //

@@ -1,6 +1,3 @@
-
-// H5Font.h : main header file for the H5Font application
-//
 #pragma once
 
 #ifndef __AFXWIN_H__
@@ -17,17 +14,10 @@
 class CH5FontApp : public CWinApp {
 public:
     CH5FontApp() noexcept;
-
-
-// Overrides
-public:
     virtual BOOL InitInstance();
     virtual int ExitInstance();
 
-// Implementation
-
 public:
-    afx_msg void OnAppAbout();
     DECLARE_MESSAGE_MAP()
 };
 

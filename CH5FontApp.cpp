@@ -1,17 +1,15 @@
-
-// H5Font.cpp : Defines the class behaviors for the application.
-//
-
 #include "pch.h"
-#include "framework.h"
 #include "CH5FontApp.h"
+#include "HFConfigWindow.h"
+#include "HFLogWindow.h"
+#include "HFLogger.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 BEGIN_MESSAGE_MAP(CH5FontApp, CWinApp)
-    ON_COMMAND(ID_APP_ABOUT, &CH5FontApp::OnAppAbout)
 END_MESSAGE_MAP()
 
 
@@ -62,80 +60,44 @@ BOOL CH5FontApp::InitInstance() {
 
     EnableTaskbarInteraction(FALSE);
 
-    // AfxInitRichEdit2() is required to use RichEdit control
-    // AfxInitRichEdit2();
+    //AfxInitRichEdit2() is required to use RichEdit control
+    AfxInitRichEdit2();
 
     // Standard initialization
-    // If you are not using these features and wish to reduce the size
-    // of your final executable, you should remove from the following
-    // the specific initialization routines you do not need
-    // Change the registry key under which our settings are stored
-    // TODO: You should modify this string to be something appropriate
-    // such as the name of your company or organization
-    SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+    SetRegistryKey(_T("H5Font"));
 
-
-    // To create the main window, this code creates a new frame window
-    // object and then sets it as the application's main window object
-    /*CFrameWnd* pFrame = new CMainFrame;
-    if (!pFrame)
+    HFConfigWindow* pConfigWnd = new HFConfigWindow;
+    if (!pConfigWnd) {
         return FALSE;
-    m_pMainWnd = pFrame;
-    // create and load the frame with its resources
-    pFrame->LoadFrame(IDR_MAINFRAME,
-        WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, nullptr,
-        nullptr);*/
+    }
+    m_pMainWnd = pConfigWnd;
+    pConfigWnd->Create(NULL, _T("H5FontConfigWindow"),
+        WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU);
+    pConfigWnd->ShowWindow(SW_SHOW);
+    pConfigWnd->UpdateWindow();
 
+    HFLogWindow* pLogWnd = new HFLogWindow;
+    if (!pLogWnd) {
+        return FALSE;
+    }
+    pLogWnd->Create(NULL, _T("H5FontLogWindow"),
+        WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU);
+    pLogWnd->ShowWindow(SW_SHOW);
+    pLogWnd->UpdateWindow();
 
+    pConfigWnd->SetLogWnd(pLogWnd);
+    LOG.Initialize(pLogWnd);
+    LOG.log(_T("Pies "));
+    LOG.log(_T("are pretty delicious."), UIConst::Color::YELLOW, TRUE);
+    LOG.log(_T("However, "), UIConst::Color::AQUA, TRUE, TRUE, FALSE, FALSE);
+    LOG.log(_T("God TinY is invincible!"), UIConst::Color::FUCHSIA, TRUE, FALSE, TRUE);
+    LOG.log(_T("Ô²ÐÎÌð±ý¼Ó°à¿ñÄ§"), UIConst::Color::GREEN, TRUE);
+    LOG.log(_T("ÂÜÀò²ÅÍæÓ¢ÐÛÎÞµÐ"), UIConst::Color::RED, TRUE);
 
-
-
-    // The one and only window has been initialized, so show and update it
-    /*pFrame->ShowWindow(SW_SHOW);
-    pFrame->UpdateWindow();*/
     return TRUE;
 }
 
 int CH5FontApp::ExitInstance() {
-    //TODO: handle additional resources you may have added
     AfxOleTerm(FALSE);
-
     return CWinApp::ExitInstance();
-}
-
-// CH5FontApp message handlers
-
-
-// CAboutDlg dialog used for App About
-
-class CAboutDlg : public CDialogEx {
-public:
-    CAboutDlg() noexcept;
-
-// Dialog Data
-#ifdef AFX_DESIGN_TIME
-    enum { IDD = IDD_ABOUTBOX };
-#endif
-
-protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
-// Implementation
-protected:
-    DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX) {}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX) {
-    CDialogEx::DoDataExchange(pDX);
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
-END_MESSAGE_MAP()
-
-// App command to run the dialog
-void CH5FontApp::OnAppAbout() {
-    CAboutDlg aboutDlg;
-    aboutDlg.DoModal();
 }

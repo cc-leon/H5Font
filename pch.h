@@ -10,12 +10,13 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
-#include "afxwinappex.h"
-#include "afxdialogex.h"
-
+#include <stdarg.h>
+#include <stdio.h>
 #include <tchar.h>
 #include <strsafe.h>
 
-#include "lib/constants.h"
+#include "HFLogicConstants.h"
+#include "HFGUIConstants.h"
+#include "HFUtils.h"
 
 #endif //PCH_H
