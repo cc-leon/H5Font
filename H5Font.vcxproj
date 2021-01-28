@@ -24,6 +24,7 @@
     <Keyword>MFCProj</Keyword>
     <RootNamespace>H5Font</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>H5Font</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -186,7 +187,9 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="CH5FontApp.h" />
     <ClInclude Include="HFBitmap.h" />
+    <ClInclude Include="HFBmpDisplay.h" />
     <ClInclude Include="HFConfigWindow.h" />
+    <ClInclude Include="HFDrawDCsCentre.h" />
     <ClInclude Include="HFLogicConstants.h" />
     <ClInclude Include="HFDrawWindow.h" />
     <ClInclude Include="HFGroupBox.h" />
@@ -204,7 +207,9 @@
   <ItemGroup>
     <ClCompile Include="CH5FontApp.cpp" />
     <ClCompile Include="HFBitmap.cpp" />
+    <ClCompile Include="HFBmpDisplay.cpp" />
     <ClCompile Include="HFConfigWindow.cpp" />
+    <ClCompile Include="HFDrawDCsCentre.cpp" />
     <ClCompile Include="HFLogicConstants.cpp" />
     <ClCompile Include="HFDrawWindow.cpp" />
     <ClCompile Include="HFGroupBox.cpp" />

@@ -71,29 +71,24 @@ BOOL CH5FontApp::InitInstance() {
         return FALSE;
     }
     m_pMainWnd = pConfigWnd;
-    pConfigWnd->Create(NULL, _T("H5FontConfigWindow"),
-        WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU);
+    pConfigWnd->Create(NULL, CString(_T("H5FontConfigWindow")),
+        WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU,
+        UIConst::ConfigWindow::Size);
     pConfigWnd->ShowWindow(SW_SHOW);
     pConfigWnd->UpdateWindow();
 
-    HFLogWindow* pLogWnd = new HFLogWindow;
-    if (!pLogWnd) {
-        return FALSE;
-    }
-    pLogWnd->Create(NULL, _T("H5FontLogWindow"),
-        WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU);
-    pLogWnd->ShowWindow(SW_SHOW);
-    pLogWnd->UpdateWindow();
-
-    pConfigWnd->SetLogWnd(pLogWnd);
-    LOG.Initialize(pLogWnd);
+    LOG.Initialize(pConfigWnd->GetLogWnd());
     LOG.log(_T("Pies "));
     LOG.log(_T("are pretty delicious."), UIConst::Color::YELLOW, TRUE);
     LOG.log(_T("However, "), UIConst::Color::AQUA, TRUE, TRUE, FALSE, FALSE);
     LOG.log(_T("God TinY is invincible!"), UIConst::Color::FUCHSIA, TRUE, FALSE, TRUE);
-    LOG.log(_T("Ô²ÐÎÌð±ý¼Ó°à¿ñÄ§"), UIConst::Color::GREEN, TRUE);
+    for (int i = 0; i < 30; i++) {
+        LOG.log(_T("Ô²ÐÎÌð±ý¼Ó°à¿ñÄ§"), UIConst::Color::GREEN, TRUE);
+    }
     LOG.log(_T("ÂÜÀò²ÅÍæÓ¢ÐÛÎÞµÐ"), UIConst::Color::RED, TRUE);
-
+    LOGAPI(_T("GetHandleName"), -1, _T(""));
+    LOG.log(_T("àÅàÅàÅ"));
+    LOG.SaveLog(_T("ttt.rtf"));
     return TRUE;
 }
 

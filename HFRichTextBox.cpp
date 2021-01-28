@@ -14,27 +14,38 @@ BEGIN_MESSAGE_MAP(HFRichTextBox, CRichEditCtrl)
 END_MESSAGE_MAP()
 
 void HFRichTextBox::OnEnChange() {
+/*
     SCROLLINFO info = { 0 };
+    CRect aa;
+    GetRect(aa);
     info.fMask = SIF_ALL;
     info.nMin = 0;
     info.nMax = GetLineCount();
-    info.nPos = LineFromChar(-1);
-    info.nPage = 1;
+    info.nPos = info.nMax;
+    info.nPage = 20;
     info.cbSize = sizeof(SCROLLINFO);
     this->SetScrollInfo(SB_VERT, &info);
 
-    if (GetLineCount() <= 1) {
+    if (GetLineCount() <= 0) {
         m_lMaxHLen = 0;
     }
-    if (LineLength(GetLineCount() - 1) > m_lMaxHLen) {
-        m_lMaxHLen = LineLength(GetLineCount() - 1);
+    else {
+        int i = GetLineCount();
+        int j = LineIndex(i - 1);
+        int k = LineLength(j - 1);
+        if (LineLength(LineIndex(GetLineCount() -1) -1) > m_lMaxHLen) {
+            m_lMaxHLen = LineLength(LineIndex(GetLineCount() - 1) - 1);
+        }
     }
-    info.nMax = m_lMaxHLen;
-    info.nPage = 10;
+    info.nMax = 400;
+    info.nPage = 1;
     long startc, endc;
     GetSel(startc, endc);
-    info.nPos = endc;
+    info.nPos = 0;
     this->SetScrollInfo(SB_HORZ, &info);
+    */
+    long startc, endc;
+    GetSel(startc, endc);
 }
 
 
@@ -53,6 +64,6 @@ int HFRichTextBox::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         return -1;
     }
 
-    SetEventMask(GetEventMask() | ENM_CHANGE);
+    //SetEventMask(GetEventMask() | ENM_CHANGE | ENM_REQUESTRESIZE);
     return 0;
 }

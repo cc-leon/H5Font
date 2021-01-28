@@ -18,5 +18,6 @@
 #include "HFLogicConstants.h"
 #include "HFGUIConstants.h"
 #include "HFUtils.h"
+#include "HFLogger.h"
 
 #endif //PCH_H

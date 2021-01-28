@@ -32,14 +32,15 @@ BEGIN_MESSAGE_MAP(HFLogWindow, CFrameWnd)
     ON_WM_CLOSE()
     ON_WM_CREATE()
     ON_WM_SIZE()
-    ON_MESSAGE(logger::MESSAGE_ID, &HFLogWindow::OnLogmsg)
+    ON_MESSAGE(UIConst::WindowMessage::LOG_SHOW_TEXT, &HFLogWindow::OnLogmsg)
+    ON_MESSAGE(UIConst::WindowMessage::LOG_SAVE_TEXT, &HFLogWindow::OnLogsave)
 END_MESSAGE_MAP()
 
 
 // HFLogWindow message handlers
 
 void HFLogWindow::OnClose() {
-    ShowWindow(SW_MINIMIZE);
+    ShowWindow(SW_HIDE);
 }
 
 
@@ -66,13 +67,11 @@ int HFLogWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         _T("Consolas"));      // Facename
 
     m_txtLog = new HFRichTextBox;
-    m_txtLog->Create(ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VISIBLE | ES_MULTILINE | ES_READONLY,
-                     CRect(0, 0, lpCreateStruct->cx, lpCreateStruct->cy),
-                     this, ID_txtLog);
-    m_txtLog->EnableScrollBarCtrl(SB_HORZ);
-    m_txtLog->EnableScrollBarCtrl(SB_VERT);
-    m_txtLog->ShowScrollBar(SB_HORZ, TRUE);
-    m_txtLog->ShowScrollBar(SB_VERT, TRUE);
+    m_txtLog->Create(
+        WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL 
+        | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | ES_READONLY,
+        CRect(0, 0, lpCreateStruct->cx, lpCreateStruct->cy),
+        this, ID_txtLog);
     m_txtLog->SetBackgroundColor(FALSE, UIConst::Color::BLACK);
     m_txtLog->SetFont(&newFont);
     m_txtLog->SetUndoLimit(0);
@@ -108,10 +107,30 @@ afx_msg LRESULT HFLogWindow::OnLogmsg(WPARAM wParam, LPARAM lParam) {
     m_txtLog->SetSelectionCharFormat(newFormat);
 
     if (pLogInfoStruct->bNewLine == TRUE) {
-        pLogInfoStruct->szMsg[pLogInfoStruct->cchMsg] = _T('\n');
+        pLogInfoStruct->sMsg += CString(_T('\n'));
     }
-    m_txtLog->ReplaceSel(pLogInfoStruct->szMsg, 0);
+    m_txtLog->ReplaceSel(pLogInfoStruct->sMsg, 0);
     m_txtLog->LineScroll(1);
+
+    return 0;
+}
+
+static DWORD CALLBACK HFTxtLogStreamOutCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG* pcb) {
+    CFile* pFile = (CFile*)dwCookie;
+
+    pFile->Write(pbBuff, cb);
+    *pcb = cb;
+
+    return 0;
+}
+
+afx_msg LRESULT HFLogWindow::OnLogsave(WPARAM wParam, LPARAM lParam) {
+    CFile cFile(*(CString*)(lParam), CFile::modeCreate | CFile::modeWrite);
+    EDITSTREAM es;
+
+    es.dwCookie = (DWORD)&cFile;
+    es.pfnCallback = HFTxtLogStreamOutCallback;
+    m_txtLog->StreamOut(SF_RTF, es);
 
     return 0;
 }

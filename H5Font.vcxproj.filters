@@ -66,6 +66,12 @@
     <ClInclude Include="HFGUIConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HFBmpDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HFDrawDCsCentre.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CH5FontApp.cpp">
@@ -108,6 +114,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HFGUIConstants.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HFBmpDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HFDrawDCsCentre.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

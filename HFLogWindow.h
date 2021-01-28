@@ -22,4 +22,5 @@ public:
     afx_msg void OnSize(UINT nType, int cx, int cy);
     virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
     afx_msg LRESULT OnLogmsg(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnLogsave(WPARAM wParam, LPARAM lParam);
 };

@@ -68,13 +68,13 @@ namespace UIConst {
     }
 
     namespace LogWindow {
-        CRect const Size(0, 0, 800, 600);
+        CRect const Size(0, 200, 400, 1080);
         int const ID = 0x2000;
     }
 
     namespace DrawWindow {
-        CRect const Size(0, 0, 800, 800);
-        int const ID = 0x2000;
+        CRect const Size(400, 0, 1850, 1080);
+        int const ID = 0x3000;
     }
 
     namespace Color {
@@ -86,5 +86,23 @@ namespace UIConst {
         COLORREF CONST YELLOW = RGB(255, 255, 0);
         COLORREF CONST AQUA = RGB(0, 255, 255);
         COLORREF CONST FUCHSIA = RGB(255, 0, 255);
+    }
+
+    namespace WindowMessage {
+        enum {
+            //
+            // Logging window messages
+            //
+
+            // For show a rich formated text, send from Logger singleton
+            // LPARAM is a LOGMSG structure pointer that contains all formatting information,
+            // WPARAM is NULL. Sender handles cleanup
+            LOG_SHOW_TEXT = WM_APP + 0x0001,
+
+            // To save the log into a file, send from Logger singleton
+            // LPARAM is a LPTSTR pointer that contains filename,
+            // WPARAM is NULL. Sender handles cleanup
+            LOG_SAVE_TEXT,
+        };
     }
 }

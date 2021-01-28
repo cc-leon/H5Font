@@ -1,10 +1,18 @@
 #include "pch.h"
 #include "HFDrawWindow.h"
+#include "HFLogger.h"
 
 // HFDrawWindow
-HFDrawWindow::HFDrawWindow() { }
-
+HFDrawWindow::HFDrawWindow() 
+    : CFrameWnd(), m_dispImage(NULL), m_hPrevCursor(NULL){ }
 HFDrawWindow::~HFDrawWindow() {}
+
+VOID MoveImage(CPoint CONST& ptPrev, CPoint CONST& ptCurr) {
+}
+
+VOID RectOkay(CRect CONST& rcNew) {
+}
+
 
 BOOL HFDrawWindow::PreCreateWindow(CREATESTRUCT& cs) {
     if (!CFrameWnd::PreCreateWindow(cs)) {
@@ -16,182 +24,96 @@ BOOL HFDrawWindow::PreCreateWindow(CREATESTRUCT& cs) {
     cs.cy = UIConst::DrawWindow::Size.Height();
     cs.lpszClass = AfxRegisterWndClass(
         CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW,
-        AfxGetApp()->LoadStandardCursor(IDC_ARROW),
+        AfxGetApp()->LoadStandardCursor(IDC_CROSS),
         (HBRUSH)(COLOR_BTNFACE + 1));
 
     return TRUE;
 }
 
 BEGIN_MESSAGE_MAP(HFDrawWindow, CFrameWnd)
+    ON_WM_CLOSE()
     ON_WM_CREATE()
-//    ON_WM_SIZE()
-ON_WM_SIZING()
+    ON_WM_MOUSEWHEEL()
+    ON_WM_MBUTTONDOWN()
+    ON_WM_RBUTTONDBLCLK()
+    ON_WM_MOUSEMOVE()
+    ON_WM_MBUTTONUP()
 END_MESSAGE_MAP()
 
-// HFDrawWindow message handlers
-void errhandler(LPCSTR a, HANDLE b) {
+void HFDrawWindow::OnClose() {
+    ShowWindow(SW_HIDE);
 }
 
-PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
-{
-    BITMAP bmp;
-    PBITMAPINFO pbmi;
-    WORD    cClrBits;
-
-    // Retrieve the bitmap color format, width, and height.  
-    if (!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp))
-        errhandler("GetObject", hwnd);
-
-    // Convert the color format to a count of bits.  
-    cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
-    if (cClrBits == 1)
-        cClrBits = 1;
-    else if (cClrBits <= 4)
-        cClrBits = 4;
-    else if (cClrBits <= 8)
-        cClrBits = 8;
-    else if (cClrBits <= 16)
-        cClrBits = 16;
-    else if (cClrBits <= 24)
-        cClrBits = 24;
-    else cClrBits = 32;
-
-    // Allocate memory for the BITMAPINFO structure. (This structure  
-    // contains a BITMAPINFOHEADER structure and an array of RGBQUAD  
-    // data structures.)  
-
-    if (cClrBits < 24)
-        pbmi = (PBITMAPINFO)LocalAlloc(LPTR,
-            sizeof(BITMAPINFOHEADER) +
-            sizeof(RGBQUAD) * (1 << cClrBits));
-
-    // There is no RGBQUAD array for these formats: 24-bit-per-pixel or 32-bit-per-pixel 
-
-    else
-        pbmi = (PBITMAPINFO)LocalAlloc(LPTR,
-            sizeof(BITMAPINFOHEADER));
-
-    // Initialize the fields in the BITMAPINFO structure.  
-
-    pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    pbmi->bmiHeader.biWidth = bmp.bmWidth;
-    pbmi->bmiHeader.biHeight = bmp.bmHeight;
-    pbmi->bmiHeader.biPlanes = bmp.bmPlanes;
-    pbmi->bmiHeader.biBitCount = bmp.bmBitsPixel;
-    if (cClrBits < 24)
-        pbmi->bmiHeader.biClrUsed = (1 << cClrBits);
-
-    // If the bitmap is not compressed, set the BI_RGB flag.  
-    pbmi->bmiHeader.biCompression = BI_RGB;
-
-    // Compute the number of bytes in the array of color  
-    // indices and store the result in biSizeImage.  
-    // The width must be DWORD aligned unless the bitmap is RLE 
-    // compressed. 
-    pbmi->bmiHeader.biSizeImage = ((pbmi->bmiHeader.biWidth * cClrBits + 31) & ~31) / 8
-        * pbmi->bmiHeader.biHeight;
-    // Set biClrImportant to 0, indicating that all of the  
-    // device colors are important.  
-    pbmi->bmiHeader.biClrImportant = 0;
-    return pbmi;
-}
-
-void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi,
-    HBITMAP hBMP, HDC hDC)
-{
-    HANDLE hf;                 // file handle  
-    BITMAPFILEHEADER hdr;       // bitmap file-header  
-    PBITMAPINFOHEADER pbih;     // bitmap info-header  
-    LPBYTE lpBits;              // memory pointer  
-    DWORD dwTotal;              // total count of bytes  
-    DWORD cb;                   // incremental count of bytes  
-    BYTE* hp;                   // byte pointer  
-    DWORD dwTmp;
-
-    pbih = (PBITMAPINFOHEADER)pbi;
-    lpBits = (LPBYTE)GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
-
-    if (!lpBits)
-        errhandler("GlobalAlloc", hwnd);
-
-    // Retrieve the color table (RGBQUAD array) and the bits  
-    // (array of palette indices) from the DIB.  
-    if (!GetDIBits(hDC, hBMP, 0, (WORD)pbih->biHeight, lpBits, pbi,
-        DIB_RGB_COLORS))
-    {
-        errhandler("GetDIBits", hwnd);
-    }
-
-    // Create the .BMP file.  
-    hf = CreateFile(pszFile,
-        GENERIC_READ | GENERIC_WRITE,
-        (DWORD)0,
-        NULL,
-        CREATE_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-        (HANDLE)NULL);
-    if (hf == INVALID_HANDLE_VALUE)
-        errhandler("CreateFile", hwnd);
-    hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
-    // Compute the size of the entire file.  
-    hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) +
-        pbih->biSize + pbih->biClrUsed
-        * sizeof(RGBQUAD) + pbih->biSizeImage);
-    hdr.bfReserved1 = 0;
-    hdr.bfReserved2 = 0;
-
-    // Compute the offset to the array of color indices.  
-    hdr.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) +
-        pbih->biSize + pbih->biClrUsed
-        * sizeof(RGBQUAD);
-
-    // Copy the BITMAPFILEHEADER into the .BMP file.  
-    if (!WriteFile(hf, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER),
-        (LPDWORD)&dwTmp, NULL))
-    {
-        errhandler("WriteFile", hwnd);
-    }
-
-    // Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
-    if (!WriteFile(hf, (LPVOID)pbih, sizeof(BITMAPINFOHEADER)
-        + pbih->biClrUsed * sizeof(RGBQUAD),
-        (LPDWORD)&dwTmp, (NULL)))
-        errhandler("WriteFile", hwnd);
-
-    // Copy the array of color indices into the .BMP file.  
-    dwTotal = cb = pbih->biSizeImage;
-    hp = lpBits;
-    if (!WriteFile(hf, (LPSTR)hp, (int)cb, (LPDWORD)&dwTmp, NULL))
-        errhandler("WriteFile", hwnd);
-
-    // Close the .BMP file.  
-    if (!CloseHandle(hf))
-        errhandler("CloseHandle", hwnd);
-
-    // Free memory.  
-    GlobalFree((HGLOBAL)lpBits);
-}
-
-void func(HWND CONST hWnd, HDC CONST hDC) {
-    HBITMAP hBitmap = CreateCompatibleBitmap(hDC, 0, 0);
-    PBITMAPINFO info = CreateBitmapInfoStruct(hWnd, hBitmap);
-    CreateBMPFile(NULL, _T("test.bmp"), info, hBitmap, hDC);
-    return;
-}
-
-
-int HFDrawWindow::OnCreate(LPCREATESTRUCT lpCreateStruct)
-{
+int HFDrawWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
         return -1;
 
-    // TODO:  Add your specialized creation code here
-
+    m_dispImage = new HFBmpDisplay;
+    CRect rc;
+    GetWindowRect(rc);
+    CRect newRc;
+    newRc.top = 0;
+    newRc.left = 0;
+    newRc.right = rc.Width();
+    newRc.bottom = rc.Height();
+    CImage * aa = new CImage;
+    if (aa->Load(_T("kk.png")) != S_OK) {
+        ::AfxMessageBox(_T("Not loaded"));
+    }
+    HFBitmap* bb = new HFBitmap;
+    bb->Attach(aa->Detach());
+    BITMAP cc;
+    bb->GetBitmap(&cc);
+    m_dispImage->Create(CPoint(0, 0), bb, this);
     return 0;
 }
 
-void HFDrawWindow::OnSizing(UINT fwSide, LPRECT pRect) {
-    CFrameWnd::OnSizing(fwSide, pRect);
+void HFDrawWindow::OnMButtonDown(UINT nFlags, CPoint point) {
+    CFrameWnd::OnMButtonDown(nFlags, point);
+    m_ptPrevCursor = point;
+    SetCapture();
+    m_hPrevCursor = ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEALL));
+}
 
-    // TODO: Add your message handler code here
+void HFDrawWindow::OnMButtonUp(UINT nFlags, CPoint point) {
+    CFrameWnd::OnMButtonUp(nFlags, point);
+    ReleaseCapture();
+    ::SetCursor(m_hPrevCursor);
+}
+
+void HFDrawWindow::OnMouseMove(UINT nFlags, CPoint point) {
+    CFrameWnd::OnMouseMove(nFlags, point);
+    if (nFlags & MK_MBUTTON) {
+        CString a;
+        a.Format(_T("Mouse move, %d, %d"), point.x, point.y);
+        LOG.log(a);
+        CRect rcNew = ui::GetWindowCRectInParent(m_dispImage);
+        rcNew.OffsetRect(point - m_ptPrevCursor);
+        CRect rcNow;
+        GetClientRect(rcNow);
+        rcNow.MoveToXY(0, 0);
+        if (ui::CRect1InsideCRect2(rcNow, rcNew)) {
+            m_dispImage->SetWindowPos(&wndTop, rcNew.left, rcNew.top, rcNew.Width(), rcNew.Height(), NULL);
+        }
+        m_ptPrevCursor = point;
+    }
+}
+
+BOOL HFDrawWindow::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) {
+    ScreenToClient(&pt);
+
+    CRect rcImage = ui::GetWindowCRectInParent(m_dispImage);
+    if (rcImage.PtInRect(pt) && zDelta != 0) {
+        CRect rcImage = ui::GetWindowCRectInParent(m_dispImage);
+        m_dispImage->SetZoom(
+            m_dispImage->GetZoom() + zDelta / WHEEL_DELTA * 10,
+            pt - rcImage.TopLeft());
+    }
+    return CFrameWnd::OnMouseWheel(nFlags, zDelta, pt);
+}
+
+void HFDrawWindow::OnRButtonDblClk(UINT nFlags, CPoint point) {
+    CFrameWnd::OnRButtonDblClk(nFlags, point);
+    m_dispImage->SetZoom(100, CPoint(0,0));
+    m_dispImage->SetWindowPos(&wndTop, 0, 0, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
 }
