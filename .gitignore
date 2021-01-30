@@ -1,4 +1,5 @@
 /.vs/
-/Debug/
-/ouputs/
-! /outputs/.gitkeep
+Debug/
+Release/
+/H5FontGUI/outputs/
+! /H5FontGUI/outputs/.gitkeep
