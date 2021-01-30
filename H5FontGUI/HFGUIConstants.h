@@ -24,7 +24,7 @@ namespace UIConst {
         enum {
             ID_txtLog = UIConst::LogWindow::ID + 1,
         };
-        TCHAR CONST szLogFilename[] = _T("GUILog.rtf");
+        TCHAR CONST szLogFilename[] = _T("outputs/GUILog.rtf");
     }
 
     namespace DrawWindow {

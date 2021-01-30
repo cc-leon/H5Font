@@ -220,6 +220,9 @@
     <ProjectReference Include="..\H5FontCore\H5FontCore.vcxproj">
       <Project>{7c00e555-1529-4b81-a62a-1af583083d30}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\H5FontFileIO\H5FontFileIO.vcxproj">
+      <Project>{88bb7ebc-71d8-43e2-b39a-bed0e2983868}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

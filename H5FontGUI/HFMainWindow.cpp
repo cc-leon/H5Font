@@ -2,6 +2,7 @@
 
 #include "HFMainWindow.h"
 #include "HFDrawWindow.h"
+#include "../H5FontFileIO/HFMainIO.h"
 
 HFMainWindow::HFMainWindow() 
     : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(){}
@@ -175,5 +176,5 @@ void HFMainWindow::OnMenuSelect(UINT nItemID, UINT nFlags, HMENU hSysMenu) {
 afx_msg void HFMainWindow::ONMainBtnClicked() {
     CString a;
     LOG.log("Main button clicked");
-
+    HFMainIO t(_T("aaaaaaaaaaaaaaa"));
 }
