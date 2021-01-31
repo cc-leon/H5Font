@@ -2,7 +2,7 @@
 
 #include "HFMainWindow.h"
 #include "HFDrawWindow.h"
-#include "../H5FontFileIO/HFMainIO.h"
+#include "../H5FontFileIO/HFBinFileInfo.h"
 
 HFMainWindow::HFMainWindow() 
     : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(){}
@@ -43,7 +43,7 @@ BOOL HFMainWindow::CreateHFMainWindow() {
     return Create(
         NULL, CString(_T("H5FontConfigWindow")),
         WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU,
-        UIConst::ConfigWindow::Size);
+        UIC::ConfigWindow::Size);
 }
 
 BOOL HFMainWindow::PreCreateWindow(CREATESTRUCT& cs) {
@@ -52,8 +52,8 @@ BOOL HFMainWindow::PreCreateWindow(CREATESTRUCT& cs) {
     }
 
     cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
-    cs.cx = UIConst::ConfigWindow::Size.Width();
-    cs.cy = UIConst::ConfigWindow::Size.Height();
+    cs.cx = UIC::ConfigWindow::Size.Width();
+    cs.cy = UIC::ConfigWindow::Size.Height();
     cs.lpszClass = AfxRegisterWndClass(
         CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW,
         AfxGetApp()->LoadStandardCursor(IDC_ARROW),
@@ -66,8 +66,8 @@ BEGIN_MESSAGE_MAP(HFMainWindow, CFrameWnd)
     ON_WM_CLOSE()
     ON_WM_CREATE()
 
-    ON_MESSAGE(UIConst::WindowMessage::MENU_WINDOWS_LOG, &HFMainWindow::OnWindowlog)
-    ON_MESSAGE(UIConst::WindowMessage::MENU_WINDOWS_DRAW, &HFMainWindow::OnWindowdraw)
+    ON_MESSAGE(UIC::WindowMessage::MENU_WINDOWS_LOG, &HFMainWindow::OnWindowlog)
+    ON_MESSAGE(UIC::WindowMessage::MENU_WINDOWS_DRAW, &HFMainWindow::OnWindowdraw)
 
     // Menu messages
     ON_COMMAND(IDM_START_SETUP, &HFMainWindow::OnStartSetup)
@@ -176,5 +176,5 @@ void HFMainWindow::OnMenuSelect(UINT nItemID, UINT nFlags, HMENU hSysMenu) {
 afx_msg void HFMainWindow::ONMainBtnClicked() {
     CString a;
     LOG.log("Main button clicked");
-    HFMainIO t(_T("aaaaaaaaaaaaaaa"));
+    HFBinFileInfo t(_T("aaaaaaaaaaaaaaa"));
 }

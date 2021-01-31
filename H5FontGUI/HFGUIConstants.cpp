@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "HFGUIConstants.h"
 
-namespace UIConst {
+namespace UIC {
     __font::__font() {
         LOG_FONT.CreateFont(
             20,                            // Height

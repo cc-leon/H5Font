@@ -11,7 +11,7 @@ BOOL HFDrawWindow::CreateHFDrawWindow(CWnd* pParentWnd) {
     return Create(
         NULL, _T("MainFrmWnd"),
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX,
-        UIConst::DrawWindow::Size, pParentWnd);
+        UIC::DrawWindow::Size, pParentWnd);
 }
 
 void HFDrawWindow::GetActiveArea(LPRECT lpRect) CONST {
@@ -33,8 +33,8 @@ BOOL HFDrawWindow::PreCreateWindow(CREATESTRUCT& cs) {
     }
 
     cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
-    cs.cx = UIConst::DrawWindow::Size.Width();
-    cs.cy = UIConst::DrawWindow::Size.Height();
+    cs.cx = UIC::DrawWindow::Size.Width();
+    cs.cy = UIC::DrawWindow::Size.Height();
     cs.lpszClass = AfxRegisterWndClass(
         CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW,
         AfxGetApp()->LoadStandardCursor(IDC_CROSS),
@@ -57,7 +57,7 @@ BEGIN_MESSAGE_MAP(HFDrawWindow, CFrameWnd)
 END_MESSAGE_MAP()
 
 void HFDrawWindow::OnClose() {
-    AfxGetMainWnd()->SendMessage(UIConst::WindowMessage::MENU_WINDOWS_DRAW);
+    AfxGetMainWnd()->SendMessage(UIC::WindowMessage::MENU_WINDOWS_DRAW);
 }
 
 int HFDrawWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {

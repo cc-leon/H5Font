@@ -15,6 +15,6 @@
 #include <tchar.h>
 #include <strsafe.h>
 
-#include <vector>
+#include "../H5FontCore/HFUtils.h"
 
 #endif //PCH_H

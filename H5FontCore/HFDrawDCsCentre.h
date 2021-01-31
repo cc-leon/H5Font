@@ -18,7 +18,7 @@ public:
     VOID InitializeInstance(LPTSTR szTargetFolder);
 
 protected:
-    HFMemDC m_dcs[LogicConst::INDEX_COUNT];
+    HFMemDC m_dcs[LC::header::INDEX_COUNT];
 };
 
 extern HFDrawDCsCentre hfcore;

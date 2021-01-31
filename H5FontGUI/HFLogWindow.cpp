@@ -13,7 +13,7 @@ HFLogWindow::~HFLogWindow() {}
 BOOL HFLogWindow::CreateHFLogWindow(CWnd * pParentWnd) {
     return Create(NULL, _T("H5FontLogWindow"),
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX,
-        UIConst::LogWindow::Size, pParentWnd);
+        UIC::LogWindow::Size, pParentWnd);
 }
 
 BOOL HFLogWindow::PreCreateWindow(CREATESTRUCT& cs) {
@@ -22,8 +22,8 @@ BOOL HFLogWindow::PreCreateWindow(CREATESTRUCT& cs) {
     }
 
     cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
-    cs.cx = UIConst::LogWindow::Size.Width();
-    cs.cy = UIConst::LogWindow::Size.Height();
+    cs.cx = UIC::LogWindow::Size.Width();
+    cs.cy = UIC::LogWindow::Size.Height();
     cs.lpszClass = AfxRegisterWndClass(
         CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW,
         AfxGetApp()->LoadStandardCursor(IDC_ARROW),
@@ -43,7 +43,7 @@ END_MESSAGE_MAP()
 // HFLogWindow message handlers
 
 void HFLogWindow::OnClose() {
-    AfxGetMainWnd()->SendMessage(UIConst::WindowMessage::MENU_WINDOWS_LOG);
+    AfxGetMainWnd()->SendMessage(UIC::WindowMessage::MENU_WINDOWS_LOG);
 }
 
 int HFLogWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {

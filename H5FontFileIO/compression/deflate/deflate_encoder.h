@@ -23,6 +23,7 @@ class basic_deflate_encoder
       , _outputBuffer(nullptr)
       , _bytesRead(0)
       , _bytesWritten(0)
+      , _zstream()
     {
 
     }

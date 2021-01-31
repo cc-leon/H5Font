@@ -1,6 +1,6 @@
 #pragma once
 
-namespace UIConst {
+namespace UIC {
     namespace  ConfigWindow {
         int const ID = 0x1000;
 
@@ -22,7 +22,7 @@ namespace UIConst {
         CRect const Size(0, 200, 400, 1080);
         int const ID = 0x2000;
         enum {
-            ID_txtLog = UIConst::LogWindow::ID + 1,
+            ID_txtLog = ID + 1,
         };
         TCHAR CONST szLogFilename[] = _T("outputs/GUILog.rtf");
     }

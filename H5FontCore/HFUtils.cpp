@@ -82,7 +82,7 @@ namespace str {
         szUnicode[0] = iUnicode;
         szUnicode[1] = 0;
         return ::WideCharToMultiByte(
-            LogicConst::CODE_PAGE,  // UINT CodePage
+            LC::CODE_PAGE,  // UINT CodePage
             0,  // DWORD dwFlags,
             szUnicode,  // LPCWCH lpWideCharStr,
             -1, // int cchWideChar,
