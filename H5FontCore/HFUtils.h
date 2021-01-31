@@ -1,5 +1,17 @@
 #pragma once
 
+class __sys {
+public:
+    __sys();
+    UINT CodePage() CONST;
+    CStringW LocaleName() CONST;
+
+private:
+    UINT m_uiCodePage;
+    CStringW m_wsLocaleName;
+
+} const sys;
+
 //
 // Memory management functions
 //
@@ -22,9 +34,18 @@ namespace str {
     // Convert a unicode short integer to a string containing this character
     INT Unicode2LPTSTR(WCHAR iUnicode, LPTSTR szTString, size_t cszMax);
 
-}
+    CStringA CStringW2CStringA(LPCWSTR wszText);
 
-namespace ui {
+    CStringW CStringA2CStringW(LPCSTR szText);
+
+    CString CStringW2CString(LPCWSTR wszText);
+
+    CString CStringA2CString(LPCSTR szText);
+
+    CStringA CString2CStringA(LPCTSTR szText);
+
+    CStringW CString2CStringW(LPCSTR szText);
+
 }
 
 //
@@ -33,18 +54,24 @@ namespace ui {
 namespace file {
 
     // Check if a file exists on disk
+    // Return TRUE only if there is such a name and the name points to a file
     BOOL FileExists(LPCTSTR szFileName);
 
-    // Return a file handle to read an existing file
-    HANDLE GetFileReadHandle(LPCTSTR szFileName);
+    // Check if a folder exists on disk
+    // Return TRUE only if there is such a name and the name points to a file
+    BOOL FolderExists(LPCTSTR szPath);
 
-    // Return a file handle to write to a file. Delete existing content if applicable
-    HANDLE GetFileWriteHandle(LPCTSTR szFileName);
+    // Creates a folder if not exists recursively
+    VOID CreateFolderIfNotExists(LPCTSTR szPath);
 
-    // Close the file handle without giving exception during debug
-    BOOL CloseFileHandle(HANDLE hFile);
+    // Expand a path to full ppath by eliminating the '.' or '..' parts
+    CString GetAbsPath(LPCTSTR szPath);
+
+    // Clear the content in a folder
+    // bDeleteSelf will remove the folder itself after done
+    DWORD ClearFolder(LPCTSTR szPath, BOOL bDeleteSelf=FALSE);
+
 }
-
 
 //
 // Other functions

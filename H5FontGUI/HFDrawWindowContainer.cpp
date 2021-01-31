@@ -31,13 +31,13 @@ BOOL HFDrawWindowContainer::RegisterThisClass() {
         wndclass.lpszMenuName = NULL;
         wndclass.lpszClassName = UIC::DrawWindow::Container::szDrawWindowContainerName;
         if (!AfxRegisterClass(&wndclass)) {
-            sWarning.Format("\"%s\" class is not registered successfully", UIC::DrawWindow::Container::szDrawWindowContainerName);
+            sWarning.Format(_T("\"%s\" class is not registered successfully"), UIC::DrawWindow::Container::szDrawWindowContainerName);
             ::AfxMessageBox(sWarning);
             return FALSE;
         }
     }
     else {
-        sWarning.Format("\"%s\" class is already registered", UIC::DrawWindow::Container::szDrawWindowContainerName);
+        sWarning.Format(_T("\"%s\" class is already registered"), UIC::DrawWindow::Container::szDrawWindowContainerName);
         ::AfxMessageBox(sWarning);
         return FALSE;
     }

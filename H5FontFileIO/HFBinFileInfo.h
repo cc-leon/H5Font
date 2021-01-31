@@ -18,8 +18,8 @@ public:
     LPCTSTR* CONST GetBinFileNames();
 
 protected:
-    LPTSTR m_sTargetFolder;
-    LPTSTR m_sTargetFile;
+    CString m_sTargetFolder;
+    CString m_sTargetFile;
     LPTSTR m_aszHeaderNames[N_FILES];
     LPTSTR m_aszBinFileNames[N_FILES];
 

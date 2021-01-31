@@ -175,6 +175,10 @@ void HFMainWindow::OnMenuSelect(UINT nItemID, UINT nFlags, HMENU hSysMenu) {
 
 afx_msg void HFMainWindow::ONMainBtnClicked() {
     CString a;
-    LOG.log("Main button clicked");
-    HFBinFileInfo t(_T("aaaaaaaaaaaaaaa"));
+    LOG.log(_T("Main button clicked"));
+    //HFBinFileInfo t(_T("D:\\games\\TOE31"));
+    //a.Format(_T("%d files and folders removed"), file::ClearFolder(_T("D:\\New folder\\")));
+    //file::CreateFolderIfNotExists("D:\\a\\b");
+    TCHAR result[4];
+    file::CreateFolderIfNotExists(_T("D:\\a\\b\\c\\d\\e\\f\\g\\h\\i\\j\\k"));
 }

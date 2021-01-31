@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HFBinFileInfo.cpp" />
+    <ClCompile Include="HFFileUtils.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -161,10 +162,16 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="HFBinFileInfo.h" />
+    <ClInclude Include="HFFileUtils.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pugiconfig.hpp" />
     <ClInclude Include="pugixml.hpp" />
     <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\H5FontCore\H5FontCore.vcxproj">
+      <Project>{7c00e555-1529-4b81-a62a-1af583083d30}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

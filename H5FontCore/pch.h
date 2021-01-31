@@ -9,10 +9,7 @@
 
 // add headers that you want to pre-compile here
 #include "framework.h"
-#undef min
 
-#include <stdarg.h>
-#include <stdio.h>
 #include <tchar.h>
 #include <strsafe.h>
 

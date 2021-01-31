@@ -1,5 +1,33 @@
 #include "pch.h"
+
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "HFUtils.h"
+
+__sys::__sys() {
+    WCHAR szLocaleName[LOCALE_NAME_MAX_LENGTH];
+    ::GetSystemDefaultLocaleName(szLocaleName, LOCALE_NAME_MAX_LENGTH);
+    m_wsLocaleName = szLocaleName;
+
+    if (m_wsLocaleName == L"zh-CN") {
+        m_uiCodePage = 936;  // Simplified Chinese Code page
+    }
+    else if (m_wsLocaleName == L"zh-TW") {
+        m_uiCodePage = 950;  // Traditional Chinese Code page
+    }
+    else {              // L"en-GB" English
+        m_uiCodePage = CP_UTF8;
+    }
+}
+
+UINT __sys::CodePage() CONST {
+    return m_uiCodePage;
+}
+
+CStringW __sys::LocaleName() CONST {
+    return m_wsLocaleName;
+}
 
 namespace mem {
     LPVOID GetMem(SIZE_T cbSize) {
@@ -23,52 +51,90 @@ namespace mem {
 }
 
 namespace file {
-    BOOL FileExists(LPCTSTR szFileName) {
-        WIN32_FIND_DATA FindFileData;
-        HANDLE hFile = ::FindFirstFile(szFileName, &FindFileData);
-        BOOL bResult = (hFile != INVALID_HANDLE_VALUE);
-
-        if (bResult) {
-            ::FindClose(hFile);
-        }
-
-        return bResult;
+    BOOL FileExists(LPCTSTR szPath) {
+        DWORD dwAttrib = ::GetFileAttributes(szPath);
+        return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
     }
 
-    HANDLE GetFileReadHandle(LPCTSTR szFileName) {
-        return ::CreateFile(
-            szFileName,  // LPCSTR lpFileName,
-            GENERIC_READ,  // DWORD dwDesiredAccess,
-            0,  //  DWORD dwShareMode,
-            NULL,  // LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-            OPEN_EXISTING,  // DWORD dwCreationDisposition,
-            FILE_ATTRIBUTE_NORMAL,  // DWORD dwFlagsAndAttributes,
-            NULL);  // HANDLE TemplateFile
-    }
+    BOOL FolderExists(LPCTSTR szPath) {
+        DWORD dwAttrib = ::GetFileAttributes(szPath);
+        return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
 
-    HANDLE GetFileWriteHandle(LPCTSTR szFileName) {
-        if (file::FileExists(szFileName)) {
-            ::DeleteFile(szFileName);
-        }
+    VOID CreateFolderIfNotExists(LPCTSTR szPath) {
+        if (!FolderExists(szPath)) {
+            CString sPath = szPath;
+            if (sPath[sPath.GetLength() - 1] == _T('\\')) {
+                sPath.Delete(sPath.GetLength() - 1);
+            }
 
-        return ::CreateFile(
-            szFileName,  // LPCSTR lpFileName,
-            GENERIC_WRITE,  // DWORD dwDesiredAccess,
-            0,  //  DWORD dwShareMode,
-            NULL,  // LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-            OPEN_ALWAYS,  // DWORD dwCreationDisposition,
-            FILE_ATTRIBUTE_NORMAL,  // DWORD dwFlagsAndAttributes,
-            NULL);  // HANDLE TemplateFile
-    }
-
-    BOOL CloseFileHandle(HANDLE hFile) {
-        if (hFile != INVALID_HANDLE_VALUE && hFile != NULL) {
-            return ::CloseHandle(hFile);
-        }
-        else {
-            return FALSE;
+            CreateFolderIfNotExists(GetAbsPath(sPath + CString(_T("\\.."))));
+            ::CreateDirectory(sPath, NULL);
         }
     }
+
+    CString GetAbsPath(LPCTSTR szPath) {
+        DWORD cchResult = ::GetFullPathName(
+            szPath,   // LPCSTR lpFileName,
+            0,   // DWORD nBufferLength,
+            NULL, //LPSTR lpBuffer,
+            NULL);//LPSTR * lpFilePart
+
+        LPTSTR szResult = (LPTSTR)mem::GetMem(sizeof(TCHAR) * cchResult);
+        cchResult = ::GetFullPathName(
+            szPath,   // LPCSTR lpFileName,
+            cchResult,   // DWORD nBufferLength,
+            szResult, //LPSTR lpBuffer,
+            NULL);//LPSTR * lpFilePart
+
+        CString sResult(szResult);
+        mem::FreeMem((LPVOID)szResult);
+        return sResult;
+    }
+
+    DWORD ClearFolder(LPCTSTR szPath, BOOL bDeleteSelf) {
+        DWORD dwResult = 0;
+        WIN32_FIND_DATA wfdCurrFolder;
+        CString sPath(szPath);
+        if (sPath[sPath.GetLength() - 1] == _T('\\')) {
+            sPath.Delete(sPath.GetLength() - 1);
+        }
+
+        HANDLE hFind = ::FindFirstFile(sPath + CString("\\*"), &wfdCurrFolder);
+
+        if (hFind == INVALID_HANDLE_VALUE) {
+            if (bDeleteSelf) {
+                dwResult += ::RemoveDirectory(sPath);
+            }
+            return dwResult;
+        }
+
+        do {
+            if (CString(wfdCurrFolder.cFileName) == _T(".") || CString(wfdCurrFolder.cFileName) == _T("..")) {
+                continue;
+            }
+
+            CString sFilename = sPath + CString(_T("\\")) + wfdCurrFolder.cFileName;
+            if (hFind != INVALID_HANDLE_VALUE) {
+                if (wfdCurrFolder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                    dwResult += ClearFolder(sFilename);
+                    dwResult += ::RemoveDirectory(sFilename);
+                }
+                else {
+                    dwResult += ::DeleteFile(sFilename);
+                }
+            }
+        } while (::FindNextFile(hFind, &wfdCurrFolder));
+
+        ::FindClose(hFind);
+
+        if (bDeleteSelf) {
+            dwResult += ::RemoveDirectory(sPath);
+        }
+
+        return dwResult;
+    }
+
 }
 
 namespace str {
@@ -82,7 +148,7 @@ namespace str {
         szUnicode[0] = iUnicode;
         szUnicode[1] = 0;
         return ::WideCharToMultiByte(
-            LC::CODE_PAGE,  // UINT CodePage
+            sys.CodePage(),  // UINT CodePage
             0,  // DWORD dwFlags,
             szUnicode,  // LPCWCH lpWideCharStr,
             -1, // int cchWideChar,
@@ -91,6 +157,99 @@ namespace str {
             NULL,  // LPCCH lpDefaultChar,
             NULL); // LPBOOL lpUsedDefaultChar
 #endif
+    }
+
+
+    CStringA CStringW2CStringA(LPCWSTR wszText) {
+        int cchConverted = ::WideCharToMultiByte(
+            sys.CodePage(),  // UINT CodePage
+            NULL,            // DWORD dwFlags,
+            wszText,         // LPCWCH lpWideCharStr,
+            -1,              // int cchWideChar,
+            NULL,            // LPSTR lpMultiByteStr,
+            NULL,            // int cbMultiByte,
+            NULL,            // LPCCH lpDefaultChar,
+            NULL);           // LPBOOL lpUsedDefaultChar
+        LPSTR szResult = (LPSTR)mem::GetMem(sizeof(CHAR) * cchConverted);
+
+        cchConverted = ::WideCharToMultiByte(
+            sys.CodePage(),  // UINT CodePage
+            NULL,            // DWORD dwFlags,
+            wszText,         // LPCWCH lpWideCharStr,
+            -1,              // int cchWideChar,
+            szResult,            // LPSTR lpMultiByteStr,
+            sizeof(TCHAR) * cchConverted, // int cbMultiByte,
+            NULL,            // LPCCH lpDefaultChar,
+            NULL);           // LPBOOL lpUsedDefaultChar
+
+        CStringA sResult(szResult);
+        mem::FreeMem((LPVOID)szResult);
+        return sResult;
+    }
+
+    CStringW CStringA2CStringW(LPCSTR szText) {
+        int cchConverted = ::MultiByteToWideChar(
+            sys.CodePage(),  // UINT CodePage
+            NULL,            // DWORD dwFlags,
+            szText,          // LPCCH lpMultiByteStr,
+            -1,              // int cbMultiByte,
+            NULL,            // LPWSTR lpWideCharStr,
+            NULL);           // int cchWideChar
+
+        LPWSTR swzResult = (LPWSTR)mem::GetMem(sizeof(WCHAR) * cchConverted);
+        cchConverted = ::MultiByteToWideChar(
+            sys.CodePage(),  // UINT CodePage
+            NULL,            // DWORD dwFlags,
+            szText,          // LPCCH lpMultiByteStr,
+            -1,              // int cbMultiByte,
+            swzResult,       // LPWSTR lpWideCharStr,
+            sizeof(WCHAR) * cchConverted);  // int cchWideChar
+
+        CStringW sResult(swzResult);
+        mem::FreeMem((LPVOID)szResult);
+        return sResult;
+    }
+
+    CString CStringW2CString(LPCWSTR wszText) {
+#ifdef _UNICODE
+        return wszText;
+#else
+        return CStringW2CStringA(wszText);
+#endif
+    }
+
+    CString CStringA2CString(LPCSTR szText) {
+#ifdef _UNICODE
+        int cchConverted = ::MultiByteToWideChar(
+            sys.CodePage(),  // UINT CodePage
+            NULL,            // DWORD dwFlags,
+            szText,          // LPCCH lpMultiByteStr,
+            -1,              // int cbMultiByte,
+            NULL,            // LPWSTR lpWideCharStr,
+            NULL);           // int cchWideChar
+
+        LPTSTR szResult = (LPTSTR)mem::GetMem(sizeof(TCHAR) * cchConverted);
+        cchConverted = ::MultiByteToWideChar(
+            sys.CodePage(),  // UINT CodePage
+            NULL,            // DWORD dwFlags,
+            szText,          // LPCCH lpMultiByteStr,
+            -1,              // int cbMultiByte,
+            NULL,            // LPWSTR lpWideCharStr,
+            NULL);           // int cchWideChar
+
+        CString sResult(szResult);
+        mem::FreeMem((LPVOID)szResult);
+        return sResult;
+
+#else
+        return szText;
+#endif
+    }
+
+    CStringA CString2CStringA(LPCTSTR szText) {
+    }
+
+    CStringW CString2CStringW(LPCSTR szText) {
     }
 
 }

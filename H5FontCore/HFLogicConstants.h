@@ -1,9 +1,6 @@
 #pragma once
 
 namespace LC {
-    // Code page is GB2312 - Simplified Chinese, change it here if you are using another language
-    // Check https://docs.microsoft.com/en-us/windows/win32/intl/code-page-identifiers for more code page codes.
-    UINT CONST CODE_PAGE = 936;
 
     // Max number of characters supported by the binary file - Max Value of unsigned 16 bit integer
     size_t CONST MAX_CHARS = 0xFFFF;

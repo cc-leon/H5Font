@@ -44,16 +44,7 @@ namespace ui {
             return CString();
         }
 
-#ifdef _UNICODE
-            return sWResult;
-
-#else
-        TCHAR szConverted[0x400];
-        ::WideCharToMultiByte(936, NULL, wsResult,-1,szConverted, 0x100, NULL, NULL);
-        CString sResult(szConverted);
-        return sResult;
-
-#endif
+        return str::CStringW2CString(wsResult);
     }
 
 }
