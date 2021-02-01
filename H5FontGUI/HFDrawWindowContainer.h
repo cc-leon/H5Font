@@ -15,7 +15,7 @@ public:
     HFDrawWindowContainer();
     virtual ~HFDrawWindowContainer();
     
-    BOOL CreateHFDrawWindowContainer(CWnd* pParentWnd, HFDrawWindowInfoBar * pInfoBar, UINT nID=UIC::DrawWindow::ID_container);
+    BOOL CreateHFDrawWindowContainer(CWnd* pParentWnd, HFDrawWindowInfoBar * pInfoBar, UINT nID=HFUIC::DrawWindow::ID_container);
     VOID OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
     VOID RestoreZoom();
     CPoint GetImageCenter();

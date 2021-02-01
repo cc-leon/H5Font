@@ -4,8 +4,8 @@
 
 class HFDrawWindow : public CFrameWnd {
 protected:
-    HFDrawWindowInfoBar* m_infoBar;
-    HFDrawWindowContainer* m_container;
+    HFDrawWindowInfoBar m_infoBar;
+    HFDrawWindowContainer m_container;
     CMenu m_mnDrawWindow;
 
 public:

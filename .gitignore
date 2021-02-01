@@ -1,5 +1,6 @@
 /.vs/
 *.zip
+*.pak
 Debug/
 Release/
 /H5FontGUI/outputs/

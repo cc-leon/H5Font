@@ -2,10 +2,12 @@
 
 #include "HFMainWindow.h"
 #include "HFDrawWindow.h"
-#include "../H5FontFileIO/HFBinFileInfo.h"
+#include "../H5FontFileIO/HFBinFilesInfo.h"
 
 HFMainWindow::HFMainWindow() 
-    : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(){}
+    : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain() {
+
+}
 
 HFMainWindow::~HFMainWindow() {}
 
@@ -30,20 +32,20 @@ VOID HFMainWindow::SetMenuWindowsLogChecked(BOOL bChecked) {
 
 VOID HFMainWindow::SetMenuWindowsDrawChecked(BOOL bChecked) {
     if (bChecked) {
-        m_mnMain.CheckMenuItem(IDM_WINDOWS_DRAW, MF_CHECKED);
+        // TODO: m_mnMain.CheckMenuItem(IDM_WINDOWS_DRAW, MF_CHECKED);
         m_drawWnd->ShowWindow(SW_SHOW);
     }
     else {
-        m_mnMain.CheckMenuItem(IDM_WINDOWS_DRAW, MF_UNCHECKED);
+        // TODO: m_mnMain.CheckMenuItem(IDM_WINDOWS_DRAW, MF_UNCHECKED);
         m_drawWnd->ShowWindow(SW_HIDE);
     }
 }
 
 BOOL HFMainWindow::CreateHFMainWindow() {
     return Create(
-        NULL, CString(_T("H5FontConfigWindow")),
-        WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU,
-        UIC::ConfigWindow::Size);
+        NULL, ui::LoadRcString(IDS_MAINWINDOW_TITLE),
+        WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU | WS_POPUP,
+        HFUIC::MainWindow::Size);
 }
 
 BOOL HFMainWindow::PreCreateWindow(CREATESTRUCT& cs) {
@@ -52,8 +54,8 @@ BOOL HFMainWindow::PreCreateWindow(CREATESTRUCT& cs) {
     }
 
     cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
-    cs.cx = UIC::ConfigWindow::Size.Width();
-    cs.cy = UIC::ConfigWindow::Size.Height();
+    cs.cx = HFUIC::MainWindow::Size.Width();
+    cs.cy = HFUIC::MainWindow::Size.Height();
     cs.lpszClass = AfxRegisterWndClass(
         CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW,
         AfxGetApp()->LoadStandardCursor(IDC_ARROW),
@@ -66,22 +68,33 @@ BEGIN_MESSAGE_MAP(HFMainWindow, CFrameWnd)
     ON_WM_CLOSE()
     ON_WM_CREATE()
 
-    ON_MESSAGE(UIC::WindowMessage::MENU_WINDOWS_LOG, &HFMainWindow::OnWindowlog)
-    ON_MESSAGE(UIC::WindowMessage::MENU_WINDOWS_DRAW, &HFMainWindow::OnWindowdraw)
+    // Buttom message
+    ON_BN_CLICKED(HFUIC::MainWindow::ID_btnBrowsePak, &HFMainWindow::OnBtnBrowsePakClicked)
+    ON_BN_CLICKED(HFUIC::MainWindow::ID_btnItalic, &HFMainWindow::OnBtnItalicClicked)
+    ON_BN_CLICKED(HFUIC::MainWindow::ID_btnUnderline, &HFMainWindow::OnBtnUnderlineClicked)
+    ON_BN_CLICKED(HFUIC::MainWindow::ID_btnRun, &HFMainWindow::OnBtnRunClicked)
+    ON_BN_CLICKED(HFUIC::MainWindow::ID_btnPreviewDraw, &HFMainWindow::OnBtnPreviewDrawClicked)
+    ON_BN_CLICKED(HFUIC::MainWindow::ID_btnPackage, &HFMainWindow::OnBtnPackageClicked)
+    ON_BN_CLICKED(HFUIC::MainWindow::ID_btnOpenFolder, &HFMainWindow::OnBtnOpenFolderClicked)
+
+    // Text and dropdownlist change functions
+    ON_EN_CHANGE(HFUIC::MainWindow::ID_txtPak, &HFMainWindow::OnTxtPakChange)
+    ON_EN_CHANGE(HFUIC::MainWindow::ID_txtBold, &HFMainWindow::OnTxtBoldChange)
+    ON_EN_CHANGE(HFUIC::MainWindow::ID_txtSize, &HFMainWindow::OnTxtSizeChange)
+    ON_CBN_SELCHANGE(HFUIC::MainWindow::ID_ddlFontSelect, &HFMainWindow::OnDdlFontSelectChange)
+    ON_CBN_SELCHANGE(HFUIC::MainWindow::ID_ddlHeaderSelect, &HFMainWindow::OnDdlHeaderSelectChange)
 
     // Menu messages
-    ON_COMMAND(IDM_START_SETUP, &HFMainWindow::OnStartSetup)
-    ON_COMMAND(IDM_START_RUN, &HFMainWindow::OnStartRun)
-    ON_COMMAND(IDM_START_EXIT, &HFMainWindow::OnStartExit)
     ON_COMMAND(IDM_WINDOWS_LOG, &HFMainWindow::OnWindowsLog)
-    ON_COMMAND(IDM_WINDOWS_DRAW, &HFMainWindow::OnWindowsDraw)
     ON_COMMAND(IDM_HELP_README, &HFMainWindow::OnHelpReadme)
     ON_COMMAND(IDM_HELP_ONLINE, &HFMainWindow::OnHelpOnline)
     ON_COMMAND(IDM_HELP_ABOUT, &HFMainWindow::OnHelpAbout)
     ON_COMMAND(IDM_LANGUAGE_ENGLISH, &HFMainWindow::OnLanguageEnglish)
     ON_COMMAND(IDM_LANGUAGE_CHINESE, &HFMainWindow::OnLanguageChinese)
-    ON_BN_CLICKED(0x1111, ONMainBtnClicked)
-    ON_WM_MENUSELECT()
+
+    // Custom message
+    ON_MESSAGE(HFUIC::WindowMessage::MENU_WINDOWS_LOG, &HFMainWindow::OnWindowlog)
+
 END_MESSAGE_MAP()
 
 // HFMainWindow message handlers
@@ -96,6 +109,11 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     if (CFrameWnd::OnCreate(lpCreateStruct) == -1) {
         return -1;
     }
+    SetFont(&HFUIC::Font.NORMAL_FONT);
+
+    m_mnMain.LoadMenu(IDR_MAINWINDOW);
+    SetMenu(&m_mnMain);
+
 
     m_logWnd = new HFLogWindow;
     m_logWnd->CreateHFLogWindow(this);
@@ -107,42 +125,187 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     m_drawWnd->ShowWindow(SW_SHOW);
     m_drawWnd->UpdateWindow();
 
-    BOOL result = m_mnMain.LoadMenu(IDR_MAINWINDOW);
-    result = SetMenu(&m_mnMain);
 
-    m_btnMain.Create(_T("TEST"), WS_CHILD | WS_VISIBLE, CRect(10, 10, 100, 50), this, 0x1111);
-    m_btnMain.ShowWindow(SW_SHOW);
+#define CREATE_GROUP_CTRL(ctrl, text, rect) \
+    ctrl.CreateHFGroupBox(text, this, rect);\
+    ctrl.SetFont(&HFUIC::Font.BOLD_FONT)
+
+#define CREATE_PUSHBUTTON(ctrl, text, rect, parent, nID) \
+    ctrl.Create(text, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD, rect, &parent, nID); \
+    ctrl.SetFont(&HFUIC::Font.NORMAL_FONT)
+
+#define CREATE_LABEL(ctrl, text, rect, parent) \
+    ctrl.Create(text, SS_SIMPLE | WS_VISIBLE | WS_CHILD, rect, &parent); \
+    ctrl.SetFont(&HFUIC::Font.NORMAL_FONT)
+
+#define CREATE_EDIT(ctrl, text, rect, parent, nID) \
+    ctrl.Create(WS_VISIBLE | WS_BORDER | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL, rect, &parent, nID); \
+    ctrl.SetWindowText(text); \
+    ctrl.SetFont(&HFUIC::Font.NORMAL_FONT)
+
+#define CREATE_NUMEDIT(ctrl, text, rect, parent, nID) \
+    ctrl.Create(WS_VISIBLE | WS_BORDER | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL | ES_NUMBER, rect, &parent, nID); \
+    ctrl.SetWindowText(text); \
+    ctrl.SetFont(&HFUIC::Font.NORMAL_FONT)
+
+#define CREATE_CHECKBUTTON(ctrl, text, rect, parent, nID) \
+    ctrl.Create(text, WS_VISIBLE | WS_CHILD | BS_CHECKBOX, rect, &parent, nID); \
+    ctrl.SetFont(&HFUIC::Font.NORMAL_FONT);
+
+    CREATE_GROUP_CTRL(UIStep1.grp, ui::LoadRcString(IDS_MAINWINDOW_STEP1_TITLE), HFUIC::MainWindow::UIStep1::grpRect);
+    {
+        CREATE_LABEL(
+            UIStep1.lblPak, ui::LoadRcString(IDS_MAINWINDOW_STEP1_LBLPAK),
+            HFUIC::MainWindow::UIStep1::lblPakRect, UIStep1.grp);
+        CREATE_EDIT(
+            UIStep1.txtPak, _T(""), HFUIC::MainWindow::UIStep1::txtPakRect,
+            UIStep1.grp, HFUIC::MainWindow::ID_txtPak);
+        CREATE_PUSHBUTTON(
+            UIStep1.btnBrowsePak, ui::LoadRcString(IDS_MAINWINDOW_STEP1_BROWSE),
+            HFUIC::MainWindow::UIStep1::btnBrowsePakRect,
+            UIStep1.grp, HFUIC::MainWindow::ID_btnBrowsePak);
+    }
+
+    CREATE_GROUP_CTRL(UIStep2.grp, ui::LoadRcString(IDS_MAINWINDOW_STEP2_TITLE), HFUIC::MainWindow::UIStep2::grpRect);
+    {
+        CREATE_LABEL(
+            UIStep2.lblHeaderSelect, ui::LoadRcString(IDS_MAINWINDOW_STEP2_LBLHEADERSELECT),
+            HFUIC::MainWindow::UIStep2::lblHeaderSelectRect, UIStep2.grp);
+        UIStep2.ddlHeaderSelect.CreateHFFHeaderDropDownList(
+            HFUIC::MainWindow::UIStep2::ddlHeaderSelectRect, &UIStep2.grp,
+            HFUIC::MainWindow::ID_ddlHeaderSelect);
+        UIStep2.lblHeaderSelect.SetFont(&HFUIC::Font.BOLD_FONT);
+        UIStep2.ddlHeaderSelect.SetFont(&HFUIC::Font.BOLD_FONT);
+        CREATE_LABEL(
+            UIStep2.lblSplitter,
+            _T("-------------------------------------------------------------------------------------------------------------"),
+            HFUIC::MainWindow::UIStep2::lblSplitterRect, UIStep2.grp);
+
+        CREATE_LABEL(
+            UIStep2.lblFontSelect, ui::LoadRcString(IDS_MAINWINDOW_STEP2_LBLFONTSELECT),
+            HFUIC::MainWindow::UIStep2::lblFontSelectRect, UIStep2.grp);
+        UIStep2.ddlFontSelect.CreateHFFontDropDownList(
+            HFUIC::MainWindow::UIStep2::ddlFontSelectRect,
+            &UIStep2.grp, HFUIC::MainWindow::ID_ddlFontSelect);
+        UIStep2.ddlFontSelect.SetFont(&HFUIC::Font.NORMAL_FONT);
+
+        CREATE_LABEL(
+            UIStep2.lblSize, ui::LoadRcString(IDS_MAINWINDOW_STEP2_LBLSIZE),
+            HFUIC::MainWindow::UIStep2::lblSizeRect, UIStep2.grp);
+        CREATE_NUMEDIT(
+            UIStep2.txtSize, _T(""), HFUIC::MainWindow::UIStep2::txtSizeRect,
+            UIStep2.grp, HFUIC::MainWindow::ID_txtSize);
+        UIStep2.txtSize.LimitText(2);
+
+        CREATE_LABEL(
+            UIStep2.lblBold, ui::LoadRcString(IDS_MAINWINDOW_STEP2_LBLBOLD),
+            HFUIC::MainWindow::UIStep2::lblBoldRect, UIStep2.grp);
+        CREATE_NUMEDIT(
+            UIStep2.txtBold, _T(""), HFUIC::MainWindow::UIStep2::txtBoldRect,
+            UIStep2.grp, HFUIC::MainWindow::ID_txtBold);
+        UIStep2.txtBold.LimitText(4);
+
+        CREATE_CHECKBUTTON(
+            UIStep2.btnItalic, ui::LoadRcString(IDS_MAINWINDOW_STEP2_BTNITALIC),
+            HFUIC::MainWindow::UIStep2::btnItalicRect, UIStep2.grp, HFUIC::MainWindow::ID_btnItalic);
+        CREATE_CHECKBUTTON(
+            UIStep2.btnUnderline, ui::LoadRcString(IDS_MAINWINDOW_STEP2_BTNUNDERLINE),
+            HFUIC::MainWindow::UIStep2::btnUnderlineRect, UIStep2.grp, HFUIC::MainWindow::ID_btnUnderline);
+        UIStep2.lblPreview.Create(
+            _T(""),
+            SS_SUNKEN | WS_VISIBLE | WS_CHILD, 
+            HFUIC::MainWindow::UIStep2::lblPreviewRect, &UIStep2.grp);
+    }
+
+    CREATE_GROUP_CTRL(UIStep3.grp, ui::LoadRcString(IDS_MAINWINDOW_STEP3_TITLE), HFUIC::MainWindow::UIStep3::grpRect);
+    {
+        CREATE_PUSHBUTTON(
+            UIStep3.btnRun, ui::LoadRcString(IDS_MAINWINDOW_STEP3_BTNRUN),
+            HFUIC::MainWindow::UIStep3::btnRunRect, UIStep3.grp, HFUIC::MainWindow::ID_btnRun);
+        CREATE_PUSHBUTTON(
+            UIStep3.btnPreviewDraw, ui::LoadRcString(IDS_MAINWINDOW_STEP3_PREVIEW),
+            HFUIC::MainWindow::UIStep3::btnPreviewDrawRect, UIStep3.grp, HFUIC::MainWindow::ID_btnPreviewDraw);
+    }
+
+    CREATE_GROUP_CTRL(UIStep4.grp, ui::LoadRcString(IDS_MAINWINDOW_STEP4_TITLE), HFUIC::MainWindow::UIStep4::grpRect);
+    {
+        CREATE_PUSHBUTTON(
+            UIStep4.btnPackage, ui::LoadRcString(IDS_MAINWINDOW_STEP4_BTNPACKAGE),
+            HFUIC::MainWindow::UIStep4::btnPackageRect, UIStep4.grp, HFUIC::MainWindow::ID_btnPackage);
+        CREATE_PUSHBUTTON(
+            UIStep4.btnOpenFolder, ui::LoadRcString(IDS_MAINWINDOW_STEP4_BTNOPENFOLDER),
+            HFUIC::MainWindow::UIStep4::btnOpenFolderRect, UIStep4.grp, HFUIC::MainWindow::ID_btnOpenFolder);
+    }
+
+#undef CREATE_GROUP_CTRL
+#undef CREATE_PUSHBUTTON
+#undef CREATE_LABEL
+#undef CREATE_EDIT
+#undef CREATE_NUMEDIT
+#undef CREATE_CHECKBUTTON
+
+    m_ttcMain.Create(this, TTS_ALWAYSTIP);
+    m_ttcMain.AddToolThatWorks(_T(""), &UIStep1.txtPak);
+    m_ttcMain.AddToolThatWorks(_T(""), &UIStep2.ddlFontSelect);
+    m_ttcMain.AddToolThatWorks(_T(""), &UIStep2.ddlHeaderSelect);
+    m_ttcMain.Activate(TRUE);
     return 0;
 }
 
-afx_msg LRESULT HFMainWindow::OnWindowlog(WPARAM wParam, LPARAM lParam) {
-    SetMenuWindowsLogChecked(FALSE);
-    return 0;
+void HFMainWindow::OnBtnBrowsePakClicked() {
+    CFileDialog cfdDlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST,ui::LoadRcString(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
+    if (cfdDlg.DoModal() == IDOK) {
+        UIStep1.txtPak.SetWindowText(cfdDlg.GetFileName());
+    }
 }
 
-afx_msg LRESULT HFMainWindow::OnWindowdraw(WPARAM wParam, LPARAM lParam) {
-    SetMenuWindowsDrawChecked(FALSE);
-    return 0;
+void HFMainWindow::OnBtnItalicClicked() {
+    LOG.log(_T("Italic clicked"));
 }
 
-void HFMainWindow::OnStartSetup() {
-    // TODO: Add your command handler code here
+void HFMainWindow::OnBtnUnderlineClicked() {
+    LOG.log(_T("Underline clicked"));
 }
 
-void HFMainWindow::OnStartRun() {
-    // TODO: Add your command handler code here
+void HFMainWindow::OnBtnRunClicked() {
+    LOG.log(_T("Run clicked"));
 }
 
-void HFMainWindow::OnStartExit() {
-    // TODO: Add your command handler code here
+void HFMainWindow::OnBtnPreviewDrawClicked() {
+    LOG.log(_T("Preview clicked"));
+}
+
+void HFMainWindow::OnBtnPackageClicked() {
+    LOG.log(_T("Package clicked"));
+}
+
+void HFMainWindow::OnBtnOpenFolderClicked() {
+    LOG.log(_T("Open folder clicked"));
+}
+
+void HFMainWindow::OnTxtPakChange() {
+    LOG.log(_T("txtPak changed"));
+}
+
+void HFMainWindow::OnTxtBoldChange() {
+    LOG.log(_T("txtBold changed"));
+}
+
+void HFMainWindow::OnTxtSizeChange() {
+    LOG.log(_T("txtSize changed"));
+}
+
+
+void HFMainWindow::OnDdlHeaderSelectChange() {
+    LOG.log(_T("ddlHeaderSelect changed"));
+}
+
+void HFMainWindow::OnDdlFontSelectChange() {
+    LOG.log(_T("ddlFontSelect changed"));
 }
 
 void HFMainWindow::OnWindowsLog() {
     SetMenuWindowsLogChecked(!GetMenuChecked(IDM_WINDOWS_LOG));
-}
-
-void HFMainWindow::OnWindowsDraw() {
-    SetMenuWindowsDrawChecked(!GetMenuChecked(IDM_WINDOWS_DRAW));
 }
 
 void HFMainWindow::OnHelpReadme() {
@@ -165,20 +328,12 @@ void HFMainWindow::OnLanguageChinese() {
     // TODO: Add your command handler code here
 }
 
-
-void HFMainWindow::OnMenuSelect(UINT nItemID, UINT nFlags, HMENU hSysMenu) {
-    CFrameWnd::OnMenuSelect(nItemID, nFlags, hSysMenu);
-    CString a;
-    a.Format(_T("Item %d is selected via menu"), nItemID);
-    // TODO: Add your message handler code here
+LRESULT HFMainWindow::OnWindowlog(WPARAM wParam, LPARAM lParam) {
+    SetMenuWindowsLogChecked(FALSE);
+    return 0;
 }
 
-afx_msg void HFMainWindow::ONMainBtnClicked() {
-    CString a;
-    LOG.log(_T("Main button clicked"));
-    //HFBinFileInfo t(_T("D:\\games\\TOE31"));
-    //a.Format(_T("%d files and folders removed"), file::ClearFolder(_T("D:\\New folder\\")));
-    //file::CreateFolderIfNotExists("D:\\a\\b");
-    TCHAR result[4];
-    file::CreateFolderIfNotExists(_T("D:\\a\\b\\c\\d\\e\\f\\g\\h\\i\\j\\k"));
+LRESULT HFMainWindow::OnWindowdraw(WPARAM wParam, LPARAM lParam) {
+    SetMenuWindowsDrawChecked(FALSE);
+    return 0;
 }

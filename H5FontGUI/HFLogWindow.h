@@ -3,7 +3,7 @@
 
 class HFLogWindow : public CFrameWnd {
 protected:
-    HFRichTextBox* m_txtLog;
+    HFRichTextBox m_txtLog;
     static int const SS_MSG_HIDE_LOGWND = WM_APP + 4;
 
 public:

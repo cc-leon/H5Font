@@ -26,8 +26,8 @@ int HFRichTextBox::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         return -1;
     }
 
-    SetBackgroundColor(FALSE, UIC::Color::BLACK);
-    SetFont(&UIC::Font.LOG_FONT);
+    SetBackgroundColor(FALSE, HFUIC::Color::BLACK);
+    SetFont(&HFUIC::Font.LOG_FONT);
     SetUndoLimit(0);
 
     //SetEventMask(GetEventMask() | ENM_REQUESTRESIZE);
@@ -35,7 +35,7 @@ int HFRichTextBox::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 }
 
 void HFRichTextBox::OnDestroy() {
-    LOG.SaveLog(UIC::LogWindow::szLogFilename);
+    LOG.SaveLog(HFUIC::LogWindow::szLogFilename);
     CRichEditCtrl::OnDestroy();
 }
 

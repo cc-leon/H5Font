@@ -9,7 +9,7 @@ namespace str {
     }
 
     std::string CString2STDString(CString CONST& inputString) {
-        return std::string();
+        return std::string(CString2CStringA(inputString));
     }
 
 }

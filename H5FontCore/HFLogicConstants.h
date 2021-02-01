@@ -1,6 +1,6 @@
 #pragma once
 
-namespace LC {
+namespace HFLC {
 
     // Max number of characters supported by the binary file - Max Value of unsigned 16 bit integer
     size_t CONST MAX_CHARS = 0xFFFF;
@@ -14,27 +14,12 @@ namespace LC {
             DEFAULT_18, DEFAULT_20, DEFAULT_22, DEFAULT_26, DEFAULT_32, DEFAULT_40,
             HEADER_22, HEADER_26, HEADER_32,
             SYSTEM_10, SYSTEM_16, SYSTEM_24,
-            INDEX_COUNT
+            HEADER_COUNT
         };
-        TCHAR CONST CODE_TO_LPTSTR[INDEX_COUNT][0x0f] = {
+        TCHAR CONST CODE_TO_LPTSTR[HEADER_COUNT][0x0f] = {
             _T("Button_16"),
-            _T("Default_16"), _T("Default_20"), _T("Default_22"), _T("Default_26"), _T("Default_32"), _T("Default_40"),
-            _T("HEADER_22"), _T("HEADER_26"), _T("HEADER_32"),
-            _T("SYSTEM_10"), _T("SYSTEM_16"), _T("SYSTEM_24") };
+            _T("Default_18"), _T("Default_20"), _T("Default_22"), _T("Default_26"), _T("Default_32"), _T("Default_40"),
+            _T("Header_22"), _T("Header_26"), _T("Header_32"),
+            _T("System_10"), _T("System_16"), _T("System_24") };
     }
-
-    //
-    // The following are code flags from the bin file
-    //
-    namespace bin {
-        // In the 1st part of the bin file, all unicode has this WOD
-        INT16 CONST UNICODE_FLAG = 0x0401;
-
-        // In the 2nd part of the bin file, each position values are separated by this WORD
-        INT16 CONST POSITION_FLAG = 0x0328;
-
-        // Each position values have this number of DWORD
-        INT CONST POSITION_DW_COUNT = 7;
-    }
-
 }

@@ -18,6 +18,7 @@
 #include "../HFzhCNResourceDLL/resource.h"
 #include "../H5FontLogger/HFLogger.h"
 #include "../H5FontCore/HFUtils.h"
+#include "../H5FontCore/HFLogicConstants.h"
 
 #include "HFGUIConstants.h"
 #include "HFGUIUtils.h"

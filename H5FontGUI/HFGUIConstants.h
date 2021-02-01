@@ -1,25 +1,64 @@
 #pragma once
 
-namespace UIC {
-    namespace  ConfigWindow {
+namespace HFUIC {
+    namespace  MainWindow {
         int const ID = 0x1000;
+        enum {
+            ID_btnBrowsePak = ID + 1,
+            ID_txtPak,
+            ID_ddlHeaderSelect,
+            ID_ddlFontSelect,
+            ID_txtSize,
+            ID_txtBold,
+            ID_btnItalic,
+            ID_btnUnderline,
+            ID_btnRun,
+            ID_btnPreviewDraw,
+            ID_btnPackage,
+            ID_btnOpenFolder,
+        };
 
-        CRect const Size(0, 0, 300, 200);
-
-        namespace UISession {
-            CRect const grpRect(10, 5, 230, 200);
-            CRect const lblSessionRect(10, 25, 80, 40);
-            CRect const txtSessionRect(85, 23, 210, 42);
-            CRect const lblClientsRect(10, 50, 210, 65);
-            CRect const lstClientsRect(10, 70, 210, 120);
-            CRect const optSaveRect(10, 130, 210, 145);
-            CRect const optLoadRect(10, 150, 210, 165);
-            CRect const optNoActionRect(10, 170, 210, 185);
+        CRect const Size(0, 0, 400, 400);
+        int const MARGIN = 3;
+        namespace UIStep1{
+            CRect const grpRect(0 + MARGIN, 0 + MARGIN, 400 - MARGIN - 16, 70 - MARGIN * 2);
+            CRect const lblPakRect(10, 30, 130, 50);
+            CRect const txtPakRect(130, 28, 270, 52);
+            CRect const btnBrowsePakRect(280, 25, 370, 55);
         }
+
+        namespace UIStep2 {
+            CRect const grpRect(0 + MARGIN, 70 + MARGIN, 400 - MARGIN * 2 - 16, 270 - MARGIN * 2);
+            CRect const lblHeaderSelectRect(10, 25, 190, 45);
+            CRect const ddlHeaderSelectRect(200, 22, 365, 30);
+            CRect const lblSplitterRect(10, 47, 370, 65);
+            CRect const lblFontSelectRect(10, 70, 100, 90);
+            CRect const ddlFontSelectRect(100, 66, 350, 90);
+            CRect const lblSizeRect(10, 105, 50, 125);
+            CRect const txtSizeRect(50, 103, 80, 125);
+            CRect const lblBoldRect(110, 105, 150, 125);
+            CRect const txtBoldRect(150, 103, 190, 125);
+            CRect const btnItalicRect(220, 105, 280, 125);
+            CRect const btnUnderlineRect(280, 105, 360, 125);
+            CRect const lblPreviewRect(10, 135, 360, 185);
+        }
+
+        namespace UIStep3 {
+            CRect const grpRect(0 + MARGIN, 270, 170, 340 - MARGIN * 2);
+            CRect const btnRunRect(10, 25, 80, 55);
+            CRect const btnPreviewDrawRect(85, 25, 155, 55);
+        }
+
+        namespace UIStep4 {
+            CRect const grpRect(180, 270, 400 - MARGIN * 2 - 16, 340 - MARGIN * 2);
+            CRect const btnPackageRect(10, 25, 80, 55);
+            CRect const btnOpenFolderRect(85, 25, 190, 55);
+        }
+
     }
 
     namespace LogWindow {
-        CRect const Size(0, 200, 400, 1080);
+        CRect const Size(0, 400, 400, 1080);
         int const ID = 0x2000;
         enum {
             ID_txtLog = ID + 1,
@@ -65,25 +104,18 @@ namespace UIC {
     static struct __font {
         __font();
         CFont LOG_FONT;
+        CFont NORMAL_FONT;
+        CFont BOLD_FONT;
     } Font;
 
     namespace WindowMessage {
         enum {
-            //
-            // Logging window messages
-            //
-
-
-
             //
             // Main window messages
             //
 
             // The log window is closed
             MENU_WINDOWS_LOG = WM_APP + 0x0010,
-
-            // The draw window is closed
-            MENU_WINDOWS_DRAW,
         };
     }
 }

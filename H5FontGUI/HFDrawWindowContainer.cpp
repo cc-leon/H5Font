@@ -20,7 +20,7 @@ BOOL HFDrawWindowContainer::RegisterThisClass() {
     WNDCLASS wndclass;
     ::ZeroMemory((LPVOID*)(&wndclass), sizeof(WNDCLASS));
     HINSTANCE hInst = AfxGetInstanceHandle();
-    if (!::GetClassInfo(hInst, UIC::DrawWindow::Container::szDrawWindowContainerName, &wndclass)) {
+    if (!::GetClassInfo(hInst, HFUIC::DrawWindow::Container::szDrawWindowContainerName, &wndclass)) {
         wndclass.lpfnWndProc = AfxWndProc;
         //wndclass.cbClsExtra = 0;
         //wndclass.cbWndExtra = 0;
@@ -29,15 +29,15 @@ BOOL HFDrawWindowContainer::RegisterThisClass() {
         wndclass.hCursor = AfxGetApp()->LoadStandardCursor(IDC_ARROW);
         wndclass.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
         wndclass.lpszMenuName = NULL;
-        wndclass.lpszClassName = UIC::DrawWindow::Container::szDrawWindowContainerName;
+        wndclass.lpszClassName = HFUIC::DrawWindow::Container::szDrawWindowContainerName;
         if (!AfxRegisterClass(&wndclass)) {
-            sWarning.Format(_T("\"%s\" class is not registered successfully"), UIC::DrawWindow::Container::szDrawWindowContainerName);
+            sWarning.Format(_T("\"%s\" class is not registered successfully"), HFUIC::DrawWindow::Container::szDrawWindowContainerName);
             ::AfxMessageBox(sWarning);
             return FALSE;
         }
     }
     else {
-        sWarning.Format(_T("\"%s\" class is already registered"), UIC::DrawWindow::Container::szDrawWindowContainerName);
+        sWarning.Format(_T("\"%s\" class is already registered"), HFUIC::DrawWindow::Container::szDrawWindowContainerName);
         ::AfxMessageBox(sWarning);
         return FALSE;
     }

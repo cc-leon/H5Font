@@ -6,14 +6,14 @@
 #include "../H5FontLogger/HFLogLib.h"
 
 // HFLogWindow
-HFLogWindow::HFLogWindow() :m_txtLog(NULL) {}
+HFLogWindow::HFLogWindow() {}
 
 HFLogWindow::~HFLogWindow() {}
 
 BOOL HFLogWindow::CreateHFLogWindow(CWnd * pParentWnd) {
     return Create(NULL, _T("H5FontLogWindow"),
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX,
-        UIC::LogWindow::Size, pParentWnd);
+        HFUIC::LogWindow::Size, pParentWnd);
 }
 
 BOOL HFLogWindow::PreCreateWindow(CREATESTRUCT& cs) {
@@ -22,8 +22,8 @@ BOOL HFLogWindow::PreCreateWindow(CREATESTRUCT& cs) {
     }
 
     cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
-    cs.cx = UIC::LogWindow::Size.Width();
-    cs.cy = UIC::LogWindow::Size.Height();
+    cs.cx = HFUIC::LogWindow::Size.Width();
+    cs.cy = HFUIC::LogWindow::Size.Height();
     cs.lpszClass = AfxRegisterWndClass(
         CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW,
         AfxGetApp()->LoadStandardCursor(IDC_ARROW),
@@ -43,17 +43,16 @@ END_MESSAGE_MAP()
 // HFLogWindow message handlers
 
 void HFLogWindow::OnClose() {
-    AfxGetMainWnd()->SendMessage(UIC::WindowMessage::MENU_WINDOWS_LOG);
+    AfxGetMainWnd()->SendMessage(HFUIC::WindowMessage::MENU_WINDOWS_LOG);
 }
 
 int HFLogWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     if (CFrameWnd::OnCreate(lpCreateStruct) == -1) {
         return -1;
     }
-    m_txtLog = new HFRichTextBox;
-    m_txtLog->CreateHFRichTextBox(this, CRect(0, 0, lpCreateStruct->cx, lpCreateStruct->cy));
+    m_txtLog.CreateHFRichTextBox(this, CRect(0, 0, lpCreateStruct->cx, lpCreateStruct->cy));
 
-    LOG.Initialize(m_txtLog);
+    LOG.Initialize(&m_txtLog);
     LOG.log(_T("Application started"));
 
     return 0;
@@ -61,5 +60,5 @@ int HFLogWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 void HFLogWindow::OnSize(UINT nType, int cx, int cy) {
     CFrameWnd::OnSize(nType, cx, cy);
-    m_txtLog->SetWindowPos(&wndTop, 0, 0, cx, cy, NULL);
+    m_txtLog.SetWindowPos(&wndTop, 0, 0, cx, cy, NULL);
 }

@@ -1,17 +1,12 @@
 #pragma once
 
-
-// HFGroupBox
-
 class HFGroupBox : public CButton {
-	DECLARE_DYNAMIC(HFGroupBox)
-
 public:
-	HFGroupBox();
-	virtual ~HFGroupBox();
+    HFGroupBox();
+    virtual ~HFGroupBox();
+    BOOL CreateHFGroupBox(LPCTSTR szText, CWnd* pParent, CRect CONST& rect);
 
 protected:
-	DECLARE_MESSAGE_MAP()
+    DECLARE_MESSAGE_MAP()
+    virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 };
-
-

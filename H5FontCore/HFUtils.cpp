@@ -170,7 +170,7 @@ namespace str {
             NULL,            // int cbMultiByte,
             NULL,            // LPCCH lpDefaultChar,
             NULL);           // LPBOOL lpUsedDefaultChar
-        LPSTR szResult = (LPSTR)mem::GetMem(sizeof(CHAR) * cchConverted);
+        LPSTR szResult = (LPSTR)mem::GetMem(cchConverted);
 
         cchConverted = ::WideCharToMultiByte(
             sys.CodePage(),  // UINT CodePage
@@ -178,7 +178,7 @@ namespace str {
             wszText,         // LPCWCH lpWideCharStr,
             -1,              // int cchWideChar,
             szResult,            // LPSTR lpMultiByteStr,
-            sizeof(TCHAR) * cchConverted, // int cbMultiByte,
+            cchConverted, // int cbMultiByte,
             NULL,            // LPCCH lpDefaultChar,
             NULL);           // LPBOOL lpUsedDefaultChar
 
@@ -203,10 +203,10 @@ namespace str {
             szText,          // LPCCH lpMultiByteStr,
             -1,              // int cbMultiByte,
             swzResult,       // LPWSTR lpWideCharStr,
-            sizeof(WCHAR) * cchConverted);  // int cchWideChar
+            cchConverted);  // int cchWideChar
 
         CStringW sResult(swzResult);
-        mem::FreeMem((LPVOID)szResult);
+        mem::FreeMem((LPVOID)swzResult);
         return sResult;
     }
 
@@ -220,36 +220,26 @@ namespace str {
 
     CString CStringA2CString(LPCSTR szText) {
 #ifdef _UNICODE
-        int cchConverted = ::MultiByteToWideChar(
-            sys.CodePage(),  // UINT CodePage
-            NULL,            // DWORD dwFlags,
-            szText,          // LPCCH lpMultiByteStr,
-            -1,              // int cbMultiByte,
-            NULL,            // LPWSTR lpWideCharStr,
-            NULL);           // int cchWideChar
-
-        LPTSTR szResult = (LPTSTR)mem::GetMem(sizeof(TCHAR) * cchConverted);
-        cchConverted = ::MultiByteToWideChar(
-            sys.CodePage(),  // UINT CodePage
-            NULL,            // DWORD dwFlags,
-            szText,          // LPCCH lpMultiByteStr,
-            -1,              // int cbMultiByte,
-            NULL,            // LPWSTR lpWideCharStr,
-            NULL);           // int cchWideChar
-
-        CString sResult(szResult);
-        mem::FreeMem((LPVOID)szResult);
-        return sResult;
-
+        return CStringA2CStringW(szText);
 #else
         return szText;
 #endif
     }
 
     CStringA CString2CStringA(LPCTSTR szText) {
+#ifdef _UNICODE
+        return CStringW2CStringA(szText);
+#else
+        return szText;
+#endif
     }
 
-    CStringW CString2CStringW(LPCSTR szText) {
+    CStringW CString2CStringW(LPCTSTR szText) {
+#ifdef _UNICODE
+        return szText;
+#else
+        return CStringA2CStringW(szText);;
+#endif
     }
 
 }

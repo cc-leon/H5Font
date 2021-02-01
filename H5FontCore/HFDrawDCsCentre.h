@@ -15,10 +15,10 @@ public:
     VOID operator = (HFDrawDCsCentre&&) = delete;
 
     HFMemDC& operator [] (size_t index);
-    VOID InitializeInstance(LPTSTR szTargetFolder);
+    VOID InitializeInstance(LPCFONTINFO);
 
 protected:
-    HFMemDC m_dcs[LC::header::INDEX_COUNT];
+    HFMemDC m_dcs[HFLC::header::HEADER_COUNT];
 };
 
 extern HFDrawDCsCentre hfcore;

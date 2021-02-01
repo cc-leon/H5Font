@@ -30,7 +30,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
@@ -153,7 +153,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="HFBinFileInfo.cpp" />
+    <ClCompile Include="HFBinFile.cpp" />
+    <ClCompile Include="HFBinFilesInfo.cpp" />
+    <ClCompile Include="HFDDSFile.cpp" />
+    <ClCompile Include="HFFileConstants.cpp" />
     <ClCompile Include="HFFileUtils.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -161,7 +164,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="HFBinFileInfo.h" />
+    <ClInclude Include="HFBinFile.h" />
+    <ClInclude Include="HFBinFilesInfo.h" />
+    <ClInclude Include="HFDDSFile.h" />
+    <ClInclude Include="HFFileConstants.h" />
     <ClInclude Include="HFFileUtils.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pugiconfig.hpp" />

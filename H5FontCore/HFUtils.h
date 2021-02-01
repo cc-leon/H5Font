@@ -12,6 +12,25 @@ private:
 
 } const sys;
 
+typedef struct tagUNICODEINFO{
+    static INT CONST POSITION_DW_COUNT = 7;
+    WCHAR wcUnicode;
+    INT32 aiPos[POSITION_DW_COUNT];
+} UNICODEINFO, * PUNICODEINFO, * LPUNICODEINFO;
+
+typedef UNICODEINFO CONST * LPCUNICODEINFO;
+
+
+typedef struct tagFONTINFO {
+    INT iStyleName;
+    TCHAR szFacenam[LF_FACESIZE];
+    INT nHeight;
+    INT nWeight;
+    BYTE bItalic;
+    BYTE bUnderline;
+} FONTINFO, * PFONTINFO, * LPFONTINFO;
+typedef FONTINFO CONST* LPCFONTINFO;
+
 //
 // Memory management functions
 //
@@ -44,7 +63,7 @@ namespace str {
 
     CStringA CString2CStringA(LPCTSTR szText);
 
-    CStringW CString2CStringW(LPCSTR szText);
+    CStringW CString2CStringW(LPCTSTR szText);
 
 }
 

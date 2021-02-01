@@ -18,10 +18,19 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HFBinFileInfo.cpp">
+    <ClCompile Include="HFFileUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HFFileUtils.cpp">
+    <ClCompile Include="HFBinFilesInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HFBinFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HFFileConstants.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HFDDSFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,10 +50,19 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HFBinFileInfo.h">
+    <ClInclude Include="HFFileUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HFFileUtils.h">
+    <ClInclude Include="HFBinFilesInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HFBinFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HFFileConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HFDDSFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

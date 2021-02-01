@@ -41,12 +41,31 @@ dc.StretchBlt(0, 0, dispRect.Width(), dispRect.Height(), &memdc, 0, 0, bmpSize.c
 BOOL HFMemDC::CreateHFMemDC(
     CSize CONST& csDim, INT iStyleName,
     LPCTSTR lpszFacenam, INT nHeight, int nWeight, BYTE bItalic, BYTE bUnderline) {
-    
+    m_font.CreateHFFont(lpszFacenam, nHeight, nWeight, bItalic, bUnderline);
+    m_dim = csDim;
+    m_iStyle = iStyleName;
+
+    CreateCompatibleDC(NULL);
+    CBitmap freshMap;
+    freshMap.CreateBitmap(csDim.cx, csDim.cy, 1, 32, NULL);
+    SelectObject(freshMap);
+
+    CBrush redBrush;
+    redBrush.CreateSolidBrush(RGB(255, 0, 0));
+    SelectObject(redBrush);
+    freshMap.DeleteObject();
+
+    SetBkMode(OPAQUE);
+    SetTextColor(RGB(255,255,255));
+    SetBkColor(RGB(0, 0, 0));
+
+    TextOut(10, 10, _T("!@#$%^&*()"));
+
     return FALSE;
 }
 
-CSize HFMemDC::GetMemDCCSize() CONST {
-    return CSize();
+CSize CONST& HFMemDC::GetMemDCCSize() CONST {
+    return m_dim;
 }
 
 BOOL HFMemDC::SaveToBMP(LPCTSTR bmFilename) {

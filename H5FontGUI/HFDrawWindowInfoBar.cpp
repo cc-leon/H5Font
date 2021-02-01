@@ -25,9 +25,9 @@ VOID HFDrawWindowInfoBar::UpdateFromParent() {
     GetParent()->GetWindowRect(rcParent);
 
     int aiWidths[] = {
-        rcParent.Width() * UIC::DrawWindow::InfoBar::PANE1_PERCENTAGE /100,
-        rcParent.Width() * UIC::DrawWindow::InfoBar::PANE2_PERCENTAGE /100,
-        rcParent.Width() * UIC::DrawWindow::InfoBar::PANE3_PERCENTAGE /100, -1 };
+        rcParent.Width() * HFUIC::DrawWindow::InfoBar::PANE1_PERCENTAGE /100,
+        rcParent.Width() * HFUIC::DrawWindow::InfoBar::PANE2_PERCENTAGE /100,
+        rcParent.Width() * HFUIC::DrawWindow::InfoBar::PANE3_PERCENTAGE /100, -1 };
 
     for (int i = 1; i < 3; i++) {
         aiWidths[i] += aiWidths[i - 1];

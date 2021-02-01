@@ -17,5 +17,7 @@
 #include <string>
 
 #include "../H5FontCore/HFUtils.h"
+#include "../H5FontCore/HFLogicConstants.h"
+#include "HFFileConstants.h"
 
 #endif //PCH_H

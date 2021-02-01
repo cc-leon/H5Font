@@ -62,17 +62,9 @@ END
 
 IDR_MAINWINDOW MENU
 BEGIN
-    POPUP "开始(&S)"
-    BEGIN
-        MENUITEM "设置(&S)",                      IDM_START_SETUP
-        MENUITEM "运行(&R)",                      IDM_START_RUN
-        MENUITEM SEPARATOR
-        MENUITEM "退出(&X)",                      IDM_START_EXIT
-    END
     POPUP "窗口(&W)"
     BEGIN
         MENUITEM "日志(&L)",                      IDM_WINDOWS_LOG, CHECKED
-        MENUITEM "预览(&D)",                      IDM_WINDOWS_DRAW, CHECKED
     END
     POPUP "帮助(&H)"
     BEGIN
@@ -103,6 +95,39 @@ BEGIN
     IDS_DRAWWINDOW_INFOBAR_PANE4 "ABC: (%d, %d, %d)"
     IDS_DRAWWINDOW_INFOBAR_NOTINIMAGE "鼠标指针不在图像区域，请移动到图像区域获取更多信息"
     IDS_DRAWWINDOW_TITLE    "预览: 字体为""%s"", 字号为""%d"", 粗度为""%d"", 类型为""%s"", 共有""%d""个字"
+    IDS_MAINWINDOW_TITLE    "英雄无敌5字体生成器"
+    IDS_MAINWINDOW_STEP1_TITLE "第1步: 选择游戏texts.pak文件位置"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MAINWINDOW_STEP1_LBLPAK "含有字体Pak文件:"
+    IDS_MAINWINDOW_STEP1_BROWSE "浏览..."
+    IDS_MAINWINDOW_STEP2_TITLE "第2步: 选择你想用的字体, 一共有13种样式需要设置"
+    IDS_MAINWINDOW_STEP2_LBLHEADERSELECT "当前设置的游戏字体样式:"
+    IDS_MAINWINDOW_STEP2_LBLFONTSELECT "新字体名称:"
+    IDS_MAINWINDOW_STEP2_LBLSIZE "字号:"
+    IDS_MAINWINDOW_STEP2_LBLBOLD "粗度:"
+    IDS_MAINWINDOW_STEP2_BTNITALIC "斜体"
+    IDS_MAINWINDOW_STEP2_BTNUNDERLINE "下划线"
+    IDS_MAINWINDOW_STEP2_SAMPLETEXT "预览效果 Preview effects 1234!@#$%^"
+    IDS_MAINWINDOW_STEP3_TITLE "第3步: 生成预览"
+    IDS_MAINWINDOW_STEP3_BTNRUN "生成"
+    IDS_MAINWINDOW_STEP3_PREVIEW "预览..."
+    IDS_MAINWINDOW_STEP4_TITLE "第4步: 打包"
+    IDS_MAINWINDOW_STEP4_BTNPACKAGE "打包Pak"
+    IDS_MAINWINDOW_STEP4_BTNOPENFOLDER "打开文件夹..."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MAINWINDOW_STEP1_PAKFILTER "英雄无敌5压缩数据文件 (*.pak)|*.pak||"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_LOG_APPSTART        "程序开始"
+    IDS_LOG_NUM_FONTS_LOADED "%d个字体加载成功"
 END
 
 #endif    // Chinese (Simplified, PRC) resources
