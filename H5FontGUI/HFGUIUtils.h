@@ -1,5 +1,4 @@
 #pragma once
-#define STR_RC(nID) ui::LoadRcString(nID)
 //
 // Functions used to help manipulation on GUI
 //
@@ -16,8 +15,5 @@ namespace ui {
     // When rect1's either dimension (horizontal or vertical) is less or equal than that of rect2, it must stay inside;
     // Else, rect2 must stay in rect1 on the same dimension
     BOOL CRect1InsideCRect2(CRect CONST& rect1, CRect CONST& rect2);
-
-    // Load a string resouce
-    CString LoadRcString(UINT uiResourceID);
 
 };

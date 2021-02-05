@@ -1,35 +1,51 @@
 #pragma once
 
-class __sys {
-public:
-    __sys();
-    UINT CodePage() CONST;
-    CStringW LocaleName() CONST;
-
-private:
-    UINT m_uiCodePage;
-    CStringW m_wsLocaleName;
-
-} const sys;
+#define HFSTRC(nID) str::LoadRcString(nID)
 
 typedef struct tagUNICODEINFO{
-    static INT CONST POSITION_DW_COUNT = 7;
+    enum {
+        L_BOUND,
+        B_OFFSET,
+        R_BOUND,
+        B_BOUND,
+        L_OFFSET,
+        R_OFFSET,
+        UNKNOWN,
+        POS_COUNT,
+    };
     WCHAR wcUnicode;
-    INT32 aiPos[POSITION_DW_COUNT];
+    INT32 aiPos[POS_COUNT];
 } UNICODEINFO, * PUNICODEINFO, * LPUNICODEINFO;
 
 typedef UNICODEINFO CONST * LPCUNICODEINFO;
 
-
 typedef struct tagFONTINFO {
-    INT iStyleName;
     TCHAR szFacenam[LF_FACESIZE];
     INT nHeight;
+    INT nPadding;
+    INT nVPosition;
     INT nWeight;
     BYTE bItalic;
     BYTE bUnderline;
 } FONTINFO, * PFONTINFO, * LPFONTINFO;
 typedef FONTINFO CONST* LPCFONTINFO;
+
+
+namespace sys {
+    class __sys {
+    public:
+        __sys();
+        UINT CodePage() CONST;
+        CStringW LocaleName() CONST;
+
+    private:
+        UINT m_uiCodePage;
+        CStringW m_wsLocaleName;
+
+    } const info;
+
+    CString RunExe(LPCTSTR lpCmd, LPDWORD lpdwExitCode=NULL);
+}
 
 //
 // Memory management functions
@@ -37,10 +53,29 @@ typedef FONTINFO CONST* LPCFONTINFO;
 namespace mem {
 
     // Get new memory
-    LPVOID GetMem(SIZE_T cbSize);
+    template<typename T>T* GetMem(SIZE_T cbSize) {
+            return reinterpret_cast<T*>(::HeapAlloc(
+                ::GetProcessHeap(),  // HANDLE hHeap,
+                NULL,  // DWORD  dwFlags,
+                cbSize * sizeof(T)));  // SIZE_T dwBytes
+    }
 
     // Free the memory granted by GetMem
-    BOOL FreeMem(LPVOID lpBuf);
+    template<typename T>BOOL FreeMem(T* & lpBuf) {
+        if (lpBuf != NULL) {
+            BOOL bResult = ::HeapFree(
+                ::GetProcessHeap(),  // HANDLE hHeap,
+                NULL, //DWORD dwFlags,
+                lpBuf);  //_Frees_ptr_opt_ LPVOID lpMem
+            if (bResult) {
+                lpBuf = NULL;
+            }
+            return bResult;
+        }
+        else {
+            return FALSE;
+        }
+    }
 
     // Copy additional content into a buffer
     SIZE_T AppendBuffer(LPBYTE abBuffer, SIZE_T cbBuffer, SIZE_T iCursor, LPCVOID lpObj, size_t cbObj);
@@ -65,6 +100,8 @@ namespace str {
 
     CStringW CString2CStringW(LPCTSTR szText);
 
+    // Load a string resouce
+    CString LoadRcString(UINT uiResourceID);
 }
 
 //

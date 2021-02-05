@@ -1,21 +1,32 @@
 #pragma once
-#include "HFBitmap.h"
-#include "HFFont.h"
 
 class HFMemDC : public CDC {
 public:
+    static COLORREF CONST PLATE_COLOR = RGB(255, 0, 0);
+    static COLORREF CONST FONT_COLOR = RGB(255, 255, 255);
+    static COLORREF CONST BKGD_COLOR = RGB(0, 0, 0);
+
+    static int CONST PADDING = 0;
+    static size_t CONST EOUNICODES = 0xFFFF + 1;
+
     HFMemDC();
     virtual ~HFMemDC();
-    BOOL CreateHFMemDC(
-        CSize CONST& csDim, INT iStyleName,
-        LPCTSTR lpszFacenam, INT nHeight, int nWeight = FW_SEMIBOLD, BYTE bItalic = FALSE, BYTE bUnderline = FALSE);
+    BOOL CreateHFMemDC(FONTINFO CONST& fontinfo);
     CSize CONST& GetMemDCCSize() CONST;
-    BOOL SaveToBMP(LPCTSTR bmFilename);
+    size_t GetUnicodeCount() CONST;
+    size_t FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr);
 
 protected:
-    HFBitmap m_bmp;
-    HFFont m_font;
+    CImage m_image;
+    CFont m_font;
+    FONTINFO m_fontinfo;
     CSize m_dim;
-    int m_iStyle;
+    LPWSTR m_awcUnicodes;
+    LPABC m_abcUnicodes;
+    size_t m_cwcUnicodes;
+    LPPOINT m_ptUnicodes;
+
+    VOID __subGetAllUnicodes();
+    CPoint __subDrawUnicode(CPoint CONST& ptCurr, size_t iIndex, int iHeight);
 };
 

@@ -1,7 +1,5 @@
 #pragma once
-#include "HFBitmap.h"
 #include "HFMemDC.h"
-#include "HFFont.h"
 
 #define DRAW_CENTRE HFDrawDCsCentre::get()
 
@@ -15,7 +13,7 @@ public:
     VOID operator = (HFDrawDCsCentre&&) = delete;
 
     HFMemDC& operator [] (size_t index);
-    VOID InitializeInstance(LPCFONTINFO);
+    VOID DrawAtOnce(LPCFONTINFO fiInfo);
 
 protected:
     HFMemDC m_dcs[HFLC::header::HEADER_COUNT];

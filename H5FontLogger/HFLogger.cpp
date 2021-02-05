@@ -44,11 +44,11 @@ namespace logger {
         LPCTSTR szComment) {
         if (m_logWnd != NULL) {
             CString sMsg(_T("WinAPI error: "));
-            log(sMsg, RED, TRUE, FALSE, FALSE, FALSE);
+            log(sMsg, ERR, TRUE, FALSE, FALSE, FALSE);
             sMsg.Format(
                 _T("%s. \"%s\" WinAPI returned %lld with lastError of %lu, from \"%s\" at line %d in file %s"),
                 szComment, szAPIName, iReturnValue, dwLastError, szFuncName, iLineNo, szFileName);
-            log(sMsg, RED);
+            log(sMsg, ERR);
         }
         return m_logWnd != NULL;
     }
@@ -60,14 +60,15 @@ namespace logger {
         LPCTSTR szDescription) {
         if (m_logWnd != NULL) {
             CString sMsg(_T("User error: "));
-            log(sMsg, RED, TRUE, FALSE, FALSE, FALSE);
+            log(sMsg, ERR, TRUE, FALSE, FALSE, FALSE);
             sMsg.Format(
                 _T("%s, from \"%s\" at line %d in file %s"),
                 szDescription, szFuncName, iLineNo, szFileName);
-            log(sMsg, RED);
+            log(sMsg, ERR);
         }
         return m_logWnd != NULL;
     }
 
     HFLogger DefaultLogger;
+
 }

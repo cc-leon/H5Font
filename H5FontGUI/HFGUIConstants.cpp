@@ -50,7 +50,5 @@ namespace HFUIC {
         CLEARTYPE_QUALITY,             // Quality
         FIXED_PITCH | FF_ROMAN,      // PitchAndFamily
         _T("Segoe UI"));      // Facename
-
-
     }
 }

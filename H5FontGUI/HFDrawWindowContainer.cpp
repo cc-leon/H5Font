@@ -85,7 +85,10 @@ CPoint HFDrawWindowContainer::GetImageCenter() {
     return rcImage.CenterPoint();;
 }
 
-
+VOID HFDrawWindowContainer::SetMemDC(HFMemDC* memDC) {
+    m_dispImage->LoadHFMemDC(memDC);
+    RestoreZoom();
+}
 
 BOOL HFDrawWindowContainer::PreCreateWindow(CREATESTRUCT& cs) {
     if (!CWnd::PreCreateWindow(cs)) {
@@ -115,14 +118,6 @@ int HFDrawWindowContainer::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         return -1;
 
     m_dispImage = new HFImageDisplay;
-    CImage* aa = new CImage;
-    if (aa->Load(_T("kk.png")) != S_OK) {
-        ::AfxMessageBox(_T("Not loaded"));
-    }
-    HFBitmap* bb = new HFBitmap;
-    bb->Attach(aa->Detach());
-    BITMAP cc;
-    bb->GetBitmap(&cc);
     m_dispImage->CreateHFImageDisplay(CPoint(0, 0), this);
 
     return 0;
@@ -130,7 +125,7 @@ int HFDrawWindowContainer::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 void HFDrawWindowContainer::OnMButtonDown(UINT nFlags, CPoint point) {
     CWnd::OnMButtonDown(nFlags, point);
-    m_infobar->SetHFDrawWindowInforBarText(STR_RC(IDS_DRAWWINDOW_MBDOWN));
+    m_infobar->SetHFDrawWindowInforBarText(HFSTRC(IDS_DRAWWINDOW_MBDOWN));
     m_ptPrevCursor = point;
     SetCapture();
     m_hPrevCursor = ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEALL));
@@ -179,11 +174,11 @@ void HFDrawWindowContainer::OnMouseMove(UINT nFlags, CPoint point) {
             ptWRTImage -= rcImage.TopLeft();
             ptWRTImage = m_dispImage->DisplayToLogical(ptWRTImage);
             CString sTemp;
-            sTemp.Format(STR_RC(IDS_DRAWWINDOW_INFOBAR_PANE1), ptWRTImage.x, ptWRTImage.y);
+            sTemp.Format(HFSTRC(IDS_DRAWWINDOW_INFOBAR_PANE1), ptWRTImage.x, ptWRTImage.y);
             m_infobar->SetHFDrawWindowInforBarText(sTemp, 0);
         }
         else {
-            m_infobar->SetHFDrawWindowInforBarText(STR_RC(IDS_DRAWWINDOW_INFOBAR_NOTINIMAGE));
+            m_infobar->SetHFDrawWindowInforBarText(HFSTRC(IDS_DRAWWINDOW_INFOBAR_NOTINIMAGE));
         }
     }
 }

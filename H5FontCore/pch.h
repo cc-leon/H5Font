@@ -14,6 +14,7 @@
 #include <strsafe.h>
 
 #include "../H5FontLogger/HFLogger.h"
+#include "../HFzhCNResourceDLL/resource.h"
 #include "HFLogicConstants.h"
 #include "HFUtils.h"
 

@@ -24,6 +24,18 @@ BOOL HFImageDisplay::CreateHFImageDisplay(CPoint CONST& ptTopLeft, CWnd* pParent
     return bResult;
 }
 
+VOID HFImageDisplay::LoadHFMemDC(HFMemDC* pMemDC) {
+    m_pMemDC = pMemDC;
+    if (pMemDC != NULL) {
+        CRect rect;
+        CSize csMemDC = pMemDC->GetMemDCCSize();
+        rect.right = csMemDC.cx;
+        rect.bottom = csMemDC.cy;
+        SetWindowPos(&wndTop, rect.left, rect.top, rect.Width(), rect.Height(), NULL);
+    }
+    RedrawWindow();
+}
+
 DWORD HFImageDisplay::GetZoom() CONST {
     return m_dwZoomValue;
 }
@@ -89,41 +101,14 @@ END_MESSAGE_MAP()
 
 void HFImageDisplay::OnPaint() {
     CPaintDC dc(this); // device context for painting
-                       // TODO: Add your message handler code here
                        // Do not call CStatic::OnPaint() for painting messages
     if (m_pMemDC != NULL) {
-        /*
-        CDC memdc;
-        memdc.CreateCompatibleDC(NULL);
-        CBitmap freshMap;
-        freshMap.CreateBitmap(1000, 1000,1, 32, NULL);
-        CBitmap * oldmap = memdc.SelectObject(m_bmpSource);
-        memdc.SetBkMode(TRANSPARENT);
-        memdc.SetTextColor(UIConst::Color::WHITE);
-        CFont newFont;
-        newFont.CreateFont(
-            30,                            // Height
-            0,                             // Width
-            0,                             // Escapement
-            0,                             // OrientationME
-            FW_BOLD,                       // Weight
-            FALSE,                         // Italic
-            FALSE,                          // Underline
-            0,                             // StrikeOut
-            ANSI_CHARSET,                  // CharSet
-            OUT_DEVICE_PRECIS,            // OutPrecision
-            CLIP_DEFAULT_PRECIS,           // ClipPrecision
-            CLEARTYPE_QUALITY,               // Quality
-            FIXED_PITCH | FF_ROMAN,      // PitchAndFamily
-            _T("Monotype Corsiva"));      // Facename
-        memdc.SelectObject(newFont);
-        CString aa(_T("Heroes of might and magic V"));
-        memdc.ExtTextOut(0, 0, ETO_CLIPPED, NULL, aa, NULL);
-
         CRect dispRect;
         GetClientRect(dispRect);
-        CSize bmpSize = m_bmpSource->GetBmpCSize();
+        CSize memDCSize = m_pMemDC->GetMemDCCSize();
         dc.SetStretchBltMode(HALFTONE);
-        dc.StretchBlt(0, 0, dispRect.Width(), dispRect.Height(), &memdc, 0, 0, bmpSize.cx, bmpSize.cy, SRCCOPY);*/
+        dc.StretchBlt(
+            0, 0, dispRect.Width(), dispRect.Height(), 
+            m_pMemDC, 0, 0, memDCSize.cx, memDCSize.cy, SRCCOPY);
     }
 }

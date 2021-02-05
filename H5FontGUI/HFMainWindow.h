@@ -5,6 +5,7 @@
 #include "HFHeaderDropDownList.h"
 #include "HFFontDropDownList.h"
 #include "HFToolTipCtrl.h"
+#include "../H5FontCore/HFDrawDCsCentre.h"
 
 class HFMainWindow : public CFrameWnd {
 
@@ -13,6 +14,11 @@ protected:
     HFDrawWindow* m_drawWnd;
     CMenu m_mnMain;
     HFToolTipCtrl m_ttcMain;
+
+    // Logicpart
+    FONTINFO m_fiFonts[HFLC::header::HEADER_COUNT];
+    int m_iFontIndex;
+    HFDrawDCsCentre m_dcDrawCentre;
 
     struct {
         HFGroupBox grp;
@@ -23,6 +29,7 @@ protected:
         HFGroupBox grp;
         CStatic lblHeaderSelect; HFHeaderDropDownList ddlHeaderSelect; CStatic lblSplitter;
         CStatic lblFontSelect; HFFontDropDownList ddlFontSelect;
+        CStatic lblPadding; CEdit txtPadding; CStatic lblVPosition; CEdit txtVPosition;
         CStatic lblSize; CEdit txtSize; CStatic lblBold; CEdit txtBold;
         CButton btnItalic; CButton btnUnderline; CStatic lblPreview;
     } UIStep2;
@@ -37,7 +44,11 @@ protected:
 
     BOOL GetMenuChecked(UINT uiMenuID);
     VOID SetMenuWindowsLogChecked(BOOL bChecked);
-    VOID SetMenuWindowsDrawChecked(BOOL bChecked);
+    VOID SetBtnPreviewDrawChecked(BOOL bChecked);
+    VOID SetFontInfoToGUI(FONTINFO CONST& fi);
+    VOID GetFontInfoFromGUI(FONTINFO & fi);
+    VOID UpdateLblPreview();
+    CString ValidateTxtPak();
 
 public:
     HFMainWindow();
@@ -59,8 +70,10 @@ public:
     afx_msg void OnBtnPackageClicked();
     afx_msg void OnBtnOpenFolderClicked();
 
-        // Text change message
+    // Text change message
     afx_msg void OnTxtPakChange();
+    afx_msg void OnTxtPaddingChange();
+    afx_msg void OnTxtVPositionChange();
     afx_msg void OnTxtBoldChange();
     afx_msg void OnTxtSizeChange();
     afx_msg void OnDdlHeaderSelectChange();

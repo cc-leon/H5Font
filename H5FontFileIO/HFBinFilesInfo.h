@@ -14,7 +14,7 @@ public:
     void operator=(HFBinFilesInfo CONST&) = delete;
     void operator=(HFBinFilesInfo &&) = delete;
 
-    BOOL InitializeInstance(LPCTSTR szTargetName=NULL);
+    BOOL InitializeInstance(LPCTSTR szTargetName);
     VOID Cleanup();
 
 protected:

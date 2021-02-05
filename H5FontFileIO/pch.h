@@ -16,8 +16,10 @@
 #include <strsafe.h>
 #include <string>
 
+#include "../HFzhCNResourceDLL/resource.h"
 #include "../H5FontCore/HFUtils.h"
 #include "../H5FontCore/HFLogicConstants.h"
+#include "../H5FontLogger/HFLogger.h"
 #include "HFFileConstants.h"
 
 #endif //PCH_H

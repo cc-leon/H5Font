@@ -11,7 +11,7 @@ HFLogWindow::HFLogWindow() {}
 HFLogWindow::~HFLogWindow() {}
 
 BOOL HFLogWindow::CreateHFLogWindow(CWnd * pParentWnd) {
-    return Create(NULL, _T("H5FontLogWindow"),
+    return Create(NULL, _T("HFLogWindow"),
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX,
         HFUIC::LogWindow::Size, pParentWnd);
 }
@@ -53,7 +53,7 @@ int HFLogWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     m_txtLog.CreateHFRichTextBox(this, CRect(0, 0, lpCreateStruct->cx, lpCreateStruct->cy));
 
     LOG.Initialize(&m_txtLog);
-    LOG.log(_T("Application started"));
+    LOG.log(HFSTRC(IDS_LOG_APPSTART), HFUIC::Color::GREEN);
 
     return 0;
 }

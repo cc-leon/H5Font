@@ -101,7 +101,7 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>bzip2_debug.lib;lzma_debug.lib;ZipLib_debug.lib;zlib_debug.lib;pugixml_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pugixml_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -177,6 +177,9 @@
   <ItemGroup>
     <ProjectReference Include="..\H5FontCore\H5FontCore.vcxproj">
       <Project>{7c00e555-1529-4b81-a62a-1af583083d30}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\H5FontLogger\H5FontLogger.vcxproj">
+      <Project>{d10eb53f-a1ae-43b8-b384-cfa4f6e68d2f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

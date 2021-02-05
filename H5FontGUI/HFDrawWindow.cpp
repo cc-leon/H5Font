@@ -2,8 +2,8 @@
 #include "HFDrawWindow.h"
 
 // HFDrawWindow
-HFDrawWindow::HFDrawWindow() 
-    : CFrameWnd(){ }
+HFDrawWindow::HFDrawWindow()
+    : CFrameWnd(), m_dcDrawCentre(NULL), m_iDrawCentreIndex(0) {}
 
 HFDrawWindow::~HFDrawWindow() {}
 
@@ -25,6 +25,12 @@ void HFDrawWindow::GetActiveArea(LPRECT lpRect) CONST {
     rcResult.right -= 2;
     rcResult.bottom -= 2;
     *lpRect = rcResult;
+}
+
+VOID HFDrawWindow::SetDrawCentre(HFDrawDCsCentre* dcDrawCentre) {
+    m_dcDrawCentre = dcDrawCentre;
+    m_iDrawCentreIndex = 0;
+    m_container.SetMemDC(&(*m_dcDrawCentre)[m_iDrawCentreIndex]);
 }
 
 BOOL HFDrawWindow::PreCreateWindow(CREATESTRUCT& cs) {
@@ -57,7 +63,7 @@ BEGIN_MESSAGE_MAP(HFDrawWindow, CFrameWnd)
 END_MESSAGE_MAP()
 
 void HFDrawWindow::OnClose() {
-    ShowWindow(SW_HIDE);
+    AfxGetMainWnd()->SendMessage(HFUIC::WindowMessage::MENU_WINDOWS_DRAW);
 }
 
 int HFDrawWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {

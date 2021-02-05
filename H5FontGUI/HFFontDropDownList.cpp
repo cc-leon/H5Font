@@ -24,10 +24,10 @@ BOOL HFFontDropDownList::CreateHFFontDropDownList(CRect CONST& rect, CWnd* pPare
 size_t HFFontDropDownList::GetAllFontFaces() {
     HDC hdc = ::CreateCompatibleDC(NULL);
     ::EnumFontFamilies(hdc, NULL, (FONTENUMPROC)&EnumFontFamProc, (LPARAM)this);
-    CString sTemp;
-    sTemp.Format(_T("%d TrueType, ClearType and Device fonts loaded"), GetCount());
-    LOG.log(sTemp);
     ::DeleteDC(hdc);
+    CString sTemp;
+    sTemp.Format(HFSTRC(IDS_LOG_NUM_FONTS_LOADED), GetCount());
+    LOG.log(sTemp, HFUIC::Color::GREEN);
     return 0;
 }
 

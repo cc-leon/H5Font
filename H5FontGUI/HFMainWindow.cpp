@@ -5,8 +5,17 @@
 #include "../H5FontFileIO/HFBinFilesInfo.h"
 
 HFMainWindow::HFMainWindow() 
-    : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain() {
+    : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(), m_iFontIndex(0) {
 
+    for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
+        ::StringCchCopy(m_fiFonts[i].szFacenam, LF_FACESIZE, _T("Monotype Corsiva"));
+        m_fiFonts[i].nPadding = 0;
+        m_fiFonts[i].nVPosition = 5;
+        m_fiFonts[i].nHeight = HFLC::header::DEFAULT_HEIGHT[i];
+        m_fiFonts[i].nWeight = HFLC::header::DEFAULT_WEIGHT[i];
+        m_fiFonts[i].bItalic = 0;
+        m_fiFonts[i].bUnderline = 0;
+    }
 }
 
 HFMainWindow::~HFMainWindow() {}
@@ -30,20 +39,89 @@ VOID HFMainWindow::SetMenuWindowsLogChecked(BOOL bChecked) {
     }
 }
 
-VOID HFMainWindow::SetMenuWindowsDrawChecked(BOOL bChecked) {
+VOID HFMainWindow::SetBtnPreviewDrawChecked(BOOL bChecked) {
     if (bChecked) {
-        // TODO: m_mnMain.CheckMenuItem(IDM_WINDOWS_DRAW, MF_CHECKED);
         m_drawWnd->ShowWindow(SW_SHOW);
     }
     else {
-        // TODO: m_mnMain.CheckMenuItem(IDM_WINDOWS_DRAW, MF_UNCHECKED);
         m_drawWnd->ShowWindow(SW_HIDE);
     }
+    UIStep3.btnPreviewDraw.SetCheck(bChecked);
+}
+
+VOID HFMainWindow::SetFontInfoToGUI(FONTINFO CONST& fi) {
+    CString sTemp;
+    UIStep2.ddlFontSelect.SetCurSel(UIStep2.ddlFontSelect.FindStringExact(0, fi.szFacenam));
+    sTemp.Format(_T("%d"), fi.nPadding);
+    UIStep2.txtPadding.SetWindowText(sTemp);
+    sTemp.Format(_T("%d"), fi.nVPosition);
+    UIStep2.txtVPosition.SetWindowText(sTemp);
+    sTemp.Format(_T("%d"), fi.nHeight);
+    UIStep2.txtSize.SetWindowText(sTemp);
+    sTemp.Format(_T("%d"), fi.nHeight);
+    UIStep2.txtSize.SetWindowText(sTemp);
+    sTemp.Format(_T("%d"), fi.nWeight);
+    UIStep2.txtBold.SetWindowText(sTemp);
+    UIStep2.btnItalic.SetCheck(fi.bItalic);
+    UIStep2.btnUnderline.SetCheck(fi.bUnderline);
+}
+
+VOID HFMainWindow::GetFontInfoFromGUI(FONTINFO& fi)  {
+    CString sTemp;
+    if (UIStep2.ddlFontSelect.GetCurSel() != LB_ERR) {
+        UIStep2.ddlFontSelect.GetLBText(UIStep2.ddlFontSelect.GetCurSel(), sTemp);
+    }
+    ::StringCchCopy(fi.szFacenam, LF_FACESIZE, sTemp);
+    UIStep2.txtPadding.GetWindowText(sTemp);
+    fi.nPadding = ::StrToInt(sTemp);
+    UIStep2.txtVPosition.GetWindowText(sTemp);
+    fi.nVPosition = ::StrToInt(sTemp);
+    UIStep2.txtSize.GetWindowText(sTemp);
+    fi.nHeight = ::StrToInt(sTemp);
+    UIStep2.txtBold.GetWindowText(sTemp);
+    fi.nWeight = ::StrToInt(sTemp);
+    fi.bItalic = UIStep2.btnItalic.GetCheck();
+    fi.bUnderline = UIStep2.btnUnderline.GetCheck();
+}
+
+VOID HFMainWindow::UpdateLblPreview() {
+    CString sSample(HFSTRC(IDS_MAINWINDOW_STEP2_SAMPLETEXT));
+    LPCFONTINFO pfi = &m_fiFonts[m_iFontIndex];
+    CFont newFont;
+    newFont.CreateFont(
+        pfi->nHeight,              // Height
+        0,                         // Width
+        0,                         // Escapement
+        0,                         // OrientationME
+        pfi->nWeight,              // Weight
+        pfi->bItalic,              // Italic
+        pfi->bUnderline,           // Underline
+        0,                         // StrikeOut
+        GB2312_CHARSET,              // CharSet
+        OUT_DEVICE_PRECIS,         // OutPrecision
+        CLIP_DEFAULT_PRECIS,       // ClipPrecision
+        CLEARTYPE_QUALITY,         // Quality
+        FIXED_PITCH || FF_MODERN,  // PitchAndFamily
+        pfi->szFacenam);           // Facename
+    UIStep2.lblPreview.SetWindowText(_T(""));
+    UIStep2.lblPreview.SetFont(&newFont);
+    UIStep2.lblPreview.SetWindowText(sSample);
+    UIStep2.lblPreview.RedrawWindow();
+}
+
+CString HFMainWindow::ValidateTxtPak() {
+    CString sTemp;
+    CString sResult;
+    UIStep1.txtPak.GetWindowText(sTemp);
+    if (!file::FileExists(sTemp)) {
+        sResult.Format(HFSTRC(IDS_MAINWINDOW_STEP1_INVALIDPAK), sTemp);
+    }
+    return sResult;
 }
 
 BOOL HFMainWindow::CreateHFMainWindow() {
     return Create(
-        NULL, ui::LoadRcString(IDS_MAINWINDOW_TITLE),
+        NULL, HFSTRC(IDS_MAINWINDOW_TITLE),
         WS_CAPTION | WS_MINIMIZEBOX | WS_OVERLAPPED | WS_SYSMENU | WS_POPUP,
         HFUIC::MainWindow::Size);
 }
@@ -78,11 +156,13 @@ BEGIN_MESSAGE_MAP(HFMainWindow, CFrameWnd)
     ON_BN_CLICKED(HFUIC::MainWindow::ID_btnOpenFolder, &HFMainWindow::OnBtnOpenFolderClicked)
 
     // Text and dropdownlist change functions
-    ON_EN_CHANGE(HFUIC::MainWindow::ID_txtPak, &HFMainWindow::OnTxtPakChange)
-    ON_EN_CHANGE(HFUIC::MainWindow::ID_txtBold, &HFMainWindow::OnTxtBoldChange)
-    ON_EN_CHANGE(HFUIC::MainWindow::ID_txtSize, &HFMainWindow::OnTxtSizeChange)
-    ON_CBN_SELCHANGE(HFUIC::MainWindow::ID_ddlFontSelect, &HFMainWindow::OnDdlFontSelectChange)
-    ON_CBN_SELCHANGE(HFUIC::MainWindow::ID_ddlHeaderSelect, &HFMainWindow::OnDdlHeaderSelectChange)
+    ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtPak, &HFMainWindow::OnTxtPakChange)
+    ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtPadding, &HFMainWindow::OnTxtPaddingChange)
+    ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtVPosition, &HFMainWindow::OnTxtVPositionChange)
+    ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtBold, &HFMainWindow::OnTxtBoldChange)
+    ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtSize, &HFMainWindow::OnTxtSizeChange)
+    ON_CBN_SELENDOK(HFUIC::MainWindow::ID_ddlFontSelect, &HFMainWindow::OnDdlFontSelectChange)
+    ON_CBN_SELENDOK(HFUIC::MainWindow::ID_ddlHeaderSelect, &HFMainWindow::OnDdlHeaderSelectChange)
 
     // Menu messages
     ON_COMMAND(IDM_WINDOWS_LOG, &HFMainWindow::OnWindowsLog)
@@ -94,7 +174,7 @@ BEGIN_MESSAGE_MAP(HFMainWindow, CFrameWnd)
 
     // Custom message
     ON_MESSAGE(HFUIC::WindowMessage::MENU_WINDOWS_LOG, &HFMainWindow::OnWindowlog)
-
+    ON_MESSAGE(HFUIC::WindowMessage::MENU_WINDOWS_DRAW, &HFMainWindow::OnWindowdraw)
 END_MESSAGE_MAP()
 
 // HFMainWindow message handlers
@@ -122,9 +202,6 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
     m_drawWnd = new HFDrawWindow;
     m_drawWnd->CreateHFDrawWindow(this);
-    m_drawWnd->ShowWindow(SW_SHOW);
-    m_drawWnd->UpdateWindow();
-
 
 #define CREATE_GROUP_CTRL(ctrl, text, rect) \
     ctrl.CreateHFGroupBox(text, this, rect);\
@@ -152,29 +229,30 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     ctrl.Create(text, WS_VISIBLE | WS_CHILD | BS_CHECKBOX, rect, &parent, nID); \
     ctrl.SetFont(&HFUIC::Font.NORMAL_FONT);
 
-    CREATE_GROUP_CTRL(UIStep1.grp, ui::LoadRcString(IDS_MAINWINDOW_STEP1_TITLE), HFUIC::MainWindow::UIStep1::grpRect);
+    CREATE_GROUP_CTRL(UIStep1.grp, HFSTRC(IDS_MAINWINDOW_STEP1_TITLE), HFUIC::MainWindow::UIStep1::grpRect);
     {
         CREATE_LABEL(
-            UIStep1.lblPak, ui::LoadRcString(IDS_MAINWINDOW_STEP1_LBLPAK),
+            UIStep1.lblPak, HFSTRC(IDS_MAINWINDOW_STEP1_LBLPAK),
             HFUIC::MainWindow::UIStep1::lblPakRect, UIStep1.grp);
         CREATE_EDIT(
             UIStep1.txtPak, _T(""), HFUIC::MainWindow::UIStep1::txtPakRect,
             UIStep1.grp, HFUIC::MainWindow::ID_txtPak);
         CREATE_PUSHBUTTON(
-            UIStep1.btnBrowsePak, ui::LoadRcString(IDS_MAINWINDOW_STEP1_BROWSE),
+            UIStep1.btnBrowsePak, HFSTRC(IDS_MAINWINDOW_STEP1_BROWSE),
             HFUIC::MainWindow::UIStep1::btnBrowsePakRect,
             UIStep1.grp, HFUIC::MainWindow::ID_btnBrowsePak);
     }
 
-    CREATE_GROUP_CTRL(UIStep2.grp, ui::LoadRcString(IDS_MAINWINDOW_STEP2_TITLE), HFUIC::MainWindow::UIStep2::grpRect);
+    CREATE_GROUP_CTRL(UIStep2.grp, HFSTRC(IDS_MAINWINDOW_STEP2_TITLE), HFUIC::MainWindow::UIStep2::grpRect);
     {
         CREATE_LABEL(
-            UIStep2.lblHeaderSelect, ui::LoadRcString(IDS_MAINWINDOW_STEP2_LBLHEADERSELECT),
+            UIStep2.lblHeaderSelect, HFSTRC(IDS_MAINWINDOW_STEP2_LBLHEADERSELECT),
             HFUIC::MainWindow::UIStep2::lblHeaderSelectRect, UIStep2.grp);
         UIStep2.ddlHeaderSelect.CreateHFFHeaderDropDownList(
             HFUIC::MainWindow::UIStep2::ddlHeaderSelectRect, &UIStep2.grp,
             HFUIC::MainWindow::ID_ddlHeaderSelect);
         UIStep2.lblHeaderSelect.SetFont(&HFUIC::Font.BOLD_FONT);
+        UIStep2.ddlHeaderSelect.SetCurSel(0);
         UIStep2.ddlHeaderSelect.SetFont(&HFUIC::Font.BOLD_FONT);
         CREATE_LABEL(
             UIStep2.lblSplitter,
@@ -182,7 +260,7 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
             HFUIC::MainWindow::UIStep2::lblSplitterRect, UIStep2.grp);
 
         CREATE_LABEL(
-            UIStep2.lblFontSelect, ui::LoadRcString(IDS_MAINWINDOW_STEP2_LBLFONTSELECT),
+            UIStep2.lblFontSelect, HFSTRC(IDS_MAINWINDOW_STEP2_LBLFONTSELECT),
             HFUIC::MainWindow::UIStep2::lblFontSelectRect, UIStep2.grp);
         UIStep2.ddlFontSelect.CreateHFFontDropDownList(
             HFUIC::MainWindow::UIStep2::ddlFontSelectRect,
@@ -190,7 +268,23 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         UIStep2.ddlFontSelect.SetFont(&HFUIC::Font.NORMAL_FONT);
 
         CREATE_LABEL(
-            UIStep2.lblSize, ui::LoadRcString(IDS_MAINWINDOW_STEP2_LBLSIZE),
+            UIStep2.lblPadding, HFSTRC(IDS_MAINWINDOW_STEP2_LBLPADDING),
+            HFUIC::MainWindow::UIStep2::lblPaddingRect, UIStep2.grp);
+        CREATE_NUMEDIT(
+            UIStep2.txtPadding, _T(""), HFUIC::MainWindow::UIStep2::txtPaddingRect,
+            UIStep2.grp, HFUIC::MainWindow::ID_txtPadding);
+        UIStep2.txtPadding.LimitText(2);
+
+        CREATE_LABEL(
+            UIStep2.lblVPosition, HFSTRC(IDS_MAINWINDOW_STEP2_LBLVPOSITION),
+            HFUIC::MainWindow::UIStep2::lblVPositionRect, UIStep2.grp);
+        CREATE_NUMEDIT(
+            UIStep2.txtVPosition, _T(""), HFUIC::MainWindow::UIStep2::txtVPositionRect,
+            UIStep2.grp, HFUIC::MainWindow::ID_txtVPosition);
+        UIStep2.txtVPosition.LimitText(2);
+
+        CREATE_LABEL(
+            UIStep2.lblSize, HFSTRC(IDS_MAINWINDOW_STEP2_LBLSIZE),
             HFUIC::MainWindow::UIStep2::lblSizeRect, UIStep2.grp);
         CREATE_NUMEDIT(
             UIStep2.txtSize, _T(""), HFUIC::MainWindow::UIStep2::txtSizeRect,
@@ -198,18 +292,18 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         UIStep2.txtSize.LimitText(2);
 
         CREATE_LABEL(
-            UIStep2.lblBold, ui::LoadRcString(IDS_MAINWINDOW_STEP2_LBLBOLD),
+            UIStep2.lblBold, HFSTRC(IDS_MAINWINDOW_STEP2_LBLBOLD),
             HFUIC::MainWindow::UIStep2::lblBoldRect, UIStep2.grp);
         CREATE_NUMEDIT(
             UIStep2.txtBold, _T(""), HFUIC::MainWindow::UIStep2::txtBoldRect,
             UIStep2.grp, HFUIC::MainWindow::ID_txtBold);
-        UIStep2.txtBold.LimitText(4);
+        UIStep2.txtBold.LimitText(3);
 
         CREATE_CHECKBUTTON(
-            UIStep2.btnItalic, ui::LoadRcString(IDS_MAINWINDOW_STEP2_BTNITALIC),
+            UIStep2.btnItalic, HFSTRC(IDS_MAINWINDOW_STEP2_BTNITALIC),
             HFUIC::MainWindow::UIStep2::btnItalicRect, UIStep2.grp, HFUIC::MainWindow::ID_btnItalic);
         CREATE_CHECKBUTTON(
-            UIStep2.btnUnderline, ui::LoadRcString(IDS_MAINWINDOW_STEP2_BTNUNDERLINE),
+            UIStep2.btnUnderline, HFSTRC(IDS_MAINWINDOW_STEP2_BTNUNDERLINE),
             HFUIC::MainWindow::UIStep2::btnUnderlineRect, UIStep2.grp, HFUIC::MainWindow::ID_btnUnderline);
         UIStep2.lblPreview.Create(
             _T(""),
@@ -217,23 +311,24 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
             HFUIC::MainWindow::UIStep2::lblPreviewRect, &UIStep2.grp);
     }
 
-    CREATE_GROUP_CTRL(UIStep3.grp, ui::LoadRcString(IDS_MAINWINDOW_STEP3_TITLE), HFUIC::MainWindow::UIStep3::grpRect);
+    CREATE_GROUP_CTRL(UIStep3.grp, HFSTRC(IDS_MAINWINDOW_STEP3_TITLE), HFUIC::MainWindow::UIStep3::grpRect);
     {
         CREATE_PUSHBUTTON(
-            UIStep3.btnRun, ui::LoadRcString(IDS_MAINWINDOW_STEP3_BTNRUN),
+            UIStep3.btnRun, HFSTRC(IDS_MAINWINDOW_STEP3_BTNRUN),
             HFUIC::MainWindow::UIStep3::btnRunRect, UIStep3.grp, HFUIC::MainWindow::ID_btnRun);
-        CREATE_PUSHBUTTON(
-            UIStep3.btnPreviewDraw, ui::LoadRcString(IDS_MAINWINDOW_STEP3_PREVIEW),
-            HFUIC::MainWindow::UIStep3::btnPreviewDrawRect, UIStep3.grp, HFUIC::MainWindow::ID_btnPreviewDraw);
+        UIStep3.btnPreviewDraw.Create(
+            HFSTRC(IDS_MAINWINDOW_STEP3_PREVIEW), WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_PUSHLIKE,
+            HFUIC::MainWindow::UIStep3::btnPreviewDrawRect, &UIStep3.grp, HFUIC::MainWindow::ID_btnPreviewDraw);
+        UIStep3.btnPreviewDraw.SetFont(&HFUIC::Font.NORMAL_FONT);
     }
 
-    CREATE_GROUP_CTRL(UIStep4.grp, ui::LoadRcString(IDS_MAINWINDOW_STEP4_TITLE), HFUIC::MainWindow::UIStep4::grpRect);
+    CREATE_GROUP_CTRL(UIStep4.grp, HFSTRC(IDS_MAINWINDOW_STEP4_TITLE), HFUIC::MainWindow::UIStep4::grpRect);
     {
         CREATE_PUSHBUTTON(
-            UIStep4.btnPackage, ui::LoadRcString(IDS_MAINWINDOW_STEP4_BTNPACKAGE),
+            UIStep4.btnPackage, HFSTRC(IDS_MAINWINDOW_STEP4_BTNPACKAGE),
             HFUIC::MainWindow::UIStep4::btnPackageRect, UIStep4.grp, HFUIC::MainWindow::ID_btnPackage);
         CREATE_PUSHBUTTON(
-            UIStep4.btnOpenFolder, ui::LoadRcString(IDS_MAINWINDOW_STEP4_BTNOPENFOLDER),
+            UIStep4.btnOpenFolder, HFSTRC(IDS_MAINWINDOW_STEP4_BTNOPENFOLDER),
             HFUIC::MainWindow::UIStep4::btnOpenFolderRect, UIStep4.grp, HFUIC::MainWindow::ID_btnOpenFolder);
     }
 
@@ -244,6 +339,9 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 #undef CREATE_NUMEDIT
 #undef CREATE_CHECKBUTTON
 
+    SetFontInfoToGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
+
     m_ttcMain.Create(this, TTS_ALWAYSTIP);
     m_ttcMain.AddToolThatWorks(_T(""), &UIStep1.txtPak);
     m_ttcMain.AddToolThatWorks(_T(""), &UIStep2.ddlFontSelect);
@@ -253,30 +351,37 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 }
 
 void HFMainWindow::OnBtnBrowsePakClicked() {
-    CFileDialog cfdDlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST,ui::LoadRcString(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
+    CFileDialog cfdDlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST,HFSTRC(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
     if (cfdDlg.DoModal() == IDOK) {
         UIStep1.txtPak.SetWindowText(cfdDlg.GetFileName());
     }
 }
 
 void HFMainWindow::OnBtnItalicClicked() {
-    LOG.log(_T("Italic clicked"));
+    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
 }
 
 void HFMainWindow::OnBtnUnderlineClicked() {
-    LOG.log(_T("Underline clicked"));
+    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
 }
 
 void HFMainWindow::OnBtnRunClicked() {
-    LOG.log(_T("Run clicked"));
+    m_dcDrawCentre.DrawAtOnce(m_fiFonts);
+    m_drawWnd->SetDrawCentre(&m_dcDrawCentre);
+    HFBinFilesInfo info;
+    info.InitializeInstance(_T("D:\\games\\TOE31\\data\\texts.pak"));
 }
 
 void HFMainWindow::OnBtnPreviewDrawClicked() {
-    LOG.log(_T("Preview clicked"));
+    SetBtnPreviewDrawChecked(!UIStep3.btnPreviewDraw.GetCheck());
 }
 
 void HFMainWindow::OnBtnPackageClicked() {
-    LOG.log(_T("Package clicked"));
+    CString sTemp;
+    sTemp.Format(_T("Package clicked, %.8f"), 3.1415926);
+    LOG.log(sTemp);
 }
 
 void HFMainWindow::OnBtnOpenFolderClicked() {
@@ -284,24 +389,44 @@ void HFMainWindow::OnBtnOpenFolderClicked() {
 }
 
 void HFMainWindow::OnTxtPakChange() {
-    LOG.log(_T("txtPak changed"));
+    CString sResult = ValidateTxtPak();
+    if (sResult.GetLength() > 0) {
+        ::AfxMessageBox(sResult);
+    }
+}
+
+void HFMainWindow::OnTxtPaddingChange() {
+    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
+}
+
+void HFMainWindow::OnTxtVPositionChange() {
+    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
 }
 
 void HFMainWindow::OnTxtBoldChange() {
-    LOG.log(_T("txtBold changed"));
+    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
 }
 
 void HFMainWindow::OnTxtSizeChange() {
-    LOG.log(_T("txtSize changed"));
+    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
 }
 
-
 void HFMainWindow::OnDdlHeaderSelectChange() {
-    LOG.log(_T("ddlHeaderSelect changed"));
+    CString sTemp;
+    UIStep2.ddlHeaderSelect.GetLBText(UIStep2.ddlHeaderSelect.GetCurSel(), sTemp);
+    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
+    m_iFontIndex = HFLC::header::LPSTR_TO_CODE(sTemp);
+    SetFontInfoToGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
 }
 
 void HFMainWindow::OnDdlFontSelectChange() {
-    LOG.log(_T("ddlFontSelect changed"));
+    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
+    UpdateLblPreview();
 }
 
 void HFMainWindow::OnWindowsLog() {
@@ -334,6 +459,6 @@ LRESULT HFMainWindow::OnWindowlog(WPARAM wParam, LPARAM lParam) {
 }
 
 LRESULT HFMainWindow::OnWindowdraw(WPARAM wParam, LPARAM lParam) {
-    SetMenuWindowsDrawChecked(FALSE);
+    SetBtnPreviewDrawChecked(FALSE);
     return 0;
 }

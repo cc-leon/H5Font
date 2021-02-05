@@ -8,13 +8,13 @@ HFRichTextBox::~HFRichTextBox() {}
 
 BOOL HFRichTextBox::CreateHFRichTextBox(CWnd* pParentWnd, CRect CONST& rect, UINT nID) {
     return Create(
-        WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL
-        | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | ES_READONLY,
+        WS_CHILD | WS_VISIBLE | WS_VSCROLL
+        | ES_AUTOVSCROLL | ES_MULTILINE | ES_READONLY,
         rect, pParentWnd, nID);
 }
 
 BEGIN_MESSAGE_MAP(HFRichTextBox, CRichEditCtrl)
-    //ON_CONTROL_REFLECT(EN_CHANGE, &HFRichTextBox::OnEnChange)
+    ON_CONTROL_REFLECT(EN_CHANGE, &HFRichTextBox::OnEnChange)
     ON_WM_CREATE()
     ON_WM_DESTROY()
     ON_MESSAGE(logger::LOG_SHOW_TEXT, &HFRichTextBox::OnLogmsg)
@@ -30,13 +30,17 @@ int HFRichTextBox::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     SetFont(&HFUIC::Font.LOG_FONT);
     SetUndoLimit(0);
 
-    //SetEventMask(GetEventMask() | ENM_REQUESTRESIZE);
+    SetEventMask(GetEventMask() | ENM_CHANGE);
     return 0;
 }
 
 void HFRichTextBox::OnDestroy() {
     LOG.SaveLog(HFUIC::LogWindow::szLogFilename);
     CRichEditCtrl::OnDestroy();
+}
+
+void HFRichTextBox::OnEnChange() {
+
 }
 
 afx_msg LRESULT HFRichTextBox::OnLogmsg(WPARAM wParam, LPARAM lParam) {
@@ -63,7 +67,7 @@ afx_msg LRESULT HFRichTextBox::OnLogmsg(WPARAM wParam, LPARAM lParam) {
         pLogInfoStruct->sMsg += CString(_T('\n'));
     }
     ReplaceSel(pLogInfoStruct->sMsg, 0);
-    LineScroll(1);
+    SendMessage(WM_VSCROLL, SB_BOTTOM, 0);
 
     return 0;
 }

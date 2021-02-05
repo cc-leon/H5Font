@@ -1,67 +1,109 @@
 #include "pch.h"
 
 #include <sstream>
+#include <fstream>
 
 #include "HFFileUtils.h"
 #include "HFBinFilesInfo.h"
 #include "pugixml.hpp"
-#include "ZipFile.h"
 
 using namespace pugi;
 
-HFBinFilesInfo::HFBinFilesInfo() {}
+HFBinFilesInfo::HFBinFilesInfo() {
+    file::CreateFolderIfNotExists(HFFC::pak::TEMP_FOLDER);
+}
 
 HFBinFilesInfo::~HFBinFilesInfo() {}
 
 BOOL HFBinFilesInfo::CheckLegal(LPCTSTR szPakName) {
-    ZipArchive::Ptr zipFP = ZipFile::Open(str::CString2STDString(szPakName));
+    // Step 1. Unzip all xml files
+    CString sCmd;
+    sCmd.Format(_T("%s x %s -o%s"), HFFC::exe::ZIP_CMD, szPakName, HFFC::pak::TEMP_FOLDER);
+    CString sLog;
 
     for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
-        std::string sCurrXML = std::string(HFFC::parser::XML_PATH)
-            + std::string("/")
-            + str::CString2STDString(HFLC::header::CODE_TO_LPTSTR[i])
-            + std::string(".")
-            + std::string(HFFC::parser::XML_BININFO);
+        CString sParam;
+        sParam.Format(_T(" %s\\%s.%s"), HFFC::pak::XML_PATH, HFLC::header::CODE_TO_LPTSTR[i], HFFC::pak::XML_BININFO);
+        sCmd += sParam;
+    }
 
-        ZipArchiveEntry::Ptr xmlEntry = zipFP->GetEntry(sCurrXML);
-        if (xmlEntry == nullptr) {
+    DWORD dwExitCode;
+    CString sStdOut = sys::RunExe(sCmd, &dwExitCode);
+    LOG.log(HFSTRC(IDS_LOG_NOW_EXECUTING), LOG.STD, TRUE);
+    LOG.log(sCmd, LOG.STD);
+    LOG.log(sStdOut, LOG.STD);
+
+    if (dwExitCode) {
+        sLog.Format(HFSTRC(IDS_LOG_WRONG_EXIT_CODE), dwExitCode);
+        LOGUSR(sLog);
+        return FALSE;
+    }
+
+    CString asUIDs[HFLC::header::HEADER_COUNT];
+    for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
+        CString sXmlFile;
+        sXmlFile.Format(_T("%s\\%s\\%s.%s"), HFFC::pak::TEMP_FOLDER, HFFC::pak::XML_PATH, HFLC::header::CODE_TO_LPTSTR[i], HFFC::pak::XML_BININFO);
+        if (!file::FileExists(sXmlFile)) {
+            sLog.Format(HFSTRC(IDS_LOG_FILE_NOT_FOUND), dwExitCode);
+            LOGUSR(sLog);
             return FALSE;
         }
 
-        std::istream* xmlStream = xmlEntry->GetDecompressionStream();
+        std::ifstream xml_fp(str::CString2STDString(sXmlFile), std::ifstream::in);
         xml_document xmlDoc;
-        xml_parse_result xmlParserResult = xmlDoc.load(*xmlStream);
+        xml_parse_result xmlParserResult = xmlDoc.load(xml_fp);
         if (xmlParserResult.status != xml_parse_status::status_ok) {
+            sLog.Format(HFSTRC(IDS_LOG_NOT_PROPER_XML), sXmlFile);
+            LOG.log(sLog);
             return FALSE;
         }
-
-        xmlEntry->CloseDecompressionStream();
-
         std::string uid = "";
-        for (xml_node fontNode = xmlDoc.child(HFFC::parser::XML_FONT_NODE); fontNode; fontNode = xmlDoc.next_sibling(HFFC::parser::XML_FONT_NODE)) {
-            uid = fontNode.child_value(HFFC::parser::XML_UID_SUBNODE);
+        for (xml_node fontNode = xmlDoc.child(HFFC::xml::XML_FONT_NODE); fontNode; fontNode = xmlDoc.next_sibling(HFFC::xml::XML_FONT_NODE)) {
+            uid = fontNode.child_value(HFFC::xml::XML_UID_SUBNODE);
             if (uid != "") {
                 break;
             }
         }
         if (uid == "") {
+            sLog.Format(HFSTRC(IDS_LOG_XML_UID_NOT_FOUND), sXmlFile);
+            LOG.log(sLog);
             return FALSE;
         }
+        xml_fp.close();
+        asUIDs[i] = str::STDString2CString(uid);
+    }
 
-        std::string sCurrBin;
-        sCurrBin = std::string(HFFC::parser::BIN_PATH) + std::string("/") + uid;
-        ZipArchiveEntry::Ptr binEntry = zipFP->GetEntry(sCurrBin);
-        if (binEntry == nullptr) {
+    sCmd.Format(_T("%s x %s -o%s"), HFFC::exe::ZIP_CMD, szPakName, HFFC::pak::TEMP_FOLDER);
+
+    for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
+        CString sParam;
+        sParam.Format(_T(" %s\\%s"), HFFC::pak::BIN_PATH, (LPCTSTR)asUIDs[i]);
+        sCmd += sParam;
+    }
+
+    sStdOut = sys::RunExe(sCmd, &dwExitCode);
+    LOG.log(HFSTRC(IDS_LOG_NOW_EXECUTING), LOG.STD, TRUE);
+    LOG.log(sCmd, LOG.STD);
+    LOG.log(sStdOut, LOG.STD);
+
+    if (dwExitCode) {
+        sLog.Format(HFSTRC(IDS_LOG_WRONG_EXIT_CODE), dwExitCode);
+        LOGUSR(sLog);
+        return FALSE;
+    }
+    for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
+        CString sBinFile;
+        sBinFile.Format(_T("%s\\%s\\%s"), HFFC::pak::TEMP_FOLDER, HFFC::pak::BIN_PATH, (LPCTSTR)asUIDs[i]);
+        if (!file::FileExists(sBinFile)) {
+            sLog.Format(HFSTRC(IDS_LOG_FILE_NOT_FOUND), dwExitCode);
+            LOGUSR(sLog);
             return FALSE;
         }
-
-        std::istream* binStream = binEntry->GetDecompressionStream();
-        std::vector<BYTE> vec;
-        vec.insert(vec.begin(),
-            std::istream_iterator<BYTE>(*binStream),
-            std::istream_iterator<BYTE>());
-        xmlEntry->CloseDecompressionStream();
-        m_aBinfiles[i].InitializeInstance(vec.data(), vec.size(), str::STDString2CString(uid));
+        CFile cfBinFile(sBinFile, CFile::modeRead | CFile::typeBinary);
+        LPBYTE lpBuf = mem::GetMem<BYTE>((SIZE_T)cfBinFile.GetLength());
+        cfBinFile.Read(lpBuf, (UINT)cfBinFile.GetLength());
+        m_aBinfiles[i].InitializeInstance(lpBuf, (SIZE_T)cfBinFile.GetLength(), asUIDs[i]);
+        break;
     }
 
     return TRUE;
@@ -72,36 +114,16 @@ VOID HFBinFilesInfo::Cleanup() {
     for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
         m_aBinfiles[i].Cleanup();
     }
-    file::ClearFolder(HFFC::output::TEMP_FOLDER);
+    file::ClearFolder(HFFC::pak::TEMP_FOLDER);
 }
 
 BOOL HFBinFilesInfo::InitializeInstance(LPCTSTR szTargetName) {
-    if (szTargetName != NULL) {
-        CString sCurrZip;
-        sCurrZip.Format(_T("%s\\%s"), szTargetName, HFFC::parser::TARGET_PAK);
-        if (file::FileExists(sCurrZip) && CheckLegal(sCurrZip)) {
-            m_sTargetFile = sCurrZip;
-            return TRUE;
-        }
-        Cleanup();
-
-        sCurrZip.Format(_T("%s\\%s"), szTargetName, HFFC::parser::FALLBACK_PAK);
-        if (file::FileExists(sCurrZip) && CheckLegal(sCurrZip)) {
-            m_sTargetFile = sCurrZip;
-            return TRUE;
-        }
-        Cleanup();
-        return FALSE;
+    Cleanup();
+    if (file::FileExists(szTargetName) && CheckLegal(szTargetName)) {
+        m_sTargetFile = szTargetName;
+        return TRUE;
     }
     else {
-        if (file::FileExists(szTargetName) && CheckLegal(szTargetName)) {
-            m_sTargetFile = szTargetName;
-            return TRUE;
-        }
-        else {
-            Cleanup();
-            return FALSE;
-        }
+        return FALSE;
     }
-
 }

@@ -110,7 +110,7 @@ BEGIN
     IDS_MAINWINDOW_STEP2_LBLBOLD "粗度:"
     IDS_MAINWINDOW_STEP2_BTNITALIC "斜体"
     IDS_MAINWINDOW_STEP2_BTNUNDERLINE "下划线"
-    IDS_MAINWINDOW_STEP2_SAMPLETEXT "预览效果 Preview effects 1234!@#$%^"
+    IDS_MAINWINDOW_STEP2_SAMPLETEXT "范例 Ab12!""Ａ１！　“"
     IDS_MAINWINDOW_STEP3_TITLE "第3步: 生成预览"
     IDS_MAINWINDOW_STEP3_BTNRUN "生成"
     IDS_MAINWINDOW_STEP3_PREVIEW "预览..."
@@ -122,12 +122,26 @@ END
 STRINGTABLE
 BEGIN
     IDS_MAINWINDOW_STEP1_PAKFILTER "英雄无敌5压缩数据文件 (*.pak)|*.pak||"
+    IDS_MAINWINDOW_STEP1_INVALIDPAK "%s不是一个合法的pak文件名"
+    IDS_MAINWINDOW_STEP2_INVALIDBOLD "粗度必须要在1到1000之前"
+    IDS_MAINWINDOW_STEP2_LBLPADDING "额外间距:"
+    IDS_MAINWINDOW_STEP2_LBLVPOSITION "垂直调整(%):"
 END
 
 STRINGTABLE
 BEGIN
     IDS_LOG_APPSTART        "程序开始"
     IDS_LOG_NUM_FONTS_LOADED "%d个字体加载成功"
+    IDS_LOG_NUM_UNICODES_IN_FONT "当前文件支持%d个Unicode码字体"
+    IDS_LOG_FONT_FILE_NOT_SUPPORTED "当前字体文件不是16位Unicode码字体能够使用的字体库"
+    IDS_LOG_NUM_UNICODES_READ "一共有%d个字从字体库中读出"
+    IDS_LOG_NUM_ABC_READ    "一共有%d个ABC结构体(字体间距信息)读出"
+    IDS_LOG_DIMENSION_REQUIRED "估算按照字号%d粗度%d，导出的DDS文件有%d×%d像素的面积"
+    IDS_LOG_NOW_EXECUTING   "正在执行……"
+    IDS_LOG_WRONG_EXIT_CODE "执行外部命令错误，退出码为%d"
+    IDS_LOG_FILE_NOT_FOUND  "找不到文件”%s“"
+    IDS_LOG_NOT_PROPER_XML  "“%s”不是一个合法的字体xml文件"
+    IDS_LOG_XML_UID_NOT_FOUND "“%s”中不包含UID信息"
 END
 
 #endif    // Chinese (Simplified, PRC) resources

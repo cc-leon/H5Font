@@ -38,13 +38,4 @@ namespace ui {
         return TRUE;
     }
 
-    CString LoadRcString(UINT uiResourceID) {
-        CStringW wsResult;
-        if (wsResult.LoadString(uiResourceID) == 0) {
-            return CString();
-        }
-
-        return str::CStringW2CString(wsResult);
-    }
-
 }

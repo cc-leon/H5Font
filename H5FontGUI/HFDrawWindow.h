@@ -1,18 +1,23 @@
 #pragma once
 #include "HFDrawWindowContainer.h"
 #include "HFDrawWindowInfoBar.h"
+#include "../H5FontCore/HFDrawDCsCentre.h"
 
 class HFDrawWindow : public CFrameWnd {
 protected:
     HFDrawWindowInfoBar m_infoBar;
     HFDrawWindowContainer m_container;
     CMenu m_mnDrawWindow;
+    HFDrawDCsCentre* m_dcDrawCentre;
+    size_t m_iDrawCentreIndex;
 
 public:
     HFDrawWindow();           // protected constructor used by dynamic creation
     virtual ~HFDrawWindow();
     BOOL CreateHFDrawWindow(CWnd * pParentWnd);
     void GetActiveArea(LPRECT lpRect) CONST;
+    VOID SetDrawCentre(HFDrawDCsCentre* dcDrawCentre);
+
     virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
     DECLARE_MESSAGE_MAP()

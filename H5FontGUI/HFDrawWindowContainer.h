@@ -1,6 +1,7 @@
 #pragma once
 #include "HFImageDisplay.h"
 #include "HFDrawWindowInfoBar.h"
+#include "../H5FontCore/HFMemDC.h"
 
 class HFDrawWindowContainer : public CWnd {
 protected:
@@ -19,6 +20,7 @@ public:
     VOID OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
     VOID RestoreZoom();
     CPoint GetImageCenter();
+    VOID SetMemDC(HFMemDC * memDC);
 
     virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 

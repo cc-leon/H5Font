@@ -147,9 +147,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="HFBitmap.cpp" />
+    <ClCompile Include="HFBitMask.cpp" />
     <ClCompile Include="HFDrawDCsCentre.cpp" />
-    <ClCompile Include="HFFont.cpp" />
     <ClCompile Include="HFLogicConstants.cpp" />
     <ClCompile Include="HFMemDC.cpp" />
     <ClCompile Include="HFUtils.cpp" />
@@ -159,9 +158,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="HFBitmap.h" />
+    <ClInclude Include="HFBitMask.h" />
     <ClInclude Include="HFDrawDCsCentre.h" />
-    <ClInclude Include="HFFont.h" />
     <ClInclude Include="HFLogicConstants.h" />
     <ClInclude Include="HFMemDC.h" />
     <ClInclude Include="HFUtils.h" />

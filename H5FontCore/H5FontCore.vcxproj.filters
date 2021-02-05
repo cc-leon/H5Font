@@ -15,13 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HFBitmap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HFDrawDCsCentre.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HFFont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -36,15 +30,12 @@
     <ClCompile Include="HFUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HFBitMask.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HFBitmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HFDrawDCsCentre.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HFFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
@@ -63,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HFUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HFBitMask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
