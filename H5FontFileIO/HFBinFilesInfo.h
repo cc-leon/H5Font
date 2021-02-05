@@ -15,6 +15,7 @@ public:
     void operator=(HFBinFilesInfo &&) = delete;
 
     BOOL InitializeInstance(LPCTSTR szTargetName);
+    HFBinFile& operator [] (size_t iIndex);
     VOID Cleanup();
 
 protected:

@@ -8,7 +8,7 @@ namespace HFLC {
         CSize CONST DEF_DIM(4096, 4096*3);
 
         enum {
-            BUTTON_16 = 0,
+            BUTTON_16,
             DEFAULT_18, DEFAULT_20, DEFAULT_22, DEFAULT_26, DEFAULT_32, DEFAULT_40,
             HEADER_22, HEADER_26, HEADER_32,
             SYSTEM_10, SYSTEM_16, SYSTEM_24,

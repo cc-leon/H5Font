@@ -23,37 +23,34 @@ VOID HFBinFile::InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szB
         m_lpBuf = lpBuffer;
     }
 
-    LPDWORD lpdwReader = LPDWORD(m_lpBuf);
     LPDWORD lpdwMarker = NULL;
-    for (UINT i = 0; i < m_cbBuf / sizeof(DWORD); i++) {
-        lpdwReader++;
+    for (LPDWORD lpdwReader = LPDWORD(m_lpBuf); lpdwReader < LPDWORD(m_lpBuf + m_cbBuf); lpdwReader++) {
         if (HIWORD(*lpdwReader) == HFFC::bin::UNICODE_FLAG) {
             m_cuiChars++;
             if (m_lpHead == NULL) {
                 m_lpHead = m_lpBuf;
-                m_cbHead = i * sizeof(DWORD);
+                m_cbHead = (lpdwReader - (LPDWORD)m_lpBuf) * sizeof(DWORD);
             }
             lpdwMarker = lpdwReader + 1;
         }
     }
-    m_auiChars = mem::GetMem<UNICODEINFO>(m_cuiChars);
+    m_auiChars = mem::GetMem<UNICODEINFO>(m_cuiChars*10);
 
     if (lpdwMarker != NULL) {
         m_lpMid = (LPBYTE)lpdwMarker;
     }
 
-    lpdwReader = LPDWORD(m_lpBuf);
-    for (UINT i = 0; i < m_cbBuf / sizeof(DWORD); i++) {
-        lpdwReader++;
+    SIZE_T cciChars = 0;
+    LPDWORD lpdwReader = LPDWORD(m_lpBuf);
+    for (LPDWORD lpdwReader = LPDWORD(m_lpBuf); lpdwReader < LPDWORD(m_lpBuf + m_cbBuf); lpdwReader++) {
         if (HIWORD(*lpdwReader) == HFFC::bin::UNICODE_FLAG) {
-            m_auiChars[i].wcUnicode = LOWORD(*lpdwReader);
+            m_auiChars[cciChars].wcUnicode = LOWORD(*lpdwReader);
+            cciChars++;
         }
     }
 
-    SIZE_T stLimit = (m_cbBuf - (m_lpMid - m_lpBuf)) / sizeof(WORD);
-    LPWORD lpwReader = LPWORD(m_lpMid);
-    SIZE_T cciChars = 0;
-    for (UINT i = 0; i < stLimit; i++) {
+    cciChars = 0;
+    for (LPWORD lpwReader = LPWORD(m_lpMid); lpwReader < LPWORD(m_lpBuf + m_cbBuf);) {
         if (*lpwReader == HFFC::bin::POSITION_FLAG) {
             if (m_cbMid == 0) {
                 m_cbMid = (LPBYTE)lpwReader - m_lpMid;
@@ -62,15 +59,16 @@ VOID HFBinFile::InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szB
             INT32* lpi32Reader = (INT32*)(lpwReader + 1);
             for (INT j = 0; j < UNICODEINFO::POS_COUNT; j++) {
                 m_auiChars[cciChars].aiPos[j] = *(lpi32Reader + j);
-                lpwReader += sizeof(DWORD) / sizeof(WORD);
+                lpwReader = (LPWORD)(lpi32Reader + j + 1);
             }
             cciChars++;
-            m_lpTail = LPBYTE(lpwReader + 1);
+            m_lpTail = (LPBYTE)lpwReader;
         }
-        lpwReader++;
+        else {
+            lpwReader++;
+        }
     }
     m_cbTail = m_cbBuf - (m_lpTail - m_lpBuf);
-    m_cbTail;
 }
 
 CString CONST& HFBinFile::GetBinUID() CONST {
@@ -78,6 +76,24 @@ CString CONST& HFBinFile::GetBinUID() CONST {
 }
 
 BOOL HFBinFile::CreateBinFile(LPCTSTR szBinFilename) {
+    CFile cfWriter(szBinFilename, CFile::modeWrite | CFile::modeCreate | CFile::typeBinary);
+    cfWriter.Write(m_lpHead, m_cbHead);
+
+    for (size_t i = 0; i < m_cuiChars; i++) {
+        DWORD dwToWrite = MAKELONG(m_auiChars[i].wcUnicode, HFFC::bin::UNICODE_FLAG);
+        cfWriter.Write(&dwToWrite, sizeof(DWORD));
+    }
+
+    cfWriter.Write(m_lpMid, m_cbMid);
+
+    for (size_t i = 0; i < m_cuiChars; i++) {
+        cfWriter.Write(&HFFC::bin::POSITION_FLAG, sizeof(WORD));
+        for (int j = 0; j < UNICODEINFO::POS_COUNT; j++) {
+            cfWriter.Write(&m_auiChars[i].aiPos[j], sizeof(INT));
+        }
+    }
+
+    cfWriter.Write(m_lpTail, m_cbTail);
     return FALSE;
 }
 
@@ -86,6 +102,12 @@ BOOL HFBinFile::CreateTxtFile(LPCTSTR szBinFilename) {
 }
 
 VOID HFBinFile::Replace(LPCUNICODEINFO uiInfo, size_t cuiInfo) {
+    mem::FreeMem(m_auiChars);
+    m_auiChars = mem::GetMem<UNICODEINFO>(cuiInfo);
+    m_cuiChars = cuiInfo;
+    for (size_t i = 0; i < cuiInfo; i++) {
+        m_auiChars[i] = uiInfo[i];
+    }
     return;
 }
 
@@ -95,15 +117,6 @@ VOID HFBinFile::Cleanup() {
 
     mem::FreeMem(m_auiChars);
     m_cuiChars = 0;
-
-    mem::FreeMem(m_lpHead);
-    m_cbHead = 0;
-
-    mem::FreeMem(m_lpMid);
-    m_cbMid = 0;
-
-    mem::FreeMem(m_lpTail);
-    m_cbTail = 0;
 
     m_sBinFile = _T("");
 }

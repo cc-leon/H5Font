@@ -13,10 +13,10 @@ namespace HFFC {
     //
     namespace bin {
         // In the 1st part of the bin file, all unicode has this WOD
-        INT16 CONST UNICODE_FLAG = 0x0401;
+        WORD CONST UNICODE_FLAG = 0x0401;
 
         // In the 2nd part of the bin file, each position values are separated by this WORD
-        INT16 CONST POSITION_FLAG = 0x3802;
+        WORD CONST POSITION_FLAG = 0x3802;
     }
 
     namespace xml {

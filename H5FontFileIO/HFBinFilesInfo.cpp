@@ -18,7 +18,7 @@ HFBinFilesInfo::~HFBinFilesInfo() {}
 BOOL HFBinFilesInfo::CheckLegal(LPCTSTR szPakName) {
     // Step 1. Unzip all xml files
     CString sCmd;
-    sCmd.Format(_T("%s x %s -o%s"), HFFC::exe::ZIP_CMD, szPakName, HFFC::pak::TEMP_FOLDER);
+    sCmd.Format(_T("%s x %s -y -o%s"), HFFC::exe::ZIP_CMD, szPakName, HFFC::pak::TEMP_FOLDER);
     CString sLog;
 
     for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
@@ -73,7 +73,7 @@ BOOL HFBinFilesInfo::CheckLegal(LPCTSTR szPakName) {
         asUIDs[i] = str::STDString2CString(uid);
     }
 
-    sCmd.Format(_T("%s x %s -o%s"), HFFC::exe::ZIP_CMD, szPakName, HFFC::pak::TEMP_FOLDER);
+    sCmd.Format(_T("%s x %s -y -o%s"), HFFC::exe::ZIP_CMD, szPakName, HFFC::pak::TEMP_FOLDER);
 
     for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
         CString sParam;
@@ -99,21 +99,22 @@ BOOL HFBinFilesInfo::CheckLegal(LPCTSTR szPakName) {
             LOGUSR(sLog);
             return FALSE;
         }
+
         CFile cfBinFile(sBinFile, CFile::modeRead | CFile::typeBinary);
         LPBYTE lpBuf = mem::GetMem<BYTE>((SIZE_T)cfBinFile.GetLength());
         cfBinFile.Read(lpBuf, (UINT)cfBinFile.GetLength());
         m_aBinfiles[i].InitializeInstance(lpBuf, (SIZE_T)cfBinFile.GetLength(), asUIDs[i]);
-        break;
     }
 
     return TRUE;
 }
 
+HFBinFile& HFBinFilesInfo::operator [] (size_t iIndex) {
+    return m_aBinfiles[iIndex];
+}
+
 VOID HFBinFilesInfo::Cleanup() {
-    m_sTargetFile = "";
-    for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
-        m_aBinfiles[i].Cleanup();
-    }
+    m_sTargetFile = _T("");
     file::ClearFolder(HFFC::pak::TEMP_FOLDER);
 }
 

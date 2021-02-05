@@ -372,6 +372,7 @@ void HFMainWindow::OnBtnRunClicked() {
     m_drawWnd->SetDrawCentre(&m_dcDrawCentre);
     HFBinFilesInfo info;
     info.InitializeInstance(_T("D:\\games\\TOE31\\data\\texts.pak"));
+    info[0].CreateBinFile(_T("aa.bin"));
 }
 
 void HFMainWindow::OnBtnPreviewDrawClicked() {
