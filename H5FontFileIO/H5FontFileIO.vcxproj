@@ -155,7 +155,6 @@
   <ItemGroup>
     <ClCompile Include="HFBinFile.cpp" />
     <ClCompile Include="HFBinFilesInfo.cpp" />
-    <ClCompile Include="HFDDSFile.cpp" />
     <ClCompile Include="HFFileConstants.cpp" />
     <ClCompile Include="HFFileUtils.cpp" />
     <ClCompile Include="pch.cpp">
@@ -166,7 +165,6 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="HFBinFile.h" />
     <ClInclude Include="HFBinFilesInfo.h" />
-    <ClInclude Include="HFDDSFile.h" />
     <ClInclude Include="HFFileConstants.h" />
     <ClInclude Include="HFFileUtils.h" />
     <ClInclude Include="pch.h" />

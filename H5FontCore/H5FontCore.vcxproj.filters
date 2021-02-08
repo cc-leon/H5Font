@@ -30,9 +30,6 @@
     <ClCompile Include="HFUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HFBitMask.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HFDrawDCsCentre.h">
@@ -54,9 +51,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HFUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HFBitMask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

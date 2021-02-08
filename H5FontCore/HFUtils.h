@@ -5,7 +5,7 @@
 typedef struct tagUNICODEINFO{
     enum {
         L_BOUND,
-        B_OFFSET,
+        T_BOUND,
         R_BOUND,
         B_BOUND,
         L_OFFSET,
@@ -37,11 +37,17 @@ namespace sys {
         __sys();
         UINT CodePage() CONST;
         CStringW LocaleName() CONST;
+        size_t FillUnicodes(LPWSTR awcUnicodes) CONST;
 
     private:
+        VOID __fillZhCNUnicodes();
+        VOID __fillEnGBUnicodes();
+
         UINT m_uiCodePage;
         CStringW m_wsLocaleName;
 
+        LPWSTR m_awcUnicodes;
+        size_t m_cwcUnicodes;
     } const info;
 
     CString RunExe(LPCTSTR lpCmd, LPDWORD lpdwExitCode=NULL);
@@ -54,10 +60,11 @@ namespace mem {
 
     // Get new memory
     template<typename T>T* GetMem(SIZE_T cbSize) {
-            return reinterpret_cast<T*>(::HeapAlloc(
-                ::GetProcessHeap(),  // HANDLE hHeap,
-                NULL,  // DWORD  dwFlags,
-                cbSize * sizeof(T)));  // SIZE_T dwBytes
+        int a = sizeof(T);
+        return reinterpret_cast<T*>(::HeapAlloc(
+            ::GetProcessHeap(),  // HANDLE hHeap,
+            NULL,  // DWORD  dwFlags,
+            cbSize * sizeof(T)));  // SIZE_T dwBytes
     }
 
     // Free the memory granted by GetMem
@@ -102,6 +109,9 @@ namespace str {
 
     // Load a string resouce
     CString LoadRcString(UINT uiResourceID);
+
+    // Convert the byte to a readable string
+    CString Bytes2String(LPBYTE lpByte, SIZE_T cbByte);
 }
 
 //

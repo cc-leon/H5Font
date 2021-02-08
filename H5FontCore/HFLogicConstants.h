@@ -22,7 +22,7 @@ namespace HFLC {
             _T("System_10"), _T("System_16"), _T("System_24") };
 
         INT CONST DEFAULT_HEIGHT[] = {
-            48,
+            16,
             18, 20, 22, 26, 32, 40,
             22, 26, 32,
             10, 16, 24};

@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "HFFileUtils.h"
 
-
 namespace str {
 
     CString STDString2CString(std::string CONST& inputString) {

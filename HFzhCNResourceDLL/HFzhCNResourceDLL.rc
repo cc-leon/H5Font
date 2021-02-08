@@ -139,7 +139,7 @@ BEGIN
     IDS_LOG_DIMENSION_REQUIRED "估算按照字号%d粗度%d，导出的DDS文件有%d×%d像素的面积"
     IDS_LOG_NOW_EXECUTING   "正在执行……"
     IDS_LOG_WRONG_EXIT_CODE "执行外部命令错误，退出码为%d"
-    IDS_LOG_FILE_NOT_FOUND  "找不到文件”%s“"
+    IDS_LOG_FILE_NOT_FOUND  "找不到文件“%s”"
     IDS_LOG_NOT_PROPER_XML  "“%s”不是一个合法的字体xml文件"
     IDS_LOG_XML_UID_NOT_FOUND "“%s”中不包含UID信息"
 END

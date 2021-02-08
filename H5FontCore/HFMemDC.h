@@ -11,15 +11,17 @@ public:
 
     HFMemDC();
     virtual ~HFMemDC();
-    BOOL CreateHFMemDC(FONTINFO CONST& fontinfo);
+    BOOL CreateHFMemDC(FONTINFO CONST& fontinfo, int iStyle);
     CSize CONST& GetMemDCCSize() CONST;
     size_t GetUnicodeCount() CONST;
     size_t FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr);
+    VOID SaveDDS(LPCTSTR filename);
 
 protected:
     CImage m_image;
     CFont m_font;
     FONTINFO m_fontinfo;
+    int m_iStyle;
     CSize m_dim;
     LPWSTR m_awcUnicodes;
     LPABC m_abcUnicodes;

@@ -3,13 +3,14 @@
 
 HFMemDC::HFMemDC() 
     : CDC(), m_awcUnicodes(NULL), m_abcUnicodes(NULL), m_cwcUnicodes(0)
-    , m_fontinfo{0}, m_ptUnicodes(NULL) {}
+    , m_fontinfo{0}, m_iStyle(0), m_ptUnicodes(NULL) {}
 HFMemDC::~HFMemDC() {}
 
-BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo) {
+BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo, int iStyle) {
 
     CString sLog;
 
+    m_iStyle = iStyle;
     DeleteDC();
     CreateCompatibleDC(NULL);
 
@@ -31,14 +32,14 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo) {
         ANSI_CHARSET,              // CharSet
         OUT_DEVICE_PRECIS,         // OutPrecision
         CLIP_DEFAULT_PRECIS,       // ClipPrecision
-        CLEARTYPE_QUALITY,         // Quality
+        ANTIALIASED_QUALITY,         // Quality
         FIXED_PITCH || FF_MODERN,  // PitchAndFamily
         fontinfo.szFacenam);       // Facename
     SelectObject(m_font);
     __subGetAllUnicodes();
 
     int dim = ((int)sqrt(m_cwcUnicodes) + 1) * (fontinfo.nHeight + fontinfo.nPadding);
-    for (int i = 1; i < 0xffff; i <<= 1) {
+    for (int i = 0; i <= 0xffff; i += 0x400) {
         if (i > dim) {
             dim = i;
             break;
@@ -46,7 +47,7 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo) {
     }
     m_dim = CSize(dim, dim);
     sLog.Format(HFSTRC(IDS_LOG_DIMENSION_REQUIRED), fontinfo.nHeight, fontinfo.nWeight, dim, dim);
-    LOG.log(sLog, RGB(0,255,0));
+    LOG.log(sLog, LOG.INFO);
 
     //
     // Step 2. Create bmp with right size, fill masking color and set all the right color
@@ -57,10 +58,10 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo) {
     CPen pen; CBrush brush;
     pen.CreatePen(PS_SOLID, 1, PLATE_COLOR);
     brush.CreateSolidBrush(PLATE_COLOR);
-    SelectObject(pen);
-    SelectObject(brush);
-    CRect rect(0, 0, m_dim.cx, m_dim.cy);
-    Rectangle(rect);
+    //SelectObject(pen);
+    //SelectObject(brush);
+    //CRect rect(0, 0, m_dim.cx, m_dim.cy);
+    //Rectangle(rect);
 
     SetTextColor(FONT_COLOR);
     SetBkColor(BKGD_COLOR);
@@ -74,8 +75,6 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo) {
         m_ptUnicodes[i] = ptCurr;
         ptCurr = __subDrawUnicode(ptCurr, i, fontinfo.nHeight);
     }
-
-    m_image.Save(_T("D:\\aa.png"));
     return TRUE;
 }
 
@@ -97,16 +96,26 @@ size_t HFMemDC::FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr) {
     int b = m_abcUnicodes[iIndex].abcB;
     int c = m_abcUnicodes[iIndex].abcC;
 
-    puiCurr[iIndex].wcUnicode = m_awcUnicodes[iIndex];
-    puiCurr[iIndex].aiPos[UNICODEINFO::L_BOUND] = m_ptUnicodes[iIndex].x;
-    puiCurr[iIndex].aiPos[UNICODEINFO::R_BOUND] = m_ptUnicodes[iIndex].x + 20;
-    puiCurr[iIndex].aiPos[UNICODEINFO::B_BOUND] = m_ptUnicodes[iIndex].y + 20;
-    puiCurr[iIndex].aiPos[UNICODEINFO::L_OFFSET] = 0;
-    puiCurr[iIndex].aiPos[UNICODEINFO::R_OFFSET] = 0;
-    puiCurr[iIndex].aiPos[UNICODEINFO::B_OFFSET] = 0;
-    puiCurr[iIndex].aiPos[UNICODEINFO::UNKNOWN] = 0;
+    puiCurr->wcUnicode = m_awcUnicodes[iIndex];
+    puiCurr->aiPos[UNICODEINFO::L_BOUND] = m_ptUnicodes[iIndex].x;
+    puiCurr->aiPos[UNICODEINFO::R_BOUND] = m_ptUnicodes[iIndex].x + abs(a) + abs(b) + abs(c);
+    puiCurr->aiPos[UNICODEINFO::T_BOUND] = m_ptUnicodes[iIndex].y;
+    puiCurr->aiPos[UNICODEINFO::B_BOUND] = m_ptUnicodes[iIndex].y + HFLC::header::DEFAULT_HEIGHT[m_iStyle];
+
+    puiCurr->aiPos[UNICODEINFO::L_OFFSET] = 0;
+    puiCurr->aiPos[UNICODEINFO::R_OFFSET] = a + b + c;
+    if (a < 0) {
+        puiCurr->aiPos[UNICODEINFO::L_OFFSET] += a;
+    }
+
+    puiCurr->aiPos[UNICODEINFO::UNKNOWN] = 0;
 
     return iIndex + 1;
+}
+
+void HFMemDC::SaveDDS(LPCTSTR filename) {
+    m_image.Save(filename);
+
 }
 
 VOID HFMemDC::__subGetAllUnicodes() {
@@ -121,6 +130,7 @@ VOID HFMemDC::__subGetAllUnicodes() {
         sTemp.Format(HFSTRC(IDS_LOG_FONT_FILE_NOT_SUPPORTED));
         LOG.log(sTemp);
     }
+
 
     m_cwcUnicodes = lpgsCurr->cGlyphsSupported;
     mem::FreeMem(m_awcUnicodes);
@@ -152,10 +162,6 @@ VOID HFMemDC::__subGetAllUnicodes() {
     sTemp.Format(HFSTRC(IDS_LOG_NUM_ABC_READ), i);
     LOG.log(sTemp, RGB(0, 255, 0));
 
-    for (i = 32; i < 80; i++) {
-        //sTemp.Format(_T("%3d, 0x%04x, '%c', %3d, %3d, %3d"), i, m_awcUnicodes[i], m_awcUnicodes[i], m_abcUnicodes[i].abcA, m_abcUnicodes[i].abcB, m_abcUnicodes[i].abcC);
-        //LOG.log(sTemp);
-    }
     BOOL bj = ::GetMapMode(*this) == MM_TEXT;
     UINT uui = GetTextAlign();
 

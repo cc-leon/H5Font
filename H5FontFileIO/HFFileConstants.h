@@ -17,6 +17,14 @@ namespace HFFC {
 
         // In the 2nd part of the bin file, each position values are separated by this WORD
         WORD CONST POSITION_FLAG = 0x3802;
+
+        SIZE_T CONST HEAD_COUNTS_ADDR[] = {0x1A, 0x1F, 0x2A, 0x5A, 0x60};
+
+        SIZE_T CONST HEAD_COUNTS_FACTOR[] = {68, 68, 68, 68, 1};
+
+        SIZE_T CONST HEAD_COUNTS_OFFSET[] = {181, 171, 149, 25, 0};
+
+        size_t CONST HEAD_COUNTS_NUM = sizeof(HEAD_COUNTS_ADDR) / sizeof(SIZE_T);
     }
 
     namespace xml {
@@ -26,5 +34,6 @@ namespace HFFC {
 
     namespace exe {
         TCHAR CONST ZIP_CMD[] = _T("libs\\7z.exe");
+        TCHAR CONST MAGICK_CMD[] = _T("libs\\magick.exe");
     }
 }

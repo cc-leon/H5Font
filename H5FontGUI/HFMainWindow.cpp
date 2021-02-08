@@ -8,7 +8,7 @@ HFMainWindow::HFMainWindow()
     : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(), m_iFontIndex(0) {
 
     for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
-        ::StringCchCopy(m_fiFonts[i].szFacenam, LF_FACESIZE, _T("Monotype Corsiva"));
+        ::StringCchCopy(m_fiFonts[i].szFacenam, LF_FACESIZE, _T("ºÚÌå"));
         m_fiFonts[i].nPadding = 0;
         m_fiFonts[i].nVPosition = 5;
         m_fiFonts[i].nHeight = HFLC::header::DEFAULT_HEIGHT[i];
@@ -369,10 +369,26 @@ void HFMainWindow::OnBtnUnderlineClicked() {
 
 void HFMainWindow::OnBtnRunClicked() {
     m_dcDrawCentre.DrawAtOnce(m_fiFonts);
-    m_drawWnd->SetDrawCentre(&m_dcDrawCentre);
+    //m_drawWnd->SetDrawCentre(&m_dcDrawCentre);
     HFBinFilesInfo info;
-    info.InitializeInstance(_T("D:\\games\\TOE31\\data\\texts.pak"));
-    info[0].CreateBinFile(_T("aa.bin"));
+    info.InitializeInstance(_T("D:\\games\\TOE31\\data\\texts\\texts.pak"));
+    CString sTemp;
+    for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
+        if (i != HFLC::header::HEADER_32) continue;
+        size_t cuiNew = m_dcDrawCentre[i].GetUnicodeCount();
+        LPUNICODEINFO auiNew = mem::GetMem<UNICODEINFO>(cuiNew);
+        for (size_t j = 0; j < cuiNew; j++) {
+            //auiNew[i].wcUnicode = 0;
+            //auiNew[i].aiPos[0] = {0};
+            m_dcDrawCentre[i].FillUNICODEINFO(j, &auiNew[j]);
+        }
+        info[i].Replace(auiNew, cuiNew);
+        LOG.log(str::Bytes2String(info[i].m_lpHead, info[i].m_cbHead));
+        sTemp.Format(_T("D:\\data\\%s"), (LPCTSTR)info[i].GetBinUID());
+        info[i].CreateBinFile(sTemp);
+        sTemp.Format(_T("D:\\data\\%s.txt"), (LPCTSTR)info[i].GetBinUID());
+        info[i].CreateTxtFile(sTemp);
+    }
 }
 
 void HFMainWindow::OnBtnPreviewDrawClicked() {

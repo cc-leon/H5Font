@@ -2,12 +2,13 @@
 
 class HFBinFile {
 public:
+    friend class HFMainWindow;
     HFBinFile();
     ~HFBinFile();
     VOID InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szBinFile, BOOL bClone=FALSE);
     CString CONST& GetBinUID() CONST;
-    BOOL CreateBinFile(LPCTSTR szBinFilename=NULL);
-    BOOL CreateTxtFile(LPCTSTR szBinFilename=NULL);
+    BOOL CreateBinFile(LPCTSTR szBinFilename);
+    BOOL CreateTxtFile(LPCTSTR szTxtFilename);
     VOID Replace(LPCUNICODEINFO uiInfo, size_t cuiInfo);
     VOID Cleanup();
 
@@ -20,6 +21,7 @@ protected:
 
     LPBYTE m_lpHead;
     SIZE_T m_cbHead;
+
     LPBYTE m_lpMid;
     SIZE_T m_cbMid;
     LPBYTE m_lpTail;

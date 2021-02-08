@@ -44,7 +44,7 @@ BOOL HFBinFilesInfo::CheckLegal(LPCTSTR szPakName) {
         CString sXmlFile;
         sXmlFile.Format(_T("%s\\%s\\%s.%s"), HFFC::pak::TEMP_FOLDER, HFFC::pak::XML_PATH, HFLC::header::CODE_TO_LPTSTR[i], HFFC::pak::XML_BININFO);
         if (!file::FileExists(sXmlFile)) {
-            sLog.Format(HFSTRC(IDS_LOG_FILE_NOT_FOUND), dwExitCode);
+            sLog.Format(HFSTRC(IDS_LOG_FILE_NOT_FOUND), sXmlFile);
             LOGUSR(sLog);
             return FALSE;
         }
@@ -92,6 +92,7 @@ BOOL HFBinFilesInfo::CheckLegal(LPCTSTR szPakName) {
         return FALSE;
     }
     for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
+        if (i != HFLC::header::HEADER_32) continue;
         CString sBinFile;
         sBinFile.Format(_T("%s\\%s\\%s"), HFFC::pak::TEMP_FOLDER, HFFC::pak::BIN_PATH, (LPCTSTR)asUIDs[i]);
         if (!file::FileExists(sBinFile)) {
