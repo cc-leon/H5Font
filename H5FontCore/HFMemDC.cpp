@@ -1,5 +1,7 @@
 #include "pch.h"
+#include "../H5FontCore/HFBitMask.h"
 #include "HFMemDC.h"
+
 
 HFMemDC::HFMemDC() 
     : CDC(), m_awcUnicodes(NULL), m_abcUnicodes(NULL), m_cwcUnicodes(0)
@@ -70,6 +72,9 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo, int iStyle) {
     //
     // Step 4. Draw Characters
     //
+    mem::FreeMem(m_ptUnicodes);
+    m_ptUnicodes = mem::GetMem<POINT>(m_cwcUnicodes);
+
     CPoint ptCurr(0, 0);
     for (size_t i = 0; i < m_cwcUnicodes; i++) {
         m_ptUnicodes[i] = ptCurr;
@@ -131,15 +136,13 @@ VOID HFMemDC::__subGetAllUnicodes() {
         LOG.log(sTemp);
     }
 
-
-    m_cwcUnicodes = lpgsCurr->cGlyphsSupported;
-    mem::FreeMem(m_awcUnicodes);
-    m_awcUnicodes = mem::GetMem<WCHAR>(m_cwcUnicodes);
+    size_t cwcFont = lpgsCurr->cGlyphsSupported;
+    LPWSTR awcFont = mem::GetMem<WCHAR>(cwcFont);
 
     size_t i = 0;
     for (DWORD j = 0; j < lpgsCurr->cRanges; j++) {
         for (USHORT k = 0; k < lpgsCurr->ranges[j].cGlyphs; k++) {
-            m_awcUnicodes[i] = lpgsCurr->ranges[j].wcLow + k;
+            awcFont[i] = lpgsCurr->ranges[j].wcLow + k;
             i++;
         }
     }
@@ -147,28 +150,64 @@ VOID HFMemDC::__subGetAllUnicodes() {
     sTemp.Format(HFSTRC(IDS_LOG_NUM_UNICODES_READ), i);
     LOG.log(sTemp, RGB(0, 255, 0));
 
-    mem::FreeMem(m_abcUnicodes);
-    m_abcUnicodes = mem::GetMem<ABC>(m_cwcUnicodes);
+    LPABC abcFont = mem::GetMem<ABC>(cwcFont);
 
     i = 0;
     for (DWORD j = 0; j < lpgsCurr->cRanges; j++) {
         ::GetCharABCWidths(
             *this, lpgsCurr->ranges[j].wcLow,
             lpgsCurr->ranges[j].wcLow + lpgsCurr->ranges[j].cGlyphs - 1,
-            &m_abcUnicodes[i]);
+            &abcFont[i]);
         i += lpgsCurr->ranges[j].cGlyphs;
+    }
+
+    LPABC* pabcUnicodes = mem::GetMem<LPABC>(0xFFFF);
+    ::ZeroMemory(pabcUnicodes, sizeof(LPABC) * 0xFFFF);
+
+    for (size_t j = 0; j < cwcFont; j++) {
+        pabcUnicodes[(size_t)awcFont[j]] = &abcFont[j];
+    }
+
+    HFBitMask bmGB2312(0xFFFF);
+    size_t cwcGB2312 = sys::info.FillUnicodes(NULL);
+    LPWSTR awcGB2312 = mem::GetMem<WCHAR>(cwcGB2312);
+    sys::info.FillUnicodes(awcGB2312);
+    for (size_t j = 0; j < cwcGB2312; j++) {
+        bmGB2312[(size_t)awcGB2312[j]] = TRUE;
+    }
+
+    m_cwcUnicodes = 0;
+    for (size_t j = 0; j < 0xFFFF; j++) {
+        if (bmGB2312[j] && (pabcUnicodes[j] != NULL)) {
+            m_cwcUnicodes++;
+        }
+        else if (!bmGB2312[j] && (pabcUnicodes[j] != NULL)) {
+            pabcUnicodes[j] = NULL;
+        }
+    }
+
+    mem::FreeMem(m_awcUnicodes);
+    mem::FreeMem(m_abcUnicodes);
+    m_awcUnicodes = mem::GetMem<WCHAR>(m_cwcUnicodes);
+    m_abcUnicodes = mem::GetMem<ABC>(m_cwcUnicodes);
+
+    i = 0;
+    for (size_t j = 0; j < 0xFFFF; j++) {
+        if (pabcUnicodes[j] != NULL) {
+            m_awcUnicodes[i] = (WCHAR)j;
+            m_abcUnicodes[i] = *pabcUnicodes[j];
+            i++;
+        }
     }
 
     sTemp.Format(HFSTRC(IDS_LOG_NUM_ABC_READ), i);
     LOG.log(sTemp, RGB(0, 255, 0));
 
-    BOOL bj = ::GetMapMode(*this) == MM_TEXT;
-    UINT uui = GetTextAlign();
-
-    mem::FreeMem(m_ptUnicodes);
-    m_ptUnicodes = mem::GetMem<POINT>(m_cwcUnicodes);
     mem::FreeMem(lpgsCurr);
-
+    mem::FreeMem(awcFont);
+    mem::FreeMem(abcFont);
+    mem::FreeMem(awcGB2312);
+    mem::FreeMem(pabcUnicodes);
 }
 
 CPoint HFMemDC::__subDrawUnicode(CPoint CONST& ptCurr, size_t iIndex, int iHeight) {

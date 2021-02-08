@@ -22,7 +22,10 @@ namespace sys {
             m_uiCodePage = CP_UTF8;
             __fillEnGBUnicodes();
         }
+    }
 
+    __sys::~__sys() {
+        mem::FreeMem(m_awcUnicodes);
     }
 
     UINT __sys::CodePage() CONST {

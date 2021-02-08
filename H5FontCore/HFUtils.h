@@ -35,6 +35,7 @@ namespace sys {
     class __sys {
     public:
         __sys();
+        ~__sys();
         UINT CodePage() CONST;
         CStringW LocaleName() CONST;
         size_t FillUnicodes(LPWSTR awcUnicodes) CONST;

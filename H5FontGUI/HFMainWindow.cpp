@@ -3,6 +3,7 @@
 #include "HFMainWindow.h"
 #include "HFDrawWindow.h"
 #include "../H5FontFileIO/HFBinFilesInfo.h"
+#include "../H5FontCore/HFBitMask.h"
 
 HFMainWindow::HFMainWindow() 
     : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(), m_iFontIndex(0) {
@@ -397,7 +398,29 @@ void HFMainWindow::OnBtnPreviewDrawClicked() {
 
 void HFMainWindow::OnBtnPackageClicked() {
     CString sTemp;
-    sTemp.Format(_T("Package clicked, %.8f"), 3.1415926);
+    HFBitMask aa(16);
+    for (int i = 0; i < 16; i++) {
+        if (!(i % 2)) {
+            aa[i] = TRUE;
+        }
+    }
+    for (int i = 0; i < 16; i++) {
+        CString sTemp2;
+        sTemp2.Format(_T("%d "), (BOOL)aa[i]);
+        sTemp.Append(sTemp2);
+    }
+    LOG.log(sTemp);
+    sTemp = _T("");
+    for (int i = 0; i < 16; i++) {
+        if (!(i % 4)) {
+            aa[i] = FALSE;
+        }
+    }
+    for (int i = 0; i < 16; i++) {
+        CString sTemp2;
+        sTemp2.Format(_T("%d "), (BOOL)aa[i]);
+        sTemp.Append(sTemp2);
+    }
     LOG.log(sTemp);
 }
 
