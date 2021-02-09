@@ -96,6 +96,7 @@ public:
     afx_msg void OnFileLoadPreset();
     afx_msg void OnWindowsLog();
     afx_msg void OnWindowsLogClear();
+    afx_msg void OnWindowsLogSave();
     afx_msg void OnHelpReadme();
     afx_msg void OnHelpOnline();
     afx_msg void OnHelpAbout();

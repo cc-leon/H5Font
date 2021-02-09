@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Chinese (Simplified, PRC) resources
+// 中文(简体，中国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -67,10 +67,11 @@ BEGIN
         MENUITEM "保存预设(&S)",                    ID_FILE_SAVE_PRESET
         MENUITEM "加载预设(&L)",                    ID_FILE_LOAD_PRESET
     END
-    POPUP "窗口(&W)"
+    POPUP "日志(&W)"
     BEGIN
-        MENUITEM "日志(&L)",                      IDM_WINDOWS_LOG, CHECKED
-        MENUITEM "清空日志(&C)",                    40032
+        MENUITEM "显示(&L)",                      IDM_WINDOWS_LOG, CHECKED
+        MENUITEM "清空(&C)",                      IDM_WINDOWS_CLEAR_LOG
+        MENUITEM "保存(&S)",                      IDM_WINDOWS_SAVE_LOG
     END
     POPUP "帮助(&H)"
     BEGIN
@@ -180,8 +181,10 @@ BEGIN
     IDS_MAINWINDOW_STEP2_LBLPADDING "中文间距:"
     IDS_MAINWINDOW_STEP2_LBLVPOSITION "垂直调整(%):"
     IDS_MAINWINDOW_HFBINFILTER "二进制数据文件 (*.hfbin)|*.hfbin||"
-    IDS_MAIN_SAVE_PRESET_TITLE "保存当前配置"
-    IDS_MAIN_LOAD_PRESET_TITLE "加载配置"
+    IDS_MAINWINDOW_SAVE_PRESET_SUCCESS "保存配置文件“%s”成功"
+    IDS_MAINWINDOW_LOAD_PRESET_SUCCESS "加载配置文件“%s”成功"
+    IDS_MAINWINDOW_SAVE_PRESET_FAILURE "保存配置文件“%s”失败"
+    IDS_MAINWINDOW_LOAD_PRESET_FAILURE "加载配置文件“%s”失败"
 END
 
 STRINGTABLE
@@ -242,7 +245,7 @@ BEGIN
     IDS_MSG_DELETE_TEMP2    "(临时文件会在下次解析时自动清除，也可手动删除“%s”文件夹)"
 END
 
-#endif    // Chinese (Simplified, PRC) resources
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

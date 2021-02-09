@@ -4,9 +4,10 @@
 #include <stdio.h>
 
 #include "HFUtils.h"
+#include "HFBitMask.h"
 
 namespace sys {
-    __sys::__sys(): m_awcUnicodes(NULL), m_cwcUnicodes(0) {
+    __sys::__sys(): m_awcUnicodes(NULL), m_cwcUnicodes(0), m_pbmMask(NULL) {
         WCHAR szLocaleName[LOCALE_NAME_MAX_LENGTH];
         ::GetSystemDefaultLocaleName(szLocaleName, LOCALE_NAME_MAX_LENGTH);
         m_wsLocaleName = szLocaleName;
@@ -26,6 +27,9 @@ namespace sys {
 
     __sys::~__sys() {
         mem::FreeMem(m_awcUnicodes);
+        if (m_pbmMask) {
+            delete m_pbmMask;
+        }
     }
     __sys const info;
 
@@ -46,11 +50,21 @@ namespace sys {
         return m_cwcUnicodes;
     }
 
+    HFBitMask CONST* __sys::GetPaddingCharSet() CONST {
+        return m_pbmMask;
+    }
+
     VOID __sys::__fillZhCNUnicodes() {
         // File GB2312 codes
+        if (m_pbmMask) {
+            delete m_pbmMask;
+        }
+        m_pbmMask = new HFBitMask(0xFFFF);
+
         BYTE CONST ANSI_RANGE[] = {0x20, 0x7e};
         BYTE CONST HIBYTES_RANGES[][2] = {{ 1, 9 }, { 16, 55 }, { 56, 87 }, { 88, 89 }};
         size_t CONST HIBYTE_1ST_DIM = 4;
+        size_t CONST HIBYTE_PADDING = 16;
         BYTE CONST LOBYTES_RANGE[] = {01, 94};
         BYTE CONST GB_OFFSET = 0xA0;
 
@@ -78,6 +92,9 @@ namespace sys {
                     WCHAR wcUnicode[2];
                     ::MultiByteToWideChar(m_uiCodePage, NULL, gb2312Char,-1, wcUnicode, 2);
                     m_awcUnicodes[i++] = wcUnicode[0];
+                    if (k >= HIBYTE_PADDING) {
+                        (*m_pbmMask)[size_t(wcUnicode[0])] = TRUE;
+                    }
                 }
             }
         }

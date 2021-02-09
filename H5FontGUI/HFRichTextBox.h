@@ -12,4 +12,5 @@ public:
     afx_msg void OnEnChange();
     afx_msg LRESULT OnLogmsg(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnLogsave(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnLogclear(WPARAM wParam, LPARAM lParam);
 };

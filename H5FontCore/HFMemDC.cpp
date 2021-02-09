@@ -42,23 +42,27 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo, int iStyle) {
         return FALSE;
     }
 
-    int dim = max(
-        ((int)sqrt(m_cwcUnicodes) + 1) * (HFLC::header::DEFAULT_HEIGHT[m_iStyle]) + fontinfo.nHeight * 2,
-        ((int)sqrt(m_cwcUnicodes) + 1) * (fontinfo.nHeight + fontinfo.nPadding) + fontinfo.nHeight * 2);
-    for (int i = 0; i <= 0xffff; i += 0x400) {
-        if (i > dim) {
-            dim = i;
+    int dimW = ((int)sqrt(m_cwcUnicodes) + 1) * (fontinfo.nHeight) + fontinfo.nHeight * 2;
+    int dimH;
+    for (int i = 1; i <= 0xffff; i <<= 1) {
+        if (i > dimW) {
+            if (dimW * dimW < i * (i >> 1)) {
+                dimH = i / 2;
+            }
+            else {
+                dimH = i;
+            }
+            dimW = i;
             break;
         }
     }
-    if (dim <= 0x1000) {
-        m_dim = CSize(dim, dim);
-        sLog.Format(HFSTRC(IDS_LOG_DIMENSION_REQUIRED), fontinfo.nHeight, fontinfo.nWeight, dim, dim);
+    if (dimW <= 0x1000) {
+        m_dim = CSize(dimW, dimH);
+        sLog.Format(HFSTRC(IDS_LOG_DIMENSION_REQUIRED), fontinfo.nHeight, fontinfo.nWeight, dimW, dimH);
         LOG.log(sLog, LOG.INFO);
     }
     else {
-        m_dim = CSize(dim, dim);
-        sLog.Format(HFSTRC(IDS_LOG_DIMENSION_EXCEEDED), dim, 0x1000);
+        sLog.Format(HFSTRC(IDS_LOG_DIMENSION_EXCEEDED), dimW, 0x1000);
         LOG.log(sLog, LOG.INFO);
         return FALSE;
     }
@@ -67,7 +71,7 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo, int iStyle) {
     // Step 2. Create bmp with right size, fill masking color and set all the right color
     //
     m_image.Destroy();
-    m_image.Create(dim, dim, 32);
+    m_image.Create(dimW, dimH, 32);
     SelectObject(m_image);
     SetTextColor(FONT_COLOR);
     SetBkColor(BKGD_COLOR);
@@ -112,13 +116,17 @@ size_t HFMemDC::FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr) {
     int c = m_abcUnicodes[iIndex].abcC;
 
     puiCurr->wcUnicode = m_awcUnicodes[iIndex];
+    int lrOffset = 0;
+    if (sys::info.GetPaddingCharSet()->GetBit(puiCurr->wcUnicode)) {
+        lrOffset = m_fontinfo.nPadding;
+    }
     puiCurr->aiPos[UNICODEINFO::L_BOUND] = m_ptUnicodes[iIndex].x;
     puiCurr->aiPos[UNICODEINFO::R_BOUND] = m_ptUnicodes[iIndex].x + abs(a) + abs(b) + abs(c);
     puiCurr->aiPos[UNICODEINFO::T_BOUND] = m_ptUnicodes[iIndex].y + topOffset;
     puiCurr->aiPos[UNICODEINFO::B_BOUND] = m_ptUnicodes[iIndex].y + m_fontinfo.nHeight - topOffset;
 
     puiCurr->aiPos[UNICODEINFO::L_OFFSET] = 0;
-    puiCurr->aiPos[UNICODEINFO::R_OFFSET] = a + b + c;
+    puiCurr->aiPos[UNICODEINFO::R_OFFSET] = a + b + c + lrOffset;
     if (a < 0) {
         puiCurr->aiPos[UNICODEINFO::L_OFFSET] += a;
     }
@@ -265,7 +273,7 @@ CPoint HFMemDC::__subDrawUnicode(CPoint CONST& ptCurr, size_t iIndex, int iHeigh
     ptResult.x += abs(m_abcUnicodes[iIndex].abcC);
     LONG iRight = m_dim.cx;
 
-    if (iIndex < m_cwcUnicodes - 1 && LONG(ptResult.x + m_fontinfo.nHeight * 2) >= iRight) {
+    if (iIndex < m_cwcUnicodes - 1 && LONG(ptResult.x + m_fontinfo.nHeight * 2) > iRight) {
         ptResult.x = m_fontinfo.nHeight;
         ptResult.y += iHeight;
     }

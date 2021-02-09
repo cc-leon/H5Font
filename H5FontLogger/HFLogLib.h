@@ -11,6 +11,9 @@ namespace logger {
         // LPARAM is a LPTSTR pointer that contains filename,
         // WPARAM is NULL. Sender handles cleanup
         LOG_SAVE_TEXT,
+
+
+        LOG_CLEAR_TEXT,
     };
 
     struct LOGMSG {

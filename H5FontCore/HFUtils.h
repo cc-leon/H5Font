@@ -29,7 +29,7 @@ typedef struct tagFONTINFO {
 } FONTINFO, * PFONTINFO, * LPFONTINFO;
 typedef FONTINFO CONST* LPCFONTINFO;
 
-
+class HFBitMask;
 namespace sys {
     class __sys {
     public:
@@ -38,6 +38,7 @@ namespace sys {
         UINT CodePage() CONST;
         CStringW LocaleName() CONST;
         size_t FillUnicodes(LPWSTR awcUnicodes) CONST;
+        HFBitMask CONST* GetPaddingCharSet() CONST;
 
     private:
         VOID __fillZhCNUnicodes();
@@ -45,6 +46,7 @@ namespace sys {
 
         UINT m_uiCodePage;
         CStringW m_wsLocaleName;
+        HFBitMask * m_pbmMask;
 
         LPWSTR m_awcUnicodes;
         size_t m_cwcUnicodes;

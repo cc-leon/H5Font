@@ -48,6 +48,8 @@ namespace logger {
 
         BOOL SaveLog(LPCTSTR szRichTextFilename);
 
+        VOID ClearLog();
+
     protected:
         CWnd* m_logWnd;
         CFile* m_hFile;

@@ -58,6 +58,8 @@ namespace HFUIC {
             CRect const btnOpenFolderRect(85, 25, 190, 55);
         }
 
+        TCHAR CONST szPresetFilename[] = _T("default.hfbin");
+
     }
 
     namespace LogWindow {

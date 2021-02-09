@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by HFzhCNResourceDLL.rc
+// Microsoft Visual C++ 生成的包含文件。
+// 供 HFzhCNResourceDLL.rc 使用
 //
 #define IDR_DRAWWINDOW                  101
 #define IDR_MAINWINDOW                  102
@@ -37,7 +37,15 @@
 #define IDS_MAINWINDOW_HFBINFILTER      133
 #define IDD_PROCESSING                  134
 #define IDS_MAIN_SAVE_PRESET_TITLE      134
+#define IDS_MAIN_SAVE_PRESET_SUCCESS    134
+#define IDS_MAINWINDOW_SAVE_PRESET_SUCCESS 134
 #define IDS_MAIN_LOAD_PRESET_TITLE      135
+#define IDS_MAIN_LOAD_PRESET_SUCCESS    135
+#define IDS_MAINWINDOW_LOAD_PRESET_SUCCESS 135
+#define IDS_MAIN_SAVE_PRESET_FAILURE    136
+#define IDS_MAINWINDOW_SAVE_PRESET_FAILURE 136
+#define IDS_MAIN_LOAD_PRESET_FAILURE    137
+#define IDS_MAINWINDOW_LOAD_PRESET_FAILURE 137
 #define IDS_LOG_APPSTART                400
 #define IDS_LOG_NUM_FONTS_LOADED        401
 #define IDS_LOG_SAVING_PNG              402
@@ -93,16 +101,17 @@
 #define IDM_DRAWWINDOW_ZOOMIN           40027
 #define IDM_DRAWWINDOW_ZOOMOUT          40029
 #define IDM_DRAWWINDOW_100              40031
-#define IDM_WINDOWS_LOG_CLEAR           40032
 #define ID_FILE_SAVE_PRESET             40035
 #define ID_FILE_LOAD_PRESET             40036
+#define IDM_WINDOWS_CLEAR_LOG           40039
+#define IDM_WINDOWS_SAVE_LOG            40040
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        136
-#define _APS_NEXT_COMMAND_VALUE         40038
+#define _APS_NEXT_COMMAND_VALUE         40041
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -2,6 +2,15 @@
 #include "HFRichTextBox.h"
 #include "../H5FontLogger/HFLogLib.h"
 
+static DWORD CALLBACK HFTxtLogStreamOutCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG* pcb) {
+    CFile* pFile = (CFile*)dwCookie;
+
+    pFile->Write(pbBuff, cb);
+    *pcb = cb;
+
+    return 0;
+}
+
 HFRichTextBox::HFRichTextBox(): CRichEditCtrl(){}
 
 HFRichTextBox::~HFRichTextBox() {}
@@ -19,6 +28,7 @@ BEGIN_MESSAGE_MAP(HFRichTextBox, CRichEditCtrl)
     ON_WM_DESTROY()
     ON_MESSAGE(logger::LOG_SHOW_TEXT, &HFRichTextBox::OnLogmsg)
     ON_MESSAGE(logger::LOG_SAVE_TEXT, &HFRichTextBox::OnLogsave)
+    ON_MESSAGE(logger::LOG_CLEAR_TEXT, &HFRichTextBox::OnLogclear)
 END_MESSAGE_MAP()
 
 int HFRichTextBox::OnCreate(LPCREATESTRUCT lpCreateStruct) {
@@ -43,7 +53,7 @@ void HFRichTextBox::OnEnChange() {
 
 }
 
-afx_msg LRESULT HFRichTextBox::OnLogmsg(WPARAM wParam, LPARAM lParam) {
+LRESULT HFRichTextBox::OnLogmsg(WPARAM wParam, LPARAM lParam) {
     logger::LOGMSG* pLogInfoStruct = (logger::LOGMSG*)lParam;
     long lTxtBoxLen = GetTextLength();
     SetSel(lTxtBoxLen, lTxtBoxLen);
@@ -72,16 +82,8 @@ afx_msg LRESULT HFRichTextBox::OnLogmsg(WPARAM wParam, LPARAM lParam) {
     return 0;
 }
 
-static DWORD CALLBACK HFTxtLogStreamOutCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG* pcb) {
-    CFile* pFile = (CFile*)dwCookie;
 
-    pFile->Write(pbBuff, cb);
-    *pcb = cb;
-
-    return 0;
-}
-
-afx_msg LRESULT HFRichTextBox::OnLogsave(WPARAM wParam, LPARAM lParam) {
+LRESULT HFRichTextBox::OnLogsave(WPARAM wParam, LPARAM lParam) {
     CFile cFile(*(CString*)(lParam), CFile::modeCreate | CFile::modeWrite);
     EDITSTREAM es;
 
@@ -91,3 +93,12 @@ afx_msg LRESULT HFRichTextBox::OnLogsave(WPARAM wParam, LPARAM lParam) {
 
     return 0;
 }
+
+LRESULT HFRichTextBox::OnLogclear(WPARAM wParam, LPARAM lParam) {
+    SetWindowText(_T(""));
+    return 0;
+}
+
+
+
+

@@ -77,6 +77,21 @@ HFMainWindow::HFMainWindow()
     : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(), m_iFontIndex(0), ThreadData{NULL, _T(""), FALSE},
     m_fRunned(FALSE) {
 
+    if (file::FileExists(HFUIC::MainWindow::szPresetFilename)) {
+        SIZE_T cbToPick = sizeof(FONTINFO) * HFLC::header::HEADER_COUNT;
+        SIZE_T cbPicked = file::PickFromFile(HFUIC::MainWindow::szPresetFilename, NULL);
+        if (cbPicked != cbToPick) {
+            goto NORM;
+        }
+        else {
+            LPFONTINFO pfiTemp = mem::GetMem<FONTINFO>(cbPicked / sizeof(FONTINFO));
+            file::PickFromFile(HFUIC::MainWindow::szPresetFilename, pfiTemp);
+            ::CopyMemory(m_fiFonts, pfiTemp, cbPicked);
+            mem::FreeMem(pfiTemp);
+            return;
+        }
+    }
+NORM:
     for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
         ::StringCchCopy(m_fiFonts[i].szFacenam, LF_FACESIZE, _T("ºÚÌå"));
         m_fiFonts[i].nPadding = 0;
@@ -234,7 +249,8 @@ BEGIN_MESSAGE_MAP(HFMainWindow, CFrameWnd)
     ON_COMMAND(ID_FILE_SAVE_PRESET, &HFMainWindow::OnFileSavePreset)
     ON_COMMAND(ID_FILE_LOAD_PRESET, &HFMainWindow::OnFileLoadPreset)
     ON_COMMAND(IDM_WINDOWS_LOG, &HFMainWindow::OnWindowsLog)
-    ON_COMMAND(IDM_WINDOWS_LOG_CLEAR, &HFMainWindow::OnWindowsLogClear)
+    ON_COMMAND(IDM_WINDOWS_CLEAR_LOG, &HFMainWindow::OnWindowsLogClear)
+    ON_COMMAND(IDM_WINDOWS_SAVE_LOG, &HFMainWindow::OnWindowsLogSave)
     ON_COMMAND(IDM_HELP_README, &HFMainWindow::OnHelpReadme)
     ON_COMMAND(IDM_HELP_ONLINE, &HFMainWindow::OnHelpOnline)
     ON_COMMAND(IDM_HELP_ABOUT, &HFMainWindow::OnHelpAbout)
@@ -249,6 +265,9 @@ END_MESSAGE_MAP()
 // HFMainWindow message handlers
 
 void HFMainWindow::OnClose() {
+    SIZE_T cbToDump = sizeof(FONTINFO) * HFLC::header::HEADER_COUNT;
+    SIZE_T cbDumped = file::DumpInFile(HFUIC::MainWindow::szPresetFilename, m_fiFonts, cbToDump);
+
     m_logWnd->DestroyWindow();
     m_drawWnd->DestroyWindow();
     CFrameWnd::OnClose();
@@ -601,20 +620,53 @@ void HFMainWindow::OnDdlFontSelectChange() {
 
 void HFMainWindow::OnFileSavePreset() {
     CFileDialog cfdDlg(
-        FALSE, _T("pak"), _T("berein's font"),
+        FALSE, _T("hfbin"), _T("default"),
         OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_SHOWHELP,
-        HFSTRC(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
+        HFSTRC(IDS_MAINWINDOW_HFBINFILTER), this);
 
-    if (cfdDlg.DoModal() == IDCANCEL) {
-        ::AfxMessageBox(HFSTRC(IDS_MSG_SAVE_FILE_CANCELLED), MB_OK | MB_ICONWARNING);
-        return;
+    if (cfdDlg.DoModal() == IDOK) {
+        CString sHFBinName = cfdDlg.GetPathName();
+        CString sTemp;
+
+        SIZE_T cbToDump = sizeof(FONTINFO) * HFLC::header::HEADER_COUNT;
+        SIZE_T cbDumped = file::DumpInFile(sHFBinName, m_fiFonts, cbToDump);
+
+        if (cbDumped != cbToDump) {
+            sTemp.Format(HFSTRC(IDS_MAINWINDOW_SAVE_PRESET_FAILURE), sHFBinName);
+            ::AfxMessageBox(sTemp, MB_OK | MB_ICONERROR);
+            ::DeleteFile(sHFBinName);
+        }
+        else {
+            sTemp.Format(HFSTRC(IDS_MAINWINDOW_SAVE_PRESET_SUCCESS), sHFBinName);
+            ::AfxMessageBox(sTemp, MB_OK | MB_ICONINFORMATION);
+        }
     }
 }
 
 void HFMainWindow::OnFileLoadPreset() {
-    CFileDialog cfdDlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST, HFSTRC(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
+    CFileDialog cfdDlg(
+        TRUE, NULL, NULL, OFN_FILEMUSTEXIST,
+        HFSTRC(IDS_MAINWINDOW_HFBINFILTER), this);
+
     if (cfdDlg.DoModal() == IDOK) {
-        UIStep1.txtPak.SetWindowText(cfdDlg.GetPathName());
+        CString sHFBinName = cfdDlg.GetPathName();
+        CString sTemp;
+
+        SIZE_T cbToPick = sizeof(FONTINFO) * HFLC::header::HEADER_COUNT;
+        SIZE_T cbPicked = file::PickFromFile(sHFBinName, NULL);
+        if (cbPicked != cbToPick) {
+            sTemp.Format(HFSTRC(IDS_MAINWINDOW_LOAD_PRESET_FAILURE), sHFBinName);
+            ::AfxMessageBox(sTemp, MB_OK | MB_ICONERROR);
+        }
+        else {
+            LPFONTINFO pfiTemp = mem::GetMem<FONTINFO>(cbPicked / sizeof(FONTINFO));
+            file::PickFromFile(sHFBinName, pfiTemp);
+            ::CopyMemory(m_fiFonts, pfiTemp, cbPicked);
+            mem::FreeMem(pfiTemp);
+            SetFontInfoToGUI(*m_fiFonts);
+            sTemp.Format(HFSTRC(IDS_MAINWINDOW_LOAD_PRESET_SUCCESS), sHFBinName);
+            ::AfxMessageBox(sTemp, MB_OK | MB_ICONINFORMATION);
+        }
     }
 }
 
@@ -622,7 +674,12 @@ void HFMainWindow::OnWindowsLog() {
     SetMenuWindowsLogChecked(!GetMenuChecked(IDM_WINDOWS_LOG));
 }
 
+
+void HFMainWindow::OnWindowsLogSave() {
+}
+
 void HFMainWindow::OnWindowsLogClear() {
+    LOG.ClearLog();
 }
 
 void HFMainWindow::OnHelpReadme() {

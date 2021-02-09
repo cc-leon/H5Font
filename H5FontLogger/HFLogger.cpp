@@ -29,10 +29,17 @@ namespace logger {
     BOOL HFLogger::SaveLog(LPCTSTR szRichTextFilename) {
         if (m_logWnd != NULL) {
             CString sRichTextFilename(szRichTextFilename);
-            LRESULT z = m_logWnd->SendMessage(LOG_SAVE_TEXT, NULL, (LPARAM)&sRichTextFilename);
+            m_logWnd->SendMessage(LOG_SAVE_TEXT, NULL, (LPARAM)&sRichTextFilename);
         }
         return m_logWnd != NULL;
     }
+
+    VOID HFLogger::ClearLog() {
+        if (m_logWnd != NULL) {
+            m_logWnd->SendMessage(LOG_CLEAR_TEXT, NULL, NULL);
+        }
+    }
+
 
     BOOL HFLogger::__log_winapi_exception(
         LPCTSTR szFileName,
