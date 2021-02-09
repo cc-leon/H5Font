@@ -4,6 +4,7 @@
 *.png
 *.bin
 *.bmp
+*.aps
 Debug/
 Release/
 /H5FontGUI/outputs/
