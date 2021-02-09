@@ -269,6 +269,7 @@ BEGIN
     IDS_MSG_DELETE_TEMP1    "是否要删除临时文件？选择“是”会自动清理临时文件夹"
     IDS_MSG_DELETE_TEMP2    "(临时文件会在下次解析时自动清除，也可手动删除“%s”文件夹)"
     IDS_MSG_HELP_FILE_MISSING "找不到帮助文件“%s”，请检查下载/解压缩是否完整"
+    IDS_MSG_PAK_FILE_NOT_FOUND "找不到生成的Pak文件"
 END
 
 #endif    // 中文(简体，中国) resources

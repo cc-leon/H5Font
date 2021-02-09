@@ -93,6 +93,7 @@
 #define IDS_MSG_DELETE_TEMP1            610
 #define IDS_MSG_DELETE_TEMP2            611
 #define IDS_MSG_HELP_FILE_MISSING       612
+#define IDS_MSG_PAK_FILE_NOT_FOUND      613
 #define IDC_PROCESSING_STATIC_BAR       1002
 #define IDC_PROCESSING_STATIC_INFO      1003
 #define IDC_STATIC1                     1004

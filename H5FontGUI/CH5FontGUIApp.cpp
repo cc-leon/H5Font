@@ -66,6 +66,8 @@ BOOL CH5FontApp::InitInstance() {
     // Standard initialization
     SetRegistryKey(_T("H5Font"));
 
+    file::CreateFolderIfNotExists(HFFC::pak::TEMP_FOLDER);
+
     HFMainWindow* pMainWnd = new HFMainWindow;
     if (!pMainWnd) {
         return FALSE;

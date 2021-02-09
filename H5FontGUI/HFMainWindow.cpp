@@ -574,7 +574,13 @@ void HFMainWindow::OnBtnPackageClicked() {
 }
 
 void HFMainWindow::OnBtnOpenFolderClicked() {
-    LOG.log(_T("Open folder clicked"));
+    if (!m_fRunned || !file::FileExists(ThreadData.pakpath)) {
+        ::AfxMessageBox(HFSTRC(IDS_MSG_PAK_FILE_NOT_FOUND), MB_OK | MB_ICONWARNING);
+        return;
+    }
+    CString sTemp(ThreadData.pakpath);
+    sTemp.Truncate(sTemp.ReverseFind(_T('\\')));
+    ::ShellExecute(NULL, _T("explore"), sTemp, NULL, NULL, SW_SHOW);
 }
 
 void HFMainWindow::OnTxtPakChange() {
