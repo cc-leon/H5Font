@@ -2,16 +2,84 @@
 
 #include "HFMainWindow.h"
 #include "HFDrawWindow.h"
-#include "../H5FontFileIO/HFBinFilesInfo.h"
-#include "../H5FontCore/HFBitMask.h"
+
+UINT RunThreadFunc(LPVOID lpParam) {
+    HFMainWindow* main = (HFMainWindow*)lpParam;
+    main->m_bfFileCentre.InitializeInstance(main->ThreadData.pakpath);
+
+    int i = 0, prev_i;
+    do {
+        prev_i = i;
+        if (main->ThreadData.cancelled) {
+            ::AfxEndThread(7);
+        }
+        main->m_dcDrawCentre.DrawOneByOne(&main->m_fiFonts[i], i);
+    } while (i > prev_i);
+
+    main->m_drawWnd->SetDrawCentre(&main->m_dcDrawCentre);
+    LOG.log(_T(""));
+
+    main->ThreadData.dialog->PostMessage(WM_COMMAND, IDOK);
+
+    return 0;
+}
+
+UINT PackThreadFunc(LPVOID lpParam) {
+    HFMainWindow* main = (HFMainWindow*)lpParam;
+
+    int i = 0, prev_i;
+    do {
+        prev_i = i;
+        if (main->ThreadData.cancelled) {
+            ::AfxEndThread(7);
+        }
+        main->m_dcDrawCentre.SaveOneByOne(i);
+    } while (i > prev_i);
+
+    if (main->ThreadData.cancelled) {
+        ::AfxEndThread(7);
+    }
+    main->m_bfFileCentre.SyncFromDrawCentre(&main->m_dcDrawCentre);
+
+    i = 0;
+    do {
+        prev_i = i;
+        if (main->ThreadData.cancelled) {
+            ::AfxEndThread(7);
+        }
+        main->m_bfFileCentre.SaveOneByOne(i);
+    } while (i > prev_i);
+
+    if (main->ThreadData.cancelled) {
+        ::AfxEndThread(7);
+    }
+
+    LOG.log(_T(""));
+    file::ZipFile(main->ThreadData.pakpath, HFFC::pak::TEMP_FOLDER);
+
+    if (main->ThreadData.cancelled) {
+        ::AfxEndThread(7);
+    }
+
+    if (main->ThreadData.deltemp) {
+        LOG.log(_T(""));
+        file::ClearTempFile();
+    }
+    LOG.log(_T(""));
+
+    main->ThreadData.dialog->PostMessage(WM_COMMAND, IDOK);
+
+    return 0;
+}
+
 
 HFMainWindow::HFMainWindow() 
-    : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(), m_iFontIndex(0) {
+    : m_logWnd(NULL), m_drawWnd(NULL), m_mnMain(), m_iFontIndex(0), ThreadData{NULL, _T(""), FALSE},
+    m_fRunned(FALSE) {
 
     for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
         ::StringCchCopy(m_fiFonts[i].szFacenam, LF_FACESIZE, _T("ºÚÌå"));
         m_fiFonts[i].nPadding = 0;
-        m_fiFonts[i].nVPosition = 5;
         m_fiFonts[i].nHeight = HFLC::header::DEFAULT_HEIGHT[i];
         m_fiFonts[i].nWeight = HFLC::header::DEFAULT_WEIGHT[i];
         m_fiFonts[i].bItalic = 0;
@@ -53,10 +121,10 @@ VOID HFMainWindow::SetBtnPreviewDrawChecked(BOOL bChecked) {
 VOID HFMainWindow::SetFontInfoToGUI(FONTINFO CONST& fi) {
     CString sTemp;
     UIStep2.ddlFontSelect.SetCurSel(UIStep2.ddlFontSelect.FindStringExact(0, fi.szFacenam));
+    sTemp = fi.szFacenam;
+    m_ttcMain.ChangeTips(sTemp.GetBuffer(), &UIStep2.ddlFontSelect);
     sTemp.Format(_T("%d"), fi.nPadding);
     UIStep2.txtPadding.SetWindowText(sTemp);
-    sTemp.Format(_T("%d"), fi.nVPosition);
-    UIStep2.txtVPosition.SetWindowText(sTemp);
     sTemp.Format(_T("%d"), fi.nHeight);
     UIStep2.txtSize.SetWindowText(sTemp);
     sTemp.Format(_T("%d"), fi.nHeight);
@@ -75,8 +143,6 @@ VOID HFMainWindow::GetFontInfoFromGUI(FONTINFO& fi)  {
     ::StringCchCopy(fi.szFacenam, LF_FACESIZE, sTemp);
     UIStep2.txtPadding.GetWindowText(sTemp);
     fi.nPadding = ::StrToInt(sTemp);
-    UIStep2.txtVPosition.GetWindowText(sTemp);
-    fi.nVPosition = ::StrToInt(sTemp);
     UIStep2.txtSize.GetWindowText(sTemp);
     fi.nHeight = ::StrToInt(sTemp);
     UIStep2.txtBold.GetWindowText(sTemp);
@@ -159,14 +225,16 @@ BEGIN_MESSAGE_MAP(HFMainWindow, CFrameWnd)
     // Text and dropdownlist change functions
     ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtPak, &HFMainWindow::OnTxtPakChange)
     ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtPadding, &HFMainWindow::OnTxtPaddingChange)
-    ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtVPosition, &HFMainWindow::OnTxtVPositionChange)
     ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtBold, &HFMainWindow::OnTxtBoldChange)
     ON_EN_KILLFOCUS(HFUIC::MainWindow::ID_txtSize, &HFMainWindow::OnTxtSizeChange)
     ON_CBN_SELENDOK(HFUIC::MainWindow::ID_ddlFontSelect, &HFMainWindow::OnDdlFontSelectChange)
     ON_CBN_SELENDOK(HFUIC::MainWindow::ID_ddlHeaderSelect, &HFMainWindow::OnDdlHeaderSelectChange)
 
     // Menu messages
+    ON_COMMAND(ID_FILE_SAVE_PRESET, &HFMainWindow::OnFileSavePreset)
+    ON_COMMAND(ID_FILE_LOAD_PRESET, &HFMainWindow::OnFileLoadPreset)
     ON_COMMAND(IDM_WINDOWS_LOG, &HFMainWindow::OnWindowsLog)
+    ON_COMMAND(IDM_WINDOWS_LOG_CLEAR, &HFMainWindow::OnWindowsLogClear)
     ON_COMMAND(IDM_HELP_README, &HFMainWindow::OnHelpReadme)
     ON_COMMAND(IDM_HELP_ONLINE, &HFMainWindow::OnHelpOnline)
     ON_COMMAND(IDM_HELP_ABOUT, &HFMainWindow::OnHelpAbout)
@@ -191,6 +259,8 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         return -1;
     }
     SetFont(&HFUIC::Font.NORMAL_FONT);
+
+    m_ttcMain.Create(this, TTS_ALWAYSTIP);
 
     m_mnMain.LoadMenu(IDR_MAINWINDOW);
     SetMenu(&m_mnMain);
@@ -277,14 +347,6 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         UIStep2.txtPadding.LimitText(2);
 
         CREATE_LABEL(
-            UIStep2.lblVPosition, HFSTRC(IDS_MAINWINDOW_STEP2_LBLVPOSITION),
-            HFUIC::MainWindow::UIStep2::lblVPositionRect, UIStep2.grp);
-        CREATE_NUMEDIT(
-            UIStep2.txtVPosition, _T(""), HFUIC::MainWindow::UIStep2::txtVPositionRect,
-            UIStep2.grp, HFUIC::MainWindow::ID_txtVPosition);
-        UIStep2.txtVPosition.LimitText(2);
-
-        CREATE_LABEL(
             UIStep2.lblSize, HFSTRC(IDS_MAINWINDOW_STEP2_LBLSIZE),
             HFUIC::MainWindow::UIStep2::lblSizeRect, UIStep2.grp);
         CREATE_NUMEDIT(
@@ -340,22 +402,22 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 #undef CREATE_NUMEDIT
 #undef CREATE_CHECKBUTTON
 
+    m_ttcMain.AddToolThatWorks(_T(""), &UIStep1.txtPak);
+    m_ttcMain.AddToolThatWorks(_T(""), &UIStep2.ddlFontSelect);
+    m_ttcMain.Activate(TRUE);
+
     SetFontInfoToGUI(m_fiFonts[m_iFontIndex]);
     UpdateLblPreview();
 
-    m_ttcMain.Create(this, TTS_ALWAYSTIP);
-    m_ttcMain.AddToolThatWorks(_T(""), &UIStep1.txtPak);
-    m_ttcMain.AddToolThatWorks(_T(""), &UIStep2.ddlFontSelect);
-    m_ttcMain.AddToolThatWorks(_T(""), &UIStep2.ddlHeaderSelect);
-    m_ttcMain.Activate(TRUE);
     return 0;
 }
 
 void HFMainWindow::OnBtnBrowsePakClicked() {
     CFileDialog cfdDlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST,HFSTRC(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
     if (cfdDlg.DoModal() == IDOK) {
-        UIStep1.txtPak.SetWindowText(cfdDlg.GetFileName());
+        UIStep1.txtPak.SetWindowText(cfdDlg.GetPathName());
     }
+    OnTxtPakChange();
 }
 
 void HFMainWindow::OnBtnItalicClicked() {
@@ -368,60 +430,124 @@ void HFMainWindow::OnBtnUnderlineClicked() {
     UpdateLblPreview();
 }
 
+
 void HFMainWindow::OnBtnRunClicked() {
-    m_dcDrawCentre.DrawAtOnce(m_fiFonts);
-    //m_drawWnd->SetDrawCentre(&m_dcDrawCentre);
-    HFBinFilesInfo info;
-    info.InitializeInstance(_T("D:\\games\\TOE31\\data\\texts\\texts.pak"));
-    CString sTemp;
-    for (int i = 0; i < HFLC::header::HEADER_COUNT; i++) {
-        if (i != HFLC::header::HEADER_32) continue;
-        size_t cuiNew = m_dcDrawCentre[i].GetUnicodeCount();
-        LPUNICODEINFO auiNew = mem::GetMem<UNICODEINFO>(cuiNew);
-        for (size_t j = 0; j < cuiNew; j++) {
-            //auiNew[i].wcUnicode = 0;
-            //auiNew[i].aiPos[0] = {0};
-            m_dcDrawCentre[i].FillUNICODEINFO(j, &auiNew[j]);
-        }
-        info[i].Replace(auiNew, cuiNew);
-        LOG.log(str::Bytes2String(info[i].m_lpHead, info[i].m_cbHead));
-        sTemp.Format(_T("D:\\data\\%s"), (LPCTSTR)info[i].GetBinUID());
-        info[i].CreateBinFile(sTemp);
-        sTemp.Format(_T("D:\\data\\%s.txt"), (LPCTSTR)info[i].GetBinUID());
-        info[i].CreateTxtFile(sTemp);
+    CString sValidate;
+    sValidate = ValidateTxtPak();
+    if (sValidate.GetLength() > 0) {
+        ::AfxMessageBox(sValidate, MB_OK | MB_ICONERROR);
+        return;
     }
+
+    UIStep1.txtPak.GetWindowText(ThreadData.pakpath);
+    SetBtnPreviewDrawChecked(FALSE);
+
+    HFProcessDlg dlg(this);
+    ThreadData.dialog = &dlg;
+    ThreadData.cancelled = FALSE;
+    CWinThread *pThread = ::AfxBeginThread(RunThreadFunc, this);
+    CString sTemp;
+    sTemp.Format(
+        _T("%s\n%s"),
+        (LPCTSTR)HFSTRC(IDS_MSG_RUN_TASK_IS_GOING1),
+        (LPCTSTR)HFSTRC(IDS_MSG_RUN_TASK_IS_GOING2));
+
+    INT_PTR dd = dlg.DoModal(
+        sTemp,
+        HFSTRC(IDS_MSG_RUN_TITLE),
+        HFSTRC(IDS_MSG_RUN_TAKS_CANCEL_WARNING));
+
+    if (dd == IDCANCEL) {
+        m_fRunned = FALSE;
+        ThreadData.cancelled = TRUE;
+        ::MessageBox(
+            *this,
+            HFSTRC(IDS_MSG_TASK_CANCELLED),
+            HFSTRC(IDS_MSG_TASK_CANCELLED),
+            MB_OK | MB_ICONINFORMATION);
+    }
+    else {
+        m_fRunned = TRUE;
+        ::MessageBox(
+            *this,
+            HFSTRC(IDS_MSG_TASK_FINISHED),
+            HFSTRC(IDS_MSG_TASK_FINISHED),
+            MB_OK | MB_ICONINFORMATION);
+    }
+    return;
 }
 
 void HFMainWindow::OnBtnPreviewDrawClicked() {
+    if (!m_fRunned) {
+        ::AfxMessageBox(HFSTRC(IDS_MSG_STEP3_NOT_RUN), MB_OK | MB_ICONSTOP);
+        return;
+    }
     SetBtnPreviewDrawChecked(!UIStep3.btnPreviewDraw.GetCheck());
 }
 
 void HFMainWindow::OnBtnPackageClicked() {
+    if (!m_fRunned) {
+        ::AfxMessageBox(HFSTRC(IDS_MSG_STEP3_NOT_RUN), MB_OK | MB_ICONSTOP);
+        return;
+    }
+
+    CFileDialog cfdDlg(
+        FALSE, _T("pak"), _T("berein's font"), 
+        OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_SHOWHELP,
+        HFSTRC(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
+
+    if (cfdDlg.DoModal() == IDCANCEL) {
+        ::AfxMessageBox(HFSTRC(IDS_MSG_SAVE_FILE_CANCELLED), MB_OK | MB_ICONWARNING);
+        return;
+    }
+
     CString sTemp;
-    HFBitMask aa(16);
-    for (int i = 0; i < 16; i++) {
-        if (!(i % 2)) {
-            aa[i] = TRUE;
-        }
+    sTemp.Format(
+        _T("%s\n%s"),
+        (LPCTSTR)HFSTRC(IDS_MSG_DELETE_TEMP1),
+        (LPCTSTR)HFSTRC(IDS_MSG_DELETE_TEMP2));
+    CString sTemp2;
+    sTemp2.Format(sTemp, HFFC::pak::TEMP_FOLDER);
+    if (::AfxMessageBox(sTemp2, MB_YESNO | MB_ICONQUESTION) == IDYES) {
+        ThreadData.deltemp = TRUE;
     }
-    for (int i = 0; i < 16; i++) {
-        CString sTemp2;
-        sTemp2.Format(_T("%d "), (BOOL)aa[i]);
-        sTemp.Append(sTemp2);
+    else {
+        ThreadData.deltemp = FALSE;
     }
-    LOG.log(sTemp);
-    sTemp = _T("");
-    for (int i = 0; i < 16; i++) {
-        if (!(i % 4)) {
-            aa[i] = FALSE;
-        }
+
+    ThreadData.pakpath = cfdDlg.GetPathName();
+    ThreadData.cancelled = FALSE;
+
+    HFProcessDlg dlg(this);
+    ThreadData.dialog = &dlg;
+    ThreadData.cancelled = FALSE;
+    CWinThread* pThread = ::AfxBeginThread(PackThreadFunc, this);
+    sTemp.Format(
+        _T("%s\n%s"),
+        (LPCTSTR)HFSTRC(IDS_MSG_PACK_TASK_IS_GOING1),
+        (LPCTSTR)HFSTRC(IDS_MSG_PACK_TASK_IS_GOING2));
+
+    INT_PTR dd = dlg.DoModal(
+        sTemp,
+        HFSTRC(IDS_MSG_RUN_TITLE),
+        HFSTRC(IDS_MSG_RUN_TAKS_CANCEL_WARNING));
+
+    if (dd == IDCANCEL) {
+        ThreadData.cancelled = TRUE;
+        ::MessageBox(
+            *this,
+            HFSTRC(IDS_MSG_TASK_CANCELLED),
+            HFSTRC(IDS_MSG_TASK_CANCELLED),
+            MB_OK | MB_ICONINFORMATION);
     }
-    for (int i = 0; i < 16; i++) {
-        CString sTemp2;
-        sTemp2.Format(_T("%d "), (BOOL)aa[i]);
-        sTemp.Append(sTemp2);
+    else {
+        ::MessageBox(
+            *this,
+            HFSTRC(IDS_MSG_TASK_FINISHED),
+            HFSTRC(IDS_MSG_TASK_FINISHED),
+            MB_OK | MB_ICONINFORMATION);
     }
-    LOG.log(sTemp);
+    return;
 }
 
 void HFMainWindow::OnBtnOpenFolderClicked() {
@@ -433,14 +559,12 @@ void HFMainWindow::OnTxtPakChange() {
     if (sResult.GetLength() > 0) {
         ::AfxMessageBox(sResult);
     }
+    CString sTemp;
+    UIStep1.txtPak.GetWindowText(sTemp);
+    m_ttcMain.ChangeTips(sTemp.GetBuffer(), &UIStep1.txtPak);
 }
 
 void HFMainWindow::OnTxtPaddingChange() {
-    GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
-    UpdateLblPreview();
-}
-
-void HFMainWindow::OnTxtVPositionChange() {
     GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
     UpdateLblPreview();
 }
@@ -467,10 +591,38 @@ void HFMainWindow::OnDdlHeaderSelectChange() {
 void HFMainWindow::OnDdlFontSelectChange() {
     GetFontInfoFromGUI(m_fiFonts[m_iFontIndex]);
     UpdateLblPreview();
+    CString sTemp;
+    if (UIStep2.ddlFontSelect.GetCurSel() != LB_ERR) {
+        UIStep2.ddlFontSelect.GetLBText(UIStep2.ddlFontSelect.GetCurSel(), sTemp);
+    }
+
+    m_ttcMain.ChangeTips(sTemp.GetBuffer(), &UIStep2.ddlFontSelect);
+}
+
+void HFMainWindow::OnFileSavePreset() {
+    CFileDialog cfdDlg(
+        FALSE, _T("pak"), _T("berein's font"),
+        OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_SHOWHELP,
+        HFSTRC(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
+
+    if (cfdDlg.DoModal() == IDCANCEL) {
+        ::AfxMessageBox(HFSTRC(IDS_MSG_SAVE_FILE_CANCELLED), MB_OK | MB_ICONWARNING);
+        return;
+    }
+}
+
+void HFMainWindow::OnFileLoadPreset() {
+    CFileDialog cfdDlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST, HFSTRC(IDS_MAINWINDOW_STEP1_PAKFILTER), this);
+    if (cfdDlg.DoModal() == IDOK) {
+        UIStep1.txtPak.SetWindowText(cfdDlg.GetPathName());
+    }
 }
 
 void HFMainWindow::OnWindowsLog() {
     SetMenuWindowsLogChecked(!GetMenuChecked(IDM_WINDOWS_LOG));
+}
+
+void HFMainWindow::OnWindowsLogClear() {
 }
 
 void HFMainWindow::OnHelpReadme() {

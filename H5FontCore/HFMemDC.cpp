@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "../H5FontCore/HFBitMask.h"
-#include "HFMemDC.h"
 
+#include "HFMemDC.h"
+#include "../H5FontCore/HFBitMask.h"
 
 HFMemDC::HFMemDC() 
     : CDC(), m_awcUnicodes(NULL), m_abcUnicodes(NULL), m_cwcUnicodes(0)
@@ -31,25 +31,37 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo, int iStyle) {
         fontinfo.bItalic,          // Italic
         fontinfo.bUnderline,       // Underline
         0,                         // StrikeOut
-        ANSI_CHARSET,              // CharSet
+        DEFAULT_CHARSET,              // CharSet
         OUT_DEVICE_PRECIS,         // OutPrecision
         CLIP_DEFAULT_PRECIS,       // ClipPrecision
         ANTIALIASED_QUALITY,         // Quality
         FIXED_PITCH || FF_MODERN,  // PitchAndFamily
         fontinfo.szFacenam);       // Facename
     SelectObject(m_font);
-    __subGetAllUnicodes();
+    if (!__subGetAllUnicodes()) {
+        return FALSE;
+    }
 
-    int dim = ((int)sqrt(m_cwcUnicodes) + 1) * (fontinfo.nHeight + fontinfo.nPadding);
+    int dim = max(
+        ((int)sqrt(m_cwcUnicodes) + 1) * (HFLC::header::DEFAULT_HEIGHT[m_iStyle]) + fontinfo.nHeight * 2,
+        ((int)sqrt(m_cwcUnicodes) + 1) * (fontinfo.nHeight + fontinfo.nPadding) + fontinfo.nHeight * 2);
     for (int i = 0; i <= 0xffff; i += 0x400) {
         if (i > dim) {
             dim = i;
             break;
         }
     }
-    m_dim = CSize(dim, dim);
-    sLog.Format(HFSTRC(IDS_LOG_DIMENSION_REQUIRED), fontinfo.nHeight, fontinfo.nWeight, dim, dim);
-    LOG.log(sLog, LOG.INFO);
+    if (dim <= 0x1000) {
+        m_dim = CSize(dim, dim);
+        sLog.Format(HFSTRC(IDS_LOG_DIMENSION_REQUIRED), fontinfo.nHeight, fontinfo.nWeight, dim, dim);
+        LOG.log(sLog, LOG.INFO);
+    }
+    else {
+        m_dim = CSize(dim, dim);
+        sLog.Format(HFSTRC(IDS_LOG_DIMENSION_EXCEEDED), dim, 0x1000);
+        LOG.log(sLog, LOG.INFO);
+        return FALSE;
+    }
 
     //
     // Step 2. Create bmp with right size, fill masking color and set all the right color
@@ -57,14 +69,6 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo, int iStyle) {
     m_image.Destroy();
     m_image.Create(dim, dim, 32);
     SelectObject(m_image);
-    CPen pen; CBrush brush;
-    pen.CreatePen(PS_SOLID, 1, PLATE_COLOR);
-    brush.CreateSolidBrush(PLATE_COLOR);
-    //SelectObject(pen);
-    //SelectObject(brush);
-    //CRect rect(0, 0, m_dim.cx, m_dim.cy);
-    //Rectangle(rect);
-
     SetTextColor(FONT_COLOR);
     SetBkColor(BKGD_COLOR);
     SetBkMode(OPAQUE);
@@ -75,11 +79,12 @@ BOOL HFMemDC::CreateHFMemDC(FONTINFO CONST& fontinfo, int iStyle) {
     mem::FreeMem(m_ptUnicodes);
     m_ptUnicodes = mem::GetMem<POINT>(m_cwcUnicodes);
 
-    CPoint ptCurr(0, 0);
+    CPoint ptCurr(fontinfo.nHeight, +fontinfo.nHeight);
     for (size_t i = 0; i < m_cwcUnicodes; i++) {
         m_ptUnicodes[i] = ptCurr;
         ptCurr = __subDrawUnicode(ptCurr, i, fontinfo.nHeight);
     }
+    LOG.log(HFSTRC(IDS_LOG_SAVING_DC_DONE), LOG.INFO);
     return TRUE;
 }
 
@@ -92,11 +97,16 @@ size_t HFMemDC::GetUnicodeCount() CONST {
     return m_cwcUnicodes;
 }
 
+FONTINFO CONST* HFMemDC::GetFontInfo() CONST {
+    return &m_fontinfo;
+}
+
 size_t HFMemDC::FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr) {
     if (iIndex >= m_cwcUnicodes) {
-        return EOUNICODES;
+        return 0;
     }
 
+    int topOffset = (m_fontinfo.nHeight - HFLC::header::DEFAULT_HEIGHT[m_iStyle]) / 2;
     int a = m_abcUnicodes[iIndex].abcA;
     int b = m_abcUnicodes[iIndex].abcB;
     int c = m_abcUnicodes[iIndex].abcC;
@@ -104,8 +114,8 @@ size_t HFMemDC::FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr) {
     puiCurr->wcUnicode = m_awcUnicodes[iIndex];
     puiCurr->aiPos[UNICODEINFO::L_BOUND] = m_ptUnicodes[iIndex].x;
     puiCurr->aiPos[UNICODEINFO::R_BOUND] = m_ptUnicodes[iIndex].x + abs(a) + abs(b) + abs(c);
-    puiCurr->aiPos[UNICODEINFO::T_BOUND] = m_ptUnicodes[iIndex].y;
-    puiCurr->aiPos[UNICODEINFO::B_BOUND] = m_ptUnicodes[iIndex].y + HFLC::header::DEFAULT_HEIGHT[m_iStyle];
+    puiCurr->aiPos[UNICODEINFO::T_BOUND] = m_ptUnicodes[iIndex].y + topOffset;
+    puiCurr->aiPos[UNICODEINFO::B_BOUND] = m_ptUnicodes[iIndex].y + m_fontinfo.nHeight - topOffset;
 
     puiCurr->aiPos[UNICODEINFO::L_OFFSET] = 0;
     puiCurr->aiPos[UNICODEINFO::R_OFFSET] = a + b + c;
@@ -118,22 +128,54 @@ size_t HFMemDC::FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr) {
     return iIndex + 1;
 }
 
-void HFMemDC::SaveDDS(LPCTSTR filename) {
-    m_image.Save(filename);
+BOOL HFMemDC::SaveDDS(LPCTSTR filename) {
+    CString sLog;
+    CString sPng = filename;
+    sPng.Delete(sPng.GetLength() - 3, 3);
+    sPng.Append(_T("png"));
+    sLog.Format(HFSTRC(IDS_LOG_SAVING_PNG), sPng);
+    LOG.log(sLog, LOG.INFO);
+    if (m_image.Save(sPng) != S_OK) {
+        sLog.Format(HFSTRC(IDS_LOG_SAVING_PNG_ERROR), sPng);
+        LOGUSR(sLog);
+        return FALSE;
+    }
 
+    sLog.Format(HFSTRC(IDS_LOG_SAVE_DDS_FILE), filename);
+    LOG.log(sLog, LOG.INFO);
+    CString sCmd;
+    sCmd.Format(
+        _T("%s convert %s -alpha copy %s"),
+        HFFC::exe::MAGICK_CMD, (LPCTSTR)sPng, filename);
+    LOG.log(HFSTRC(IDS_LOG_NOW_EXECUTING), LOG.STD, TRUE);
+    LOG.log(sCmd, LOG.STD);
+    DWORD dwExitCode = 0;
+    LOG.log(sys::RunExe(sCmd, &dwExitCode), LOG.STD);
+    if (dwExitCode) {
+        sLog.Format(HFSTRC(IDS_LOG_WRONG_EXIT_CODE), dwExitCode);
+        LOGUSR(sLog);
+        return FALSE;
+    }
+
+    if (!::DeleteFile(sPng)) {
+        sLog.Format(HFSTRC(IDS_LOG_DELETING_TEMP_ERROR), sPng);
+        LOGUSR(sLog);
+        return FALSE;
+    }
+    LOG.log(HFSTRC(IDS_LOG_FINISHED), LOG.NORM, TRUE);
+    return TRUE;
 }
 
-VOID HFMemDC::__subGetAllUnicodes() {
+BOOL HFMemDC::__subGetAllUnicodes() {
     CString sTemp;
     DWORD cbgsSize = ::GetFontUnicodeRanges(*this, NULL);
 
     LPGLYPHSET lpgsCurr = mem::GetMem<GLYPHSET>(cbgsSize);
     ::GetFontUnicodeRanges(*this, lpgsCurr);
-    sTemp.Format(HFSTRC(IDS_LOG_NUM_UNICODES_IN_FONT), lpgsCurr->cGlyphsSupported);
-    LOG.log(sTemp, RGB(0,255,0));
     if (lpgsCurr->flAccel == GS_8BIT_INDICES) {
         sTemp.Format(HFSTRC(IDS_LOG_FONT_FILE_NOT_SUPPORTED));
-        LOG.log(sTemp);
+        LOG.log(sTemp, LOG.INFO);
+        return FALSE;
     }
 
     size_t cwcFont = lpgsCurr->cGlyphsSupported;
@@ -147,9 +189,6 @@ VOID HFMemDC::__subGetAllUnicodes() {
         }
     }
 
-    sTemp.Format(HFSTRC(IDS_LOG_NUM_UNICODES_READ), i);
-    LOG.log(sTemp, RGB(0, 255, 0));
-
     LPABC abcFont = mem::GetMem<ABC>(cwcFont);
 
     i = 0;
@@ -160,6 +199,9 @@ VOID HFMemDC::__subGetAllUnicodes() {
             &abcFont[i]);
         i += lpgsCurr->ranges[j].cGlyphs;
     }
+
+    sTemp.Format(HFSTRC(IDS_LOG_NUM_UNICODES_ABC_READ), lpgsCurr->cGlyphsSupported, i);
+    LOG.log(sTemp, LOG.INFO);
 
     LPABC* pabcUnicodes = mem::GetMem<LPABC>(0xFFFF);
     ::ZeroMemory(pabcUnicodes, sizeof(LPABC) * 0xFFFF);
@@ -200,14 +242,15 @@ VOID HFMemDC::__subGetAllUnicodes() {
         }
     }
 
-    sTemp.Format(HFSTRC(IDS_LOG_NUM_ABC_READ), i);
-    LOG.log(sTemp, RGB(0, 255, 0));
+    sTemp.Format(HFSTRC(IDS_LOG_NUM_UNICODES_FILTERED), m_cwcUnicodes);
+    LOG.log(sTemp, LOG.INFO);
 
     mem::FreeMem(lpgsCurr);
     mem::FreeMem(awcFont);
     mem::FreeMem(abcFont);
     mem::FreeMem(awcGB2312);
     mem::FreeMem(pabcUnicodes);
+    return TRUE;
 }
 
 CPoint HFMemDC::__subDrawUnicode(CPoint CONST& ptCurr, size_t iIndex, int iHeight) {
@@ -217,15 +260,14 @@ CPoint HFMemDC::__subDrawUnicode(CPoint CONST& ptCurr, size_t iIndex, int iHeigh
     ::TextOutW(*this, ptCurr.x, ptCurr.y, wszOutput, 1);
 
     CPoint ptResult = ptCurr;
-    ptResult.x += PADDING;
     ptResult.x += abs(m_abcUnicodes[iIndex].abcA);
     ptResult.x += m_abcUnicodes[iIndex].abcB;
     ptResult.x += abs(m_abcUnicodes[iIndex].abcC);
     LONG iRight = m_dim.cx;
 
-    if (iIndex < m_cwcUnicodes - 1 && LONG(ptResult.x + m_abcUnicodes[iIndex].abcB) >= iRight) {
-        ptResult.x = 0;
-        ptResult.y += PADDING + iHeight;
+    if (iIndex < m_cwcUnicodes - 1 && LONG(ptResult.x + m_fontinfo.nHeight * 2) >= iRight) {
+        ptResult.x = m_fontinfo.nHeight;
+        ptResult.y += iHeight;
     }
 
     return ptResult;

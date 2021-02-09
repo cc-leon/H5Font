@@ -31,6 +31,19 @@ VOID HFDrawWindow::SetDrawCentre(HFDrawDCsCentre* dcDrawCentre) {
     m_dcDrawCentre = dcDrawCentre;
     m_iDrawCentreIndex = 0;
     m_container.SetMemDC(&(*m_dcDrawCentre)[m_iDrawCentreIndex]);
+    SetTitle();
+}
+
+VOID HFDrawWindow::SetTitle() {
+    CString sTemp;
+    sTemp.Format(
+        HFSTRC(IDS_DRAWWINDOW_TITLE),
+        (*m_dcDrawCentre)[m_iDrawCentreIndex].GetFontInfo()->szFacenam,
+        (*m_dcDrawCentre)[m_iDrawCentreIndex].GetFontInfo()->nHeight,
+        (*m_dcDrawCentre)[m_iDrawCentreIndex].GetFontInfo()->nWeight,
+        HFLC::header::CODE_TO_LPTSTR[m_iDrawCentreIndex],
+        (*m_dcDrawCentre)[m_iDrawCentreIndex].GetUnicodeCount());
+    SetWindowText(sTemp);
 }
 
 BOOL HFDrawWindow::PreCreateWindow(CREATESTRUCT& cs) {
@@ -105,12 +118,18 @@ void HFDrawWindow::OnDrawwindow100() {
 }
 
 void HFDrawWindow::OnDrawwindowNext() {
-    AfxMessageBox(_T("OnDrawwindowNext"));
+    if (m_iDrawCentreIndex < HFLC::header::HEADER_COUNT - 1) {
+        m_container.SetMemDC(&(*m_dcDrawCentre)[++m_iDrawCentreIndex]);
+        SetTitle();
+    }
 }
 
 
 void HFDrawWindow::OnDrawwindowPrev() {
-    AfxMessageBox(_T("OnDrawwindowPrev"));
+    if (m_iDrawCentreIndex > 0) {
+        m_container.SetMemDC(&(*m_dcDrawCentre)[--m_iDrawCentreIndex]);
+        SetTitle();
+    }
 }
 
 void HFDrawWindow::OnDrawwindowZoomin() {

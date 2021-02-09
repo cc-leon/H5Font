@@ -197,6 +197,7 @@
     <ClInclude Include="HFDrawWindow.h" />
     <ClInclude Include="HFGUIConstants.h" />
     <ClInclude Include="HFLogWindow.h" />
+    <ClInclude Include="HFProcessDlg.h" />
     <ClInclude Include="HFRichTextBox.h" />
     <ClInclude Include="HFToolTipCtrl.h" />
     <ClInclude Include="pch.h" />
@@ -216,6 +217,7 @@
     <ClCompile Include="HFDrawWindow.cpp" />
     <ClCompile Include="HFGUIConstants.cpp" />
     <ClCompile Include="HFLogWindow.cpp" />
+    <ClCompile Include="HFProcessDlg.cpp" />
     <ClCompile Include="HFRichTextBox.cpp" />
     <ClCompile Include="HFToolTipCtrl.cpp" />
     <ClCompile Include="pch.cpp">

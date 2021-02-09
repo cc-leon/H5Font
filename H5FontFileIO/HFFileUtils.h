@@ -6,5 +6,4 @@ namespace str {
 
     // Convert CString to std string
     std::string CString2STDString(CString CONST& inputString);
-
 }

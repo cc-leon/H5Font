@@ -5,7 +5,7 @@ public:
     friend class HFMainWindow;
     HFBinFile();
     ~HFBinFile();
-    VOID InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szBinFile, BOOL bClone=FALSE);
+    BOOL InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szBinFile, BOOL bClone=FALSE);
     CString CONST& GetBinUID() CONST;
     BOOL CreateBinFile(LPCTSTR szBinFilename);
     BOOL CreateTxtFile(LPCTSTR szTxtFilename);

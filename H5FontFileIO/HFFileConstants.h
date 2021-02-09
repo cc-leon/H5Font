@@ -1,13 +1,6 @@
 #pragma once
 
 namespace HFFC {
-    namespace pak {
-        TCHAR CONST XML_PATH[] = _T("UI\\Fonts");
-        TCHAR CONST XML_BININFO[] = _T("(Font).xdb");
-        TCHAR CONST BIN_PATH[] = _T("Bin\\Fonts");
-        TCHAR CONST TEMP_FOLDER[] = _T("outputs\\temp");
-    }
-
     //
     // The following are code flags from the bin file
     //
@@ -32,8 +25,16 @@ namespace HFFC {
         CHAR CONST XML_UID_SUBNODE[] = "uid";
     }
 
+    namespace pak {
+        TCHAR CONST XML_PATH[] = _T("UI\\Fonts");
+        TCHAR CONST XML_BININFO[] = _T("(Font).xdb");
+        TCHAR CONST BIN_PATH[] = _T("Bin\\Fonts");
+        TCHAR CONST TEMP_FOLDER[] = _T("outputs\\temp");
+    }
+
     namespace exe {
         TCHAR CONST ZIP_CMD[] = _T("libs\\7z.exe");
         TCHAR CONST MAGICK_CMD[] = _T("libs\\magick.exe");
     }
+
 }

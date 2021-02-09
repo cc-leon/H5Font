@@ -9,7 +9,7 @@ HFBinFile::~HFBinFile() {
     Cleanup();
 }
 
-VOID HFBinFile::InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szBinFile, BOOL bClone) {
+BOOL HFBinFile::InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szBinFile, BOOL bClone) {
     CString sLog;
     Cleanup();
 
@@ -44,7 +44,11 @@ VOID HFBinFile::InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szB
         m_auiChars[cuiChars].wcUnicode = HIWORD(*lpdwReader);
         cuiChars++; lpdwReader++;
     }
-    ASSERT(cuiChars == m_cuiChars);
+    if (cuiChars != m_cuiChars) {
+        sLog.Format(HFSTRC(IDS_LOG_BIN_DATA_ERROR), m_sBinFile);
+        LOGUSR(sLog);
+        return FALSE;
+    }
 
     m_lpMid = (LPBYTE)lpdwReader;
     lpwReader = (LPWORD)lpdwReader;
@@ -65,8 +69,11 @@ VOID HFBinFile::InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szB
     }
     m_lpTail = (LPBYTE)lpwReader;
     m_cbTail = m_cbBuf - (m_lpTail - m_lpBuf);
-    ASSERT(cuiChars == m_cuiChars);
-
+    if (cuiChars != m_cuiChars) {
+        sLog.Format(HFSTRC(IDS_LOG_BIN_DATA_ERROR), m_sBinFile);
+        LOGUSR(sLog);
+        return FALSE;
+    }
     LPUNICODEINFO* lpMask = mem::GetMem<LPUNICODEINFO>(0xFFFF);
     ::ZeroMemory(lpMask, sizeof(LPUNICODEINFO) * (0XFFFF));
     for (size_t i = 0; i < m_cuiChars; i++) {
@@ -83,6 +90,9 @@ VOID HFBinFile::InitializeInstance(LPBYTE lpBuffer, SIZE_T cbBuffer, LPCTSTR szB
 
     mem::FreeMem(lpMask);
     m_auiChars = auiNew;
+    sLog.Format(HFSTRC(IDS_LOG_BIN_DATA_SUCCESS), m_sBinFile);
+    LOG.log(sLog, LOG.INFO);
+    return TRUE;
 }
 
 CString CONST& HFBinFile::GetBinUID() CONST {
@@ -90,9 +100,15 @@ CString CONST& HFBinFile::GetBinUID() CONST {
 }
 
 BOOL HFBinFile::CreateBinFile(LPCTSTR szBinFilename) {
+    CString sLog;
+    if (!m_cuiChars || !m_auiChars || !m_lpBuf || !m_cbBuf) {
+        sLog.Format(HFSTRC(IDS_LOG_WRITE_BIN_ERROR), szBinFilename);
+        LOGUSR(sLog);
+        return FALSE;
+    }
+
     CFile cfWriter(szBinFilename, CFile::modeWrite | CFile::modeCreate | CFile::typeBinary);
     cfWriter.Write(m_lpHead, m_cbHead);
-    CString sLog;
 
     for (size_t i = 0; i < m_cuiChars; i++) {
         DWORD dwToWrite = MAKELONG(HFFC::bin::UNICODE_FLAG, m_auiChars[i].wcUnicode);
@@ -104,17 +120,14 @@ BOOL HFBinFile::CreateBinFile(LPCTSTR szBinFilename) {
     for (size_t i = 0; i < m_cuiChars; i++) {
         cfWriter.Write(&HFFC::bin::POSITION_FLAG, sizeof(WORD));
         for (int j = 0; j < UNICODEINFO::POS_COUNT; j++) {
-            CString aa;
-            aa.Format(_T(" %d"), m_auiChars[i].aiPos[j]);
-            sLog.Append(aa);
             cfWriter.Write(&(m_auiChars[i].aiPos[j]), sizeof(INT32));
         }
-        sLog.AppendChar(_T('\n'));
     }
-    //LOG.log(sLog);
 
     cfWriter.Write(m_lpTail, m_cbTail);
-    return FALSE;
+    sLog.Format(HFSTRC(IDS_LOG_BIN_WRITE_SUCCESS), szBinFilename);
+    LOG.log(sLog, LOG.INFO);
+    return TRUE;
 }
 
 BOOL HFBinFile::CreateTxtFile(LPCTSTR szTxtFilename) {

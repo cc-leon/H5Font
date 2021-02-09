@@ -1,9 +1,7 @@
 #pragma once
 
 namespace HFLC {
-    namespace unicode {
-        WCHAR CONST PRINTABLE_START = 0x20;
-    }
+
     namespace header {
         CSize CONST DEF_DIM(4096, 4096*3);
 
@@ -36,4 +34,5 @@ namespace HFLC {
         int LPSTR_TO_CODE(LPCTSTR szHeader);
 
     }
+
 }

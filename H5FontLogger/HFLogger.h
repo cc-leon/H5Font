@@ -11,7 +11,9 @@ namespace logger {
         static COLORREF CONST BKGD = RGB(0, 0, 0);  // Black
         static COLORREF CONST INFO = RGB(0, 255, 0); // Green
         static COLORREF CONST ERR = RGB(255, 0, 0);  // Red
-        static COLORREF CONST STD = RGB(180, 180, 180); // Green
+        static COLORREF CONST STD = RGB(180, 180, 180); // Grey
+        static COLORREF CONST NORM = RGB(255, 255, 255); //Yellow
+        static COLORREF CONST WARN = RGB(255, 255, 0); //Yello
 
         HFLogger();
         ~HFLogger();

@@ -5,20 +5,34 @@
 #include "HFHeaderDropDownList.h"
 #include "HFFontDropDownList.h"
 #include "HFToolTipCtrl.h"
+#include "HFProcessDlg.h"
 #include "../H5FontCore/HFDrawDCsCentre.h"
+#include "../H5FontFileIO/HFBinFilesInfo.h"
 
 class HFMainWindow : public CFrameWnd {
 
 protected:
+    friend UINT RunThreadFunc(LPVOID lpParam);
+    friend UINT PackThreadFunc(LPVOID lpParam);
+
     HFLogWindow * m_logWnd;
     HFDrawWindow* m_drawWnd;
     CMenu m_mnMain;
     HFToolTipCtrl m_ttcMain;
+    BOOL m_fRunned;
 
     // Logicpart
     FONTINFO m_fiFonts[HFLC::header::HEADER_COUNT];
     int m_iFontIndex;
     HFDrawDCsCentre m_dcDrawCentre;
+    HFBinFilesInfo m_bfFileCentre;
+
+    struct {
+        HFProcessDlg* dialog;
+        CString pakpath;
+        BOOL cancelled;
+        BOOL deltemp;
+    } ThreadData;
 
     struct {
         HFGroupBox grp;
@@ -28,9 +42,8 @@ protected:
     struct {
         HFGroupBox grp;
         CStatic lblHeaderSelect; HFHeaderDropDownList ddlHeaderSelect; CStatic lblSplitter;
-        CStatic lblFontSelect; HFFontDropDownList ddlFontSelect;
-        CStatic lblPadding; CEdit txtPadding; CStatic lblVPosition; CEdit txtVPosition;
-        CStatic lblSize; CEdit txtSize; CStatic lblBold; CEdit txtBold;
+        CStatic lblFontSelect; HFFontDropDownList ddlFontSelect; CStatic lblSize; CEdit txtSize;
+        CStatic lblPadding; CEdit txtPadding; CStatic lblBold; CEdit txtBold;
         CButton btnItalic; CButton btnUnderline; CStatic lblPreview;
     } UIStep2;
 
@@ -73,14 +86,16 @@ public:
     // Text change message
     afx_msg void OnTxtPakChange();
     afx_msg void OnTxtPaddingChange();
-    afx_msg void OnTxtVPositionChange();
     afx_msg void OnTxtBoldChange();
     afx_msg void OnTxtSizeChange();
     afx_msg void OnDdlHeaderSelectChange();
     afx_msg void OnDdlFontSelectChange();
 
     // Menus messages
+    afx_msg void OnFileSavePreset();
+    afx_msg void OnFileLoadPreset();
     afx_msg void OnWindowsLog();
+    afx_msg void OnWindowsLogClear();
     afx_msg void OnHelpReadme();
     afx_msg void OnHelpOnline();
     afx_msg void OnHelpAbout();

@@ -27,6 +27,7 @@ namespace sys {
     __sys::~__sys() {
         mem::FreeMem(m_awcUnicodes);
     }
+    __sys const info;
 
     UINT __sys::CodePage() CONST {
         return m_uiCodePage;
@@ -88,7 +89,7 @@ namespace sys {
 
 
 
-    CString RunExe(LPCTSTR lpCmd, LPDWORD lpdwExitCode) {
+    CString RunExe(LPCTSTR lpCmd, LPDWORD lpdwExitCode, LPCTSTR szWorkingDir) {
 
         SECURITY_ATTRIBUTES sa;
         ::ZeroMemory(&sa, sizeof(sa));
@@ -142,7 +143,7 @@ namespace sys {
             TRUE,                        // BOOL bInheritHandles,
             CREATE_NO_WINDOW,            // DWORD dwCreationFlags,
             NULL,                        // LPVOID lpEnvironment,
-            NULL,                        // LPCSTR lpCurrentDirectory,
+            szWorkingDir,                        // LPCSTR lpCurrentDirectory,
             &si,                         // LPSTARTUPINFOA lpStartupInfo,
             &pi);                        // LPPROCESS_INFORMATION lpProcessInformation
         if (!bResult) {
@@ -407,6 +408,56 @@ namespace file {
         return dwResult;
     }
 
+    SIZE_T DumpInFile(LPCTSTR szFilname, LPVOID lpData, SIZE_T cbData) {
+        CFile cfDump(szFilname, CFile::modeWrite | CFile::modeCreate | CFile::typeBinary);
+        cfDump.Write(lpData, cbData);
+        return cbData;
+    }
+
+    SIZE_T PickFromFile(LPCTSTR szFilename, LPVOID lpData) {
+        CFile cfPick(szFilename, CFile::modeRead | CFile::typeBinary);
+        if (lpData == NULL) {
+            return (SIZE_T)cfPick.GetLength();
+        }
+        else {
+            return cfPick.Read(lpData, (SIZE_T)cfPick.GetLength());
+        }
+    }
+
+    BOOL ZipFile(LPCTSTR szZipname, LPCTSTR szDirname) {
+        CString sLog;
+        CString sCmd;
+        if (file::FileExists(szZipname)) {
+            ::DeleteFile(szZipname);
+        }
+        sLog.Format(HFSTRC(IDS_LOG_ARCHIVING_ZIP), szZipname);
+        LOG.log(sLog, LOG.INFO);
+        LOG.log(HFSTRC(IDS_LOG_NOW_EXECUTING), LOG.STD, TRUE);
+        sCmd.Format(_T("%s a -tzip \"%s\" *"), HFFC::exe::ZIP_CMD, szZipname);
+        LOG.log(sCmd, LOG.STD);
+        DWORD dwExitCode = 0;
+        LOG.log(sys::RunExe(sCmd, &dwExitCode, szDirname), LOG.STD);
+        if (dwExitCode) {
+            sLog.Format(HFSTRC(IDS_LOG_WRONG_EXIT_CODE), dwExitCode);
+            return FALSE;
+        }
+        LOG.log(HFSTRC(IDS_LOG_FINISHED), LOG.NORM, TRUE);
+
+        return TRUE;
+    }
+
+    BOOL RmoveFileFromZip(LPCTSTR szZipname, LPCTSTR szFilename) {
+        return TRUE;
+    }
+
+    BOOL ClearTempFile() {
+        LOG.log(HFSTRC(IDS_LOG_DELETING_TEMP), LOG.INFO);
+        DWORD dwClearResult = file::ClearFolder(HFFC::pak::TEMP_FOLDER);
+        CString sLog;
+        sLog.Format(HFSTRC(IDS_LOG_DELETED_TEMP), dwClearResult);
+        LOG.log(sLog, LOG.INFO);
+        return TRUE;
+    }
 }
 
 VOID PrintTf(TCHAR CONST* fmt, ...) {

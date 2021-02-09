@@ -19,6 +19,7 @@
 #include "../H5FontLogger/HFLogger.h"
 #include "../H5FontCore/HFUtils.h"
 #include "../H5FontCore/HFLogicConstants.h"
+#include "../H5FontFileIO/HFFileConstants.h"
 
 #include "HFGUIConstants.h"
 #include "HFGUIUtils.h"

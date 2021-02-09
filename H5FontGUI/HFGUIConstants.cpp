@@ -12,7 +12,7 @@ namespace HFUIC {
             FALSE,                         // Italic
             FALSE,                          // Underline
             0,                             // StrikeOut
-            ANSI_CHARSET,                  // CharSet
+            DEFAULT_CHARSET,                  // CharSet
             OUT_DEVICE_PRECIS,            // OutPrecision
             CLIP_DEFAULT_PRECIS,           // ClipPrecision
             CLEARTYPE_QUALITY,               // Quality
@@ -28,7 +28,7 @@ namespace HFUIC {
             FALSE,                         // Italic
             FALSE,                          // Underline
             0,                             // StrikeOut
-            ANSI_CHARSET,                  // CharSet
+            DEFAULT_CHARSET,                  // CharSet
             OUT_DEVICE_PRECIS,            // OutPrecision
             CLIP_DEFAULT_PRECIS,           // ClipPrecision
             CLEARTYPE_QUALITY,               // Quality
@@ -44,7 +44,7 @@ namespace HFUIC {
         FALSE,                         // Italic
         FALSE,                          // Underline
         0,                             // StrikeOut
-        ANSI_CHARSET,                  // CharSet
+        DEFAULT_CHARSET,                // CharSet
         OUT_DEVICE_PRECIS,             // OutPrecision
         CLIP_DEFAULT_PRECIS,           // ClipPrecision
         CLEARTYPE_QUALITY,             // Quality

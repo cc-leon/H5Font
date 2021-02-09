@@ -17,6 +17,7 @@ public:
     BOOL CreateHFDrawWindow(CWnd * pParentWnd);
     void GetActiveArea(LPRECT lpRect) CONST;
     VOID SetDrawCentre(HFDrawDCsCentre* dcDrawCentre);
+    VOID SetTitle();
 
     virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 

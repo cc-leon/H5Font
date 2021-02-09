@@ -23,7 +23,6 @@ typedef struct tagFONTINFO {
     TCHAR szFacenam[LF_FACESIZE];
     INT nHeight;
     INT nPadding;
-    INT nVPosition;
     INT nWeight;
     BYTE bItalic;
     BYTE bUnderline;
@@ -49,9 +48,11 @@ namespace sys {
 
         LPWSTR m_awcUnicodes;
         size_t m_cwcUnicodes;
-    } const info;
+    };
 
-    CString RunExe(LPCTSTR lpCmd, LPDWORD lpdwExitCode=NULL);
+    extern const __sys info;
+
+    CString RunExe(LPCTSTR lpCmd, LPDWORD lpdwExitCode=NULL, LPCTSTR szWorkingDir=NULL);
 }
 
 //
@@ -138,6 +139,15 @@ namespace file {
     // bDeleteSelf will remove the folder itself after done
     DWORD ClearFolder(LPCTSTR szPath, BOOL bDeleteSelf=FALSE);
 
+    SIZE_T DumpInFile(LPCTSTR szFilname, LPVOID lpData, SIZE_T cbData);
+
+    SIZE_T PickFromFile(LPCTSTR szFilename, LPVOID lpData);
+
+    BOOL ZipFile(LPCTSTR szZipname, LPCTSTR szDirname);
+
+    BOOL RmoveFileFromZip(LPCTSTR szZipname, LPCTSTR szFilename);
+
+    BOOL ClearTempFile();
 }
 
 //

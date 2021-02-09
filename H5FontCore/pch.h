@@ -17,5 +17,6 @@
 #include "../HFzhCNResourceDLL/resource.h"
 #include "HFLogicConstants.h"
 #include "HFUtils.h"
+#include "../H5FontFileIO/HFFileConstants.h"
 
 #endif //PCH_H

@@ -13,7 +13,11 @@ public:
     VOID operator = (HFDrawDCsCentre&&) = delete;
 
     HFMemDC& operator [] (size_t index);
-    VOID DrawAtOnce(LPCFONTINFO fiInfo);
+    BOOL DrawAtOnce(LPCFONTINFO fiInfo);
+    BOOL DrawOneByOne(LPCFONTINFO fiInfo, int& i);
+
+    BOOL SaveAtOnce();
+    BOOL SaveOneByOne(int& i);
 
 protected:
     HFMemDC m_dcs[HFLC::header::HEADER_COUNT];

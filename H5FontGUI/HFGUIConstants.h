@@ -10,7 +10,6 @@ namespace HFUIC {
             ID_ddlFontSelect,
             ID_txtSize,
             ID_txtPadding,
-            ID_txtVPosition,
             ID_txtBold,
             ID_btnItalic,
             ID_btnUnderline,
@@ -34,18 +33,16 @@ namespace HFUIC {
             CRect const lblHeaderSelectRect(10, 25, 190, 45);
             CRect const ddlHeaderSelectRect(200, 22, 365, 30);
             CRect const lblSplitterRect(10, 47, 370, 65);
-            CRect const lblFontSelectRect(10, 70, 90, 90);
-            CRect const ddlFontSelectRect(90, 66, 250, 90);
-            CRect const lblSizeRect(10, 105, 50, 125);
-            CRect const txtSizeRect(50, 103, 75, 125);
-            CRect const lblPaddingRect(85, 105, 150, 125);
-            CRect const txtPaddingRect(150, 103, 175, 125);
-            CRect const lblVPositionRect(260, 70, 345, 90);
-            CRect const txtVPositionRect(345, 68, 365, 90);
-            CRect const lblBoldRect(185, 105, 225, 125);
-            CRect const txtBoldRect(220, 103, 250, 125);
-            CRect const btnItalicRect(260, 105, 310, 125);
-            CRect const btnUnderlineRect(310, 105, 370, 125);
+            CRect const lblFontSelectRect(10, 70, 100, 90);
+            CRect const ddlFontSelectRect(100, 66, 270, 90);
+            CRect const lblSizeRect(280, 70, 320, 90);
+            CRect const txtSizeRect(320, 68, 350, 90);
+            CRect const lblPaddingRect(10, 105, 75, 125);
+            CRect const txtPaddingRect(75, 103, 100, 125);
+            CRect const lblBoldRect(125, 105, 165, 125);
+            CRect const txtBoldRect(165, 103, 195, 125);
+            CRect const btnItalicRect(220, 105, 280, 125);
+            CRect const btnUnderlineRect(280, 105, 340, 125);
             CRect const lblPreviewRect(10, 135, 360, 185);
         }
 

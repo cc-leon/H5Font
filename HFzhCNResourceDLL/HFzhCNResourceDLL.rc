@@ -62,9 +62,15 @@ END
 
 IDR_MAINWINDOW MENU
 BEGIN
+    POPUP "文件(&F)"
+    BEGIN
+        MENUITEM "保存预设(&S)",                    ID_FILE_SAVE_PRESET
+        MENUITEM "加载预设(&L)",                    ID_FILE_LOAD_PRESET
+    END
     POPUP "窗口(&W)"
     BEGIN
         MENUITEM "日志(&L)",                      IDM_WINDOWS_LOG, CHECKED
+        MENUITEM "清空日志(&C)",                    40032
     END
     POPUP "帮助(&H)"
     BEGIN
@@ -83,6 +89,53 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Dialog
+//
+
+IDD_PROCESSING DIALOGEX 0, 0, 185, 79
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
+EXSTYLE WS_EX_TOPMOST
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "取消",IDCANCEL,128,58,50,14
+    LTEXT           "",IDC_PROCESSING_STATIC_BAR,18,50,69,13
+    LTEXT           "Static",IDC_PROCESSING_STATIC_INFO,15,12,154,26
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PROCESSING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 72
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_PROCESSING AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -94,7 +147,7 @@ BEGIN
     IDS_DRAWWINDOW_INFOBAR_PANE3 "图像区域(%d, %d, %d, %d)"
     IDS_DRAWWINDOW_INFOBAR_PANE4 "ABC: (%d, %d, %d)"
     IDS_DRAWWINDOW_INFOBAR_NOTINIMAGE "鼠标指针不在图像区域，请移动到图像区域获取更多信息"
-    IDS_DRAWWINDOW_TITLE    "预览: 字体为""%s"", 字号为""%d"", 粗度为""%d"", 类型为""%s"", 共有""%d""个字"
+    IDS_DRAWWINDOW_TITLE    "预览: 字体为""%s"", 字号为%d, 粗度为%d, 类型为""%s"", 共有%d个字"
     IDS_MAINWINDOW_TITLE    "英雄无敌5字体生成器"
     IDS_MAINWINDOW_STEP1_TITLE "第1步: 选择游戏texts.pak文件位置"
 END
@@ -111,8 +164,8 @@ BEGIN
     IDS_MAINWINDOW_STEP2_BTNITALIC "斜体"
     IDS_MAINWINDOW_STEP2_BTNUNDERLINE "下划线"
     IDS_MAINWINDOW_STEP2_SAMPLETEXT "范例 Ab12!""Ａ１！　“"
-    IDS_MAINWINDOW_STEP3_TITLE "第3步: 生成预览"
-    IDS_MAINWINDOW_STEP3_BTNRUN "生成"
+    IDS_MAINWINDOW_STEP3_TITLE "第3步: 解析 && 预览"
+    IDS_MAINWINDOW_STEP3_BTNRUN "解析"
     IDS_MAINWINDOW_STEP3_PREVIEW "预览..."
     IDS_MAINWINDOW_STEP4_TITLE "第4步: 打包"
     IDS_MAINWINDOW_STEP4_BTNPACKAGE "打包Pak"
@@ -122,26 +175,71 @@ END
 STRINGTABLE
 BEGIN
     IDS_MAINWINDOW_STEP1_PAKFILTER "英雄无敌5压缩数据文件 (*.pak)|*.pak||"
-    IDS_MAINWINDOW_STEP1_INVALIDPAK "%s不是一个合法的pak文件名"
+    IDS_MAINWINDOW_STEP1_INVALIDPAK "“%s”不是一个合法的pak文件名"
     IDS_MAINWINDOW_STEP2_INVALIDBOLD "粗度必须要在1到1000之前"
-    IDS_MAINWINDOW_STEP2_LBLPADDING "额外间距:"
+    IDS_MAINWINDOW_STEP2_LBLPADDING "中文间距:"
     IDS_MAINWINDOW_STEP2_LBLVPOSITION "垂直调整(%):"
+    IDS_MAINWINDOW_HFBINFILTER "二进制数据文件 (*.hfbin)|*.hfbin||"
+    IDS_MAIN_SAVE_PRESET_TITLE "保存当前配置"
+    IDS_MAIN_LOAD_PRESET_TITLE "加载配置"
 END
 
 STRINGTABLE
 BEGIN
     IDS_LOG_APPSTART        "程序开始"
     IDS_LOG_NUM_FONTS_LOADED "%d个字体加载成功"
-    IDS_LOG_NUM_UNICODES_IN_FONT "当前文件支持%d个Unicode码字体"
+    IDS_LOG_SAVING_PNG      "正在将设备环境保存为“%s”的临时PNG文件"
     IDS_LOG_FONT_FILE_NOT_SUPPORTED "当前字体文件不是16位Unicode码字体能够使用的字体库"
-    IDS_LOG_NUM_UNICODES_READ "一共有%d个字从字体库中读出"
-    IDS_LOG_NUM_ABC_READ    "一共有%d个ABC结构体(字体间距信息)读出"
+    IDS_LOG_NUM_UNICODES_ABC_READ "一共有%d个字从字体库中读出，%d个字间距信息读取出"
+    IDS_LOG_NUM_UNICODES_FILTERED "一共有%d个字存在于GB2312字符集中，被筛选出"
     IDS_LOG_DIMENSION_REQUIRED "估算按照字号%d粗度%d，导出的DDS文件有%d×%d像素的面积"
     IDS_LOG_NOW_EXECUTING   "正在执行……"
     IDS_LOG_WRONG_EXIT_CODE "执行外部命令错误，退出码为%d"
     IDS_LOG_FILE_NOT_FOUND  "找不到文件“%s”"
     IDS_LOG_NOT_PROPER_XML  "“%s”不是一个合法的字体xml文件"
     IDS_LOG_XML_UID_NOT_FOUND "“%s”中不包含UID信息"
+    IDS_LOG_SAVE_DDS_FILE   "正在保存临时DDS文件“%s”"
+    IDS_LOG_FINISHED        "完成"
+    IDS_LOG_PROCESSING_HEADER "正在处理“%s”的英雄无敌5字体样式，使用“%s”字体，字号为%d，粗度为%d，间距为%d"
+    IDS_LOG_DIMENSION_EXCEEDED "当前设定下需要%d边长的图像才能保存所有文字，超过%d的限制"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_LOG_SAVING_DDS      "正在使用Imagemagick把PNG转换为DDS文件“%s”"
+    IDS_LOG_SAVING_DC_DONE  "已经完成设备环境绘图"
+    IDS_LOG_SAVING_PNG_ERROR "保存Png文件“%s”错误"
+    IDS_LOG_DELETING_TEMP_ERROR "删除临时文件“%s”错误"
+    IDS_LOG_HEADER_BIN_MAPPING "读取“%s”Xml文件，获得对应bin文件“%s”"
+    IDS_LOG_WRITE_BIN_ERROR "写入临时bin文件“%s”错误，可能bin目标中没有数据"
+    IDS_LOG_BIN_IN_MEMORY   "已经把bin文件“%s”读入内存"
+    IDS_LOG_BIN_FILE_ERROR  "无法从bin文件“%s”中读取数据"
+    IDS_LOG_BIN_DATA_ERROR  "解析bin文件“%s”错误"
+    IDS_LOG_BIN_DATA_SUCCESS "成功解析bin文件“%s”"
+    IDS_LOG_BIN_WRITE_SUCCESS "成功写入bin文件“%s”"
+    IDS_LOG_ARCHIVING_ZIP   "正在保存压缩文件“%s”"
+    IDS_LOG_DELETING_TEMP   "准备清理临时文件"
+    IDS_LOG_DELETED_TEMP    "%d个临时文件被删除"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MSG_RUN_TASK_IS_GOING1 "解析生成字体信息，保存在内存……"
+    IDS_MSG_RUN_TASK_IS_GOING2 "持续约十几秒，取决于电脑配置……"
+    IDS_MSG_RUN_TITLE       "运行中……"
+    IDS_MSG_RUN_TAKS_CANCEL_WARNING "任务正在运行中， 确定取消？"
+    IDS_MSG_TASK_FINISHED   "任务完成"
+    IDS_MSG_TASK_CANCELLED  "任务取消"
+    IDS_MSG_STEP3_NOT_RUN   "第3步中的字体尚未生成，无法继续；请返回第3步重新解析"
+    IDS_MSG_SAVE_FILE_CANCELLED "文件名未选择，取消打包"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MSG_PACK_TASK_IS_GOING1 "生成所有需要文件并打包……"
+    IDS_MSG_PACK_TASK_IS_GOING2 "持续约几十秒，取决于电脑配置……"
+    IDS_MSG_DELETE_TEMP1    "是否要删除临时文件？选择“是”会自动清理临时文件夹"
+    IDS_MSG_DELETE_TEMP2    "(临时文件会在下次解析时自动清除，也可手动删除“%s”文件夹)"
 END
 
 #endif    // Chinese (Simplified, PRC) resources

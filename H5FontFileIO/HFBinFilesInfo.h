@@ -1,5 +1,6 @@
 #pragma once
 #include "HFBinFile.h"
+#include "../H5FontCore/HFDrawDCsCentre.h"
 
 class HFBinFilesInfo {
 public:
@@ -15,12 +16,15 @@ public:
     void operator=(HFBinFilesInfo &&) = delete;
 
     BOOL InitializeInstance(LPCTSTR szTargetName);
+    BOOL SyncFromDrawCentre(HFDrawDCsCentre* dcDrawCentre);
+    BOOL SaveAll();
+    BOOL SaveOneByOne(int& iIndex);
     HFBinFile& operator [] (size_t iIndex);
-    VOID Cleanup();
 
 protected:
     CString m_sTargetFile;
     HFBinFile m_aBinfiles[HFLC::header::HEADER_COUNT];
 
     BOOL CheckLegal(LPCTSTR szPakName);
+    VOID Cleanup();
 };
