@@ -145,7 +145,9 @@ BOOL HFBinFile::CreateTxtFile(LPCTSTR szTxtFilename) {
         cf.Write((LPVOID)&cSeparator, sizeof(TCHAR));
 
         sBuffer = "";
-        sBuffer.AppendChar(m_auiChars[i].wcUnicode);
+        CStringW swTemp; 
+        swTemp.AppendChar(m_auiChars[i].wcUnicode);
+        sBuffer.Append(str::CStringW2CString(swTemp));
         sBuffer.Format(_T("\'%s\'"), (LPCTSTR)sBuffer);
         abBuffer = (LPBYTE)(LPCTSTR)sBuffer;
         cchBuffer = sBuffer.GetLength() * sizeof(TCHAR);

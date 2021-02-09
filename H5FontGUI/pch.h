@@ -9,13 +9,14 @@
 
 // add headers that you want to pre-compile here
 #include "framework.h"
-
+#include "resource.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <tchar.h>
 #include <strsafe.h>
 
 #include "../HFzhCNResourceDLL/resource.h"
+
 #include "../H5FontLogger/HFLogger.h"
 #include "../H5FontCore/HFUtils.h"
 #include "../H5FontCore/HFLogicConstants.h"

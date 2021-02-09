@@ -104,6 +104,17 @@ BEGIN
     LTEXT           "Static",IDC_PROCESSING_STATIC_INFO,15,12,154,26
 END
 
+IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "关于"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDI_ABOUT_ICON,IDC_STATIC,14,14,21,20
+    LTEXT           "英雄无敌5字体生成工具",IDC_STATIC1,42,14,114,8,SS_NOPREFIX
+    LTEXT           "天天英吧 制作",IDC_STATIC2,42,26,114,8
+    DEFPUSHBUTTON   "关闭",IDOK,113,41,50,14,WS_GROUP
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -120,6 +131,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 72
     END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 163
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -130,6 +149,11 @@ END
 //
 
 IDD_PROCESSING AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -185,6 +209,7 @@ BEGIN
     IDS_MAINWINDOW_LOAD_PRESET_SUCCESS "加载配置文件“%s”成功"
     IDS_MAINWINDOW_SAVE_PRESET_FAILURE "保存配置文件“%s”失败"
     IDS_MAINWINDOW_LOAD_PRESET_FAILURE "加载配置文件“%s”失败"
+    IDS_MAINWINDOW_RTF_FILTER "富文本格式 (*.rtf)|*.rtf||"
 END
 
 STRINGTABLE
@@ -243,9 +268,30 @@ BEGIN
     IDS_MSG_PACK_TASK_IS_GOING2 "持续约几十秒，取决于电脑配置……"
     IDS_MSG_DELETE_TEMP1    "是否要删除临时文件？选择“是”会自动清理临时文件夹"
     IDS_MSG_DELETE_TEMP2    "(临时文件会在下次解析时自动清除，也可手动删除“%s”文件夹)"
+    IDS_MSG_HELP_FILE_MISSING "找不到帮助文件“%s”，请检查下载/解压缩是否完整"
 END
 
 #endif    // 中文(简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英语(美国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ABOUT_ICON          ICON                    "MFC.ico"
+
+#endif    // 英语(美国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

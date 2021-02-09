@@ -220,7 +220,7 @@ namespace str {
         szUnicode[0] = iUnicode;
         szUnicode[1] = 0;
         return ::WideCharToMultiByte(
-            sys.CodePage(),  // UINT CodePage
+            sys::info.CodePage(),  // UINT CodePage
             0,  // DWORD dwFlags,
             szUnicode,  // LPCWCH lpWideCharStr,
             -1, // int cchWideChar,

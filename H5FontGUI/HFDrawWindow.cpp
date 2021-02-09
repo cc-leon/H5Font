@@ -83,6 +83,9 @@ int HFDrawWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
         return -1;
 
+    HICON hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_MAIN_ICON));
+    SetIcon(hIcon, FALSE);
+
     m_infoBar.CreateHFDrawWindowInfoBar(this);
 
     m_container.CreateHFDrawWindowContainer(this, &m_infoBar);

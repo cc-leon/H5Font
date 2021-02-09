@@ -2,6 +2,8 @@
 // Microsoft Visual C++ 生成的包含文件。
 // 供 HFzhCNResourceDLL.rc 使用
 //
+#define IDOK                            1
+#define IDD_ABOUTBOX                    100
 #define IDR_DRAWWINDOW                  101
 #define IDR_MAINWINDOW                  102
 #define IDS_DRAWWINDOW_MBDOWN           103
@@ -46,6 +48,8 @@
 #define IDS_MAINWINDOW_SAVE_PRESET_FAILURE 136
 #define IDS_MAIN_LOAD_PRESET_FAILURE    137
 #define IDS_MAINWINDOW_LOAD_PRESET_FAILURE 137
+#define IDS_MAINWINDOW_RTF_FILTER       138
+#define IDI_ABOUT_ICON                  141
 #define IDS_LOG_APPSTART                400
 #define IDS_LOG_NUM_FONTS_LOADED        401
 #define IDS_LOG_SAVING_PNG              402
@@ -88,8 +92,11 @@
 #define IDS_MSG_PACK_TASK_IS_GOING2     609
 #define IDS_MSG_DELETE_TEMP1            610
 #define IDS_MSG_DELETE_TEMP2            611
+#define IDS_MSG_HELP_FILE_MISSING       612
 #define IDC_PROCESSING_STATIC_BAR       1002
 #define IDC_PROCESSING_STATIC_INFO      1003
+#define IDC_STATIC1                     1004
+#define IDC_STATIC2                     1005
 #define IDM_WINDOWS_LOG                 40015
 #define IDM_HELP_README                 40017
 #define IDM_HELP_ONLINE                 40018
@@ -110,9 +117,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        136
+#define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         40041
-#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

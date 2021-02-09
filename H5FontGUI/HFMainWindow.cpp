@@ -277,6 +277,10 @@ int HFMainWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     if (CFrameWnd::OnCreate(lpCreateStruct) == -1) {
         return -1;
     }
+
+    HICON hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_MAIN_ICON));
+    SetIcon(hIcon, FALSE);
+
     SetFont(&HFUIC::Font.NORMAL_FONT);
 
     m_ttcMain.Create(this, TTS_ALWAYSTIP);
@@ -676,6 +680,15 @@ void HFMainWindow::OnWindowsLog() {
 
 
 void HFMainWindow::OnWindowsLogSave() {
+    CFileDialog cfdDlg(
+        FALSE, _T("rtf"), NULL,
+        OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_SHOWHELP,
+        HFSTRC(IDS_MAINWINDOW_RTF_FILTER), this);
+
+    if (cfdDlg.DoModal() == IDOK) {
+        LOG.SaveLog(cfdDlg.GetPathName());
+    }
+
 }
 
 void HFMainWindow::OnWindowsLogClear() {
@@ -683,15 +696,21 @@ void HFMainWindow::OnWindowsLogClear() {
 }
 
 void HFMainWindow::OnHelpReadme() {
-    // TODO: Add your command handler code here
+    if (!file::FileExists(HFUIC::MainWindow::szHelpFilename)) {
+        CString sTemp;
+        sTemp.Format(HFSTRC(IDS_MSG_HELP_FILE_MISSING), HFUIC::MainWindow::szHelpFilename);
+        ::AfxMessageBox(sTemp, MB_OK | MB_ICONERROR);
+    }
+    ::ShellExecute(NULL, _T("open"), HFUIC::MainWindow::szHelpFilename, NULL, NULL, SW_SHOW);
 }
 
 void HFMainWindow::OnHelpOnline() {
-    // TODO: Add your command handler code here
+    ::ShellExecute(NULL, _T("open"), _T("https://github.com/cc-leon/H5Font"), NULL, NULL, SW_SHOW);
 }
 
 void HFMainWindow::OnHelpAbout() {
-    // TODO: Add your command handler code here
+    CDialogEx abtDlg(IDD_ABOUTBOX, this);
+    abtDlg.DoModal();
 }
 
 void HFMainWindow::OnLanguageEnglish() {

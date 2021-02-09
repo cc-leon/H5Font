@@ -50,6 +50,10 @@ int HFLogWindow::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     if (CFrameWnd::OnCreate(lpCreateStruct) == -1) {
         return -1;
     }
+
+    HICON hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_MAIN_ICON));
+    SetIcon(hIcon, FALSE);
+
     m_txtLog.CreateHFRichTextBox(this, CRect(0, 0, lpCreateStruct->cx, lpCreateStruct->cy));
 
     LOG.Initialize(&m_txtLog);

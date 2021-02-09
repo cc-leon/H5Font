@@ -59,7 +59,7 @@ namespace HFUIC {
         }
 
         TCHAR CONST szPresetFilename[] = _T("default.hfbin");
-
+        TCHAR CONST szHelpFilename[] = _T("Help.txt");
     }
 
     namespace LogWindow {
