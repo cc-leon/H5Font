@@ -11,7 +11,7 @@ HFLogWindow::HFLogWindow() {}
 HFLogWindow::~HFLogWindow() {}
 
 BOOL HFLogWindow::CreateHFLogWindow(CWnd * pParentWnd) {
-    return Create(NULL, _T("HFLogWindow"),
+    return Create(NULL, HFSTRC(IDS_LOGWINDOW_TITLE),
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX,
         HFUIC::LogWindow::Size, pParentWnd);
 }

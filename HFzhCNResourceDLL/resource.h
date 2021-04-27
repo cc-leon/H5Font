@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ 生成的包含文件。
-// 供 HFzhCNResourceDLL.rc 使用
+// Microsoft Visual C++ generated include file.
+// Used by HFzhCNResourceDLL.rc
 //
 #define IDOK                            1
 #define IDD_ABOUTBOX                    100
@@ -49,6 +49,8 @@
 #define IDS_MAIN_LOAD_PRESET_FAILURE    137
 #define IDS_MAINWINDOW_LOAD_PRESET_FAILURE 137
 #define IDS_MAINWINDOW_RTF_FILTER       138
+#define IDS_LOGWINDOW_TITLE             139
+#define IDS_HFDRAWWINDOW_TITLE          140
 #define IDI_ABOUT_ICON                  141
 #define IDS_LOG_APPSTART                400
 #define IDS_LOG_NUM_FONTS_LOADED        401

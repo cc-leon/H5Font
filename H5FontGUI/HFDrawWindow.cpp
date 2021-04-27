@@ -9,7 +9,7 @@ HFDrawWindow::~HFDrawWindow() {}
 
 BOOL HFDrawWindow::CreateHFDrawWindow(CWnd* pParentWnd) {
     return Create(
-        NULL, _T("MainFrmWnd"),
+        NULL, HFSTRC(IDS_HFDRAWWINDOW_TITLE),
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX,
         HFUIC::DrawWindow::Size, pParentWnd);
 }

@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(简体，中国) resources
+// Chinese (Simplified, PRC) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -210,6 +210,8 @@ BEGIN
     IDS_MAINWINDOW_SAVE_PRESET_FAILURE "保存配置文件“%s”失败"
     IDS_MAINWINDOW_LOAD_PRESET_FAILURE "加载配置文件“%s”失败"
     IDS_MAINWINDOW_RTF_FILTER "富文本格式 (*.rtf)|*.rtf||"
+    IDS_LOGWINDOW_TITLE     "日志窗口"
+    IDS_HFDRAWWINDOW_TITLE  "预览窗口"
 END
 
 STRINGTABLE
@@ -272,12 +274,12 @@ BEGIN
     IDS_MSG_PAK_FILE_NOT_FOUND "找不到生成的Pak文件"
 END
 
-#endif    // 中文(简体，中国) resources
+#endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// 英语(美国) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -292,7 +294,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // remains consistent on all systems.
 IDI_ABOUT_ICON          ICON                    "MFC.ico"
 
-#endif    // 英语(美国) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
