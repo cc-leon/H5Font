@@ -77,6 +77,9 @@ namespace sys {
             }
         }
 
+        size_t cNewChars = 1;  // Number of additional characters to add
+        m_cwcUnicodes += cNewChars;
+
         mem::FreeMem(m_awcUnicodes);
         m_awcUnicodes = mem::GetMem<WCHAR>(m_cwcUnicodes);
         size_t i = 0;
@@ -99,6 +102,7 @@ namespace sys {
             }
         }
 
+        m_awcUnicodes[i++] = 0x77AD;
     }
 
     VOID __sys::__fillEnGBUnicodes() {

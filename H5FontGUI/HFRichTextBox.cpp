@@ -2,7 +2,7 @@
 #include "HFRichTextBox.h"
 #include "../H5FontLogger/HFLogLib.h"
 
-static DWORD CALLBACK HFTxtLogStreamOutCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG* pcb) {
+static DWORD CALLBACK HFTxtLogStreamOutCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG* pcb) {
     CFile* pFile = (CFile*)dwCookie;
 
     pFile->Write(pbBuff, cb);

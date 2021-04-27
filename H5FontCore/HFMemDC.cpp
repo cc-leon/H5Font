@@ -110,7 +110,6 @@ size_t HFMemDC::FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr) {
         return 0;
     }
 
-    int topOffset = (m_fontinfo.nHeight - HFLC::header::DEFAULT_HEIGHT[m_iStyle]) / 2;
     int a = m_abcUnicodes[iIndex].abcA;
     int b = m_abcUnicodes[iIndex].abcB;
     int c = m_abcUnicodes[iIndex].abcC;
@@ -122,8 +121,8 @@ size_t HFMemDC::FillUNICODEINFO(size_t iIndex, LPUNICODEINFO puiCurr) {
     }
     puiCurr->aiPos[UNICODEINFO::L_BOUND] = m_ptUnicodes[iIndex].x;
     puiCurr->aiPos[UNICODEINFO::R_BOUND] = m_ptUnicodes[iIndex].x + abs(a) + abs(b) + abs(c);
-    puiCurr->aiPos[UNICODEINFO::T_BOUND] = m_ptUnicodes[iIndex].y + topOffset;
-    puiCurr->aiPos[UNICODEINFO::B_BOUND] = m_ptUnicodes[iIndex].y + m_fontinfo.nHeight - topOffset;
+    puiCurr->aiPos[UNICODEINFO::T_BOUND] = m_ptUnicodes[iIndex].y;
+    puiCurr->aiPos[UNICODEINFO::B_BOUND] = m_ptUnicodes[iIndex].y + m_fontinfo.nHeight;
 
     puiCurr->aiPos[UNICODEINFO::L_OFFSET] = 0;
     puiCurr->aiPos[UNICODEINFO::R_OFFSET] = a + b + c + lrOffset;
