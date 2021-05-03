@@ -77,9 +77,6 @@ namespace sys {
             }
         }
 
-        size_t cNewChars = 1;  // Number of additional characters to add
-        m_cwcUnicodes += cNewChars;
-
         mem::FreeMem(m_awcUnicodes);
         m_awcUnicodes = mem::GetMem<WCHAR>(m_cwcUnicodes);
         size_t i = 0;
@@ -102,7 +99,32 @@ namespace sys {
             }
         }
 
-        m_awcUnicodes[i++] = 0x77AD;
+        if (!(file::FileExists(HFLC::sys::ADD_CHARS))) { return; }
+
+        SIZE_T cbAddChars = file::PickFromFile(HFLC::sys::ADD_CHARS, NULL);
+        LPBYTE abAddChars = mem::GetMem<BYTE>(cbAddChars);
+        file::PickFromFile(HFLC::sys::ADD_CHARS, abAddChars);
+
+        size_t cwcAllChars = cbAddChars / 2 - 1 + m_cwcUnicodes;
+        LPWSTR awcAllChars = mem::GetMem<WCHAR>(cwcAllChars);
+
+        for (size_t j = 0; j < m_cwcUnicodes; j++) {
+            awcAllChars[j] = m_awcUnicodes[j];
+        }
+        i = m_cwcUnicodes;
+        WCHAR CONST* pwcReader = reinterpret_cast<WCHAR *>(abAddChars);
+        pwcReader++;
+        while (i < cwcAllChars) {
+            awcAllChars[i] = *pwcReader;
+            i++;
+            pwcReader++;
+        }
+        mem::FreeMem(m_awcUnicodes);
+        m_awcUnicodes = awcAllChars;
+        m_cwcUnicodes = cwcAllChars;
+
+        mem::FreeMem(abAddChars);
+
     }
 
     VOID __sys::__fillEnGBUnicodes() {

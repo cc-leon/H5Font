@@ -1,6 +1,9 @@
 #pragma once
 
 namespace HFLC {
+    namespace sys {
+        TCHAR CONST ADD_CHARS[] = _T("extended_chars.txt");
+    }
 
     namespace header {
         CSize CONST DEF_DIM(4096, 4096*3);
