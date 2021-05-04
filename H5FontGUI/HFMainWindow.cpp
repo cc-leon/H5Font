@@ -673,7 +673,7 @@ void HFMainWindow::OnFileLoadPreset() {
             file::PickFromFile(sHFBinName, pfiTemp);
             ::CopyMemory(m_fiFonts, pfiTemp, cbPicked);
             mem::FreeMem(pfiTemp);
-            SetFontInfoToGUI(*m_fiFonts);
+            SetFontInfoToGUI(m_fiFonts[m_iFontIndex]);
             sTemp.Format(HFSTRC(IDS_MAINWINDOW_LOAD_PRESET_SUCCESS), sHFBinName);
             ::AfxMessageBox(sTemp, MB_OK | MB_ICONINFORMATION);
         }
