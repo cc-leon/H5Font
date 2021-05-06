@@ -152,7 +152,7 @@ BOOL HFMemDC::SaveDDS(LPCTSTR filename) {
     LOG.log(sLog, LOG.INFO);
     CString sCmd;
     sCmd.Format(
-        _T("%s convert %s -alpha copy -define dds:mipmaps=0 -define dds:compression=none %s"),
+        _T("%s convert %s -alpha copy -define dds:mipmaps=0 %s"),
         HFFC::exe::MAGICK_CMD, (LPCTSTR)sPng, filename);
     LOG.log(HFSTRC(IDS_LOG_NOW_EXECUTING), LOG.STD, TRUE);
     LOG.log(sCmd, LOG.STD);
